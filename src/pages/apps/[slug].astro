@@ -203,13 +203,23 @@ const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
 </Base>
 
 <style>
+  /* The width of the right-hand column, used by both grids on this page. */
+  article { --col-side: 304px; }
+
+  /* The hero and the body below it are two separate grids, so their right-hand columns
+     have to be defined identically or the app picture and the Get it card sit on different
+     lines — they were out by 70px at each edge, because the hero split 1.1fr/0.9fr and
+     centred a 300px image inside its column while the body used a fixed 304px track.
+     One width, one breakpoint, one edge down the page. Change these together. */
   .top {
     padding-top: 32px;
     display: grid;
     gap: clamp(24px, 4vw, 44px);
     align-items: center;
   }
-  @media (min-width: 860px) { .top { grid-template-columns: 1.1fr 0.9fr; } }
+  @media (min-width: 900px) {
+    .top { grid-template-columns: minmax(0, 1fr) var(--col-side); }
+  }
 
   .top__crumb { margin: 0 0 18px; font-size: 14px; color: var(--ink-soft); }
   .top__crumb a { color: inherit; text-decoration-color: var(--hairline); }
@@ -236,7 +246,23 @@ const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
     text-decoration-color: var(--accent); text-underline-offset: 4px;
   }
 
-  .top__preview { max-width: 300px; margin-inline: auto; width: 100%; }
+  /* The screenshot is mounted rather than floated: the same surface, border and radius as
+     the Get it card below it, so the two read as one column of cards instead of a picture
+     that happens to be near a box. The 6px of padding is a mat — it is also exactly the
+     difference between this radius and the image's, which is what keeps the two curves
+     concentric instead of subtly fighting each other. */
+  .top__preview {
+    width: 100%;
+    max-width: 320px;
+    margin-inline: auto;
+    padding: 6px;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-lg);
+  }
+  @media (min-width: 900px) {
+    .top__preview { max-width: none; margin-inline: 0; }
+  }
 
   /* One grid holds the whole page below the hero. The rail is first in the source; on a
      wide screen it is placed into the second column of the first row, which lets the main
@@ -251,7 +277,7 @@ const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
      whole column past the viewport instead of being contained. */
   .rail, .main { min-width: 0; }
   @media (min-width: 900px) {
-    .layout { grid-template-columns: minmax(0, 1fr) 304px; }
+    .layout { grid-template-columns: minmax(0, 1fr) var(--col-side); }
     /* `align-self: stretch` is what makes the sticky card work. The grid sets
        align-items: start, which sizes this column to its own content — and a sticky child
        can only travel inside its parent, so without the stretch the rail scrolled away
