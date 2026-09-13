@@ -1,0 +1,10 @@
+import { chromium } from 'playwright';
+const src = process.argv[2], out = process.argv[3];
+const b = await chromium.launch();
+const page = await b.newPage({ viewport: { width: 820, height: 1200 }, deviceScaleFactor: 2 });
+await page.goto('file://' + src, { waitUntil: 'networkidle' });
+await page.waitForTimeout(600);
+const h = await page.evaluate(() => document.documentElement.scrollHeight);
+console.log('document height:', h);
+await page.screenshot({ path: out, fullPage: true });
+await b.close();

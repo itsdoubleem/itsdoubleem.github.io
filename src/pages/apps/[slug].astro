@@ -1,0 +1,207 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Preview from '../../components/Preview.astro';
+import { contact } from '../../site';
+
+export async function getStaticPaths() {
+  const [apps, guides] = await Promise.all([getCollection('apps'), getCollection('guides')]);
+  return apps.map((app) => ({
+    params: { slug: app.data.slug },
+    props: { app, hasGuide: guides.some((g) => g.data.app === app.data.slug) },
+  }));
+}
+
+const { app, hasGuide } = Astro.props;
+const d = app.data;
+const { Content } = await render(app);
+
+const langNames: Record<string, string> = {
+  ko: '한국어', en: 'English', vi: 'Tiếng Việt', zh: '中文',
+  th: 'ไทย', id: 'Bahasa Indonesia', ne: 'नेपाली', km: 'ភាសាខ្មែរ',
+};
+const platformNames: Record<string, string> = {
+  android: 'Android', ios: 'iPhone', web: 'Any web browser',
+  macos: 'macOS', windows: 'Windows',
+};
+const privacyLine =
+  d.privacy === 'on-device'
+    ? 'Stays on your device — no account, no server'
+    : 'Requires an account';
+---
+<Base title={`${d.name} — DOUBLEEM`} description={d.tagline}>
+  <article>
+    <header class="top wrap">
+      <div class="top__copy">
+        <p class="top__crumb"><a href="/">Apps</a> <span aria-hidden="true">/</span> {d.name}</p>
+
+        <div class="top__badges">
+          <span class="badge">{d.category}</span>
+          {d.status === 'beta' && <span class="badge">Beta</span>}
+          <span class="badge badge--free">Free</span>
+        </div>
+
+        <h1 class="top__name">
+          {d.name}
+          {d.nativeName && <span class="top__native">{d.nativeName}</span>}
+        </h1>
+        <p class="top__tagline">{d.tagline}</p>
+
+        {hasGuide && (
+          <p class="top__guide">
+            First time? <a href={`/apps/${d.slug}/guide/`}>See how it works, screen by screen →</a>
+          </p>
+        )}
+
+        <div class="top__actions">
+          {d.downloads.map((dl: any, i: number) => (
+            <a class={`btn ${i === 0 ? 'btn--primary' : 'btn--ghost'}`} href={dl.href}>
+              {dl.label}
+              {dl.note && <span class="btn__note">{dl.note}</span>}
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <div class="top__preview">
+        <Preview name={d.name} icon={d.icon} card={d.card} />
+      </div>
+    </header>
+
+    <div class="body wrap">
+      <div class="prose">
+        <Content />
+
+        {(contact.formUrl || contact.issuesUrl) && (
+          <aside class="wrong">
+            <h2>If a number here looks wrong</h2>
+            <p>
+              Tell me. You do not need to be sure it is a bug — "this does not match my
+              payslip" is enough. A wage figure that is quietly wrong is worse than no
+              figure, so this is the most useful thing you can send me.
+            </p>
+            <p class="wrong__links">
+              {contact.formUrl && <a href={contact.formUrl}>Report a problem</a>}
+              {contact.formUrl && contact.issuesUrl && <span aria-hidden="true"> · </span>}
+              {contact.issuesUrl && <a href={contact.issuesUrl}>Open an issue</a>}
+            </p>
+          </aside>
+        )}
+      </div>
+
+      <aside class="facts" aria-label="At a glance">
+        <h2 class="facts__head">At a glance</h2>
+        <dl>
+          <dt>Price</dt>
+          <dd class="facts__free">Free — and it stays free</dd>
+
+          <dt>Your data</dt>
+          <dd>{privacyLine}</dd>
+
+          <dt>Runs on</dt>
+          <dd>{d.platforms.map((p: string) => platformNames[p] ?? p).join(', ')}</dd>
+
+          {d.languages && (
+            <>
+              <dt>Languages</dt>
+              <dd>{d.languages.map((l: string) => langNames[l] ?? l).join(' · ')}</dd>
+            </>
+          )}
+
+          {d.sourceUrl && (
+            <>
+              <dt>Source</dt>
+              <dd><a href={d.sourceUrl}>View the code</a></dd>
+            </>
+          )}
+        </dl>
+      </aside>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .top {
+    padding-top: 32px;
+    display: grid;
+    gap: clamp(24px, 4vw, 44px);
+    align-items: center;
+  }
+  @media (min-width: 860px) { .top { grid-template-columns: 1.1fr 0.9fr; } }
+
+  .top__crumb { margin: 0 0 18px; font-size: 14px; color: var(--ink-soft); }
+  .top__crumb a { color: inherit; text-decoration-color: var(--hairline); }
+  .top__crumb span { margin: 0 6px; }
+
+  .top__badges { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  .top__name {
+    margin: 14px 0 0;
+    font-size: clamp(38px, 7vw, 62px);
+    font-weight: 800; letter-spacing: -0.04em; line-height: 0.98;
+    display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+  }
+  .top__native { font-size: clamp(16px, 2vw, 22px); font-weight: 600; color: var(--ink-soft); }
+  .top__tagline {
+    margin: 16px 0 0;
+    max-width: 46ch;
+    font-size: clamp(17px, 1.8vw, 20px);
+    color: var(--ink-soft);
+  }
+  .top__guide {
+    margin: 22px 0 0;
+    font-size: 16px; color: var(--ink-soft);
+  }
+  .top__guide a {
+    color: var(--ink); font-weight: 600;
+    text-decoration-color: var(--accent); text-underline-offset: 4px;
+  }
+  .top__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+  .top__actions .btn { flex-direction: column; gap: 0; padding-block: 8px; align-items: flex-start; }
+
+  .top__preview { max-width: 300px; margin-inline: auto; width: 100%; }
+
+  .body {
+    margin-top: clamp(48px, 7vw, 80px);
+    display: grid;
+    gap: clamp(32px, 5vw, 56px);
+    align-items: start;
+  }
+  @media (min-width: 860px) { .body { grid-template-columns: minmax(0, 1fr) 280px; } }
+
+  .facts {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-lg);
+    padding: 22px;
+    position: sticky;
+    top: 82px;
+  }
+  .facts__head {
+    margin: 0 0 16px;
+    font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .facts dl { margin: 0; }
+  .facts dt {
+    font-size: 13px; font-weight: 600; color: var(--ink-soft);
+    margin-top: 16px;
+  }
+  .facts dt:first-of-type { margin-top: 0; }
+  .facts dd { margin: 3px 0 0; font-size: 15px; line-height: 1.45; }
+  .facts__free { color: var(--accent-text); font-weight: 700; }
+
+  .wrong {
+    margin-top: 2.5em;
+    padding: 22px;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--r-md);
+  }
+  .wrong h2 { margin: 0 0 10px !important; font-size: 19px !important; }
+  .wrong p { margin: 0 0 10px; }
+  .wrong__links { margin: 14px 0 0 !important; font-weight: 600; }
+  .wrong__links a { text-decoration-color: var(--accent); text-underline-offset: 3px; }
+  .facts a { text-decoration-color: var(--accent-text); text-underline-offset: 3px; }
+</style>

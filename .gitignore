@@ -1,0 +1,23 @@
+node_modules/
+dist/
+.astro/
+.DS_Store
+.wrangler/
+
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example
+
+# Project documentation, kept on disk and out of the repo. None of it is read by the
+# build: astro reads src/, apps/logger.md and guides/logger.md, and the content glob
+# excludes every README.md. A fresh clone without these loses the frontmatter schema
+# for adding an app and the signing-key warning, so keep your copies.
+BRIEF.md
+DEPLOY.md
+DESIGN.md
+README.md
+ROADMAP.md
+apps/README.md
+guides/README.md
+tools/sample-output/README.md

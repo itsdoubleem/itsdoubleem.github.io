@@ -1,0 +1,58 @@
+---
+import Preview from './Preview.astro';
+import PlatformIcons from './PlatformIcons.astro';
+
+interface Props { app: any; }
+const { app } = Astro.props;
+const d = app.data;
+---
+<article class="card">
+  <a class="card__link" href={`/apps/${d.slug}/`}>
+    <span class="card__badges">
+      <span class="badge">{d.category}</span>
+      {d.status === 'beta' && <span class="badge">Beta</span>}
+      <span class="badge badge--free">Free</span>
+    </span>
+
+    <Preview name={d.name} icon={d.icon} card={d.card} />
+
+    <h3 class="card__name">
+      {d.name}
+      {d.nativeName && <span class="card__native">{d.nativeName}</span>}
+    </h3>
+    <p class="card__tagline">{d.tagline}</p>
+    <PlatformIcons platforms={d.platforms} />
+  </a>
+</article>
+
+<style>
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-lg);
+    transition: border-color 150ms var(--ease), transform 150ms var(--ease);
+  }
+  .card__link {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px;
+    text-decoration: none;
+    color: inherit;
+    height: 100%;
+  }
+  .card__badges { display: flex; flex-wrap: wrap; gap: 6px; }
+  .card__name {
+    margin: 2px 0 0;
+    font-size: 19px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.2;
+    display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+  }
+  .card__native { font-size: 13px; font-weight: 500; color: var(--ink-soft); }
+  .card__tagline { margin: 0; color: var(--ink-soft); font-size: 15px; line-height: 1.45; }
+
+  .card:hover { border-color: color-mix(in srgb, var(--accent) 55%, var(--hairline)); }
+  @media (prefers-reduced-motion: no-preference) {
+    .card:hover { transform: translateY(-2px); }
+  }
+  .card:focus-within { border-color: var(--accent); }
+</style>

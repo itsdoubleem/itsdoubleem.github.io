@@ -1,0 +1,171 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import AppCard from '../components/AppCard.astro';
+
+const [allApps, guides] = await Promise.all([getCollection('apps'), getCollection('guides')]);
+const apps = allApps.sort((a, b) => a.data.order - b.data.order);
+const lead = apps[0];
+const count = apps.length;
+
+// The hero sends people to the lead app's guide when it has one — showing someone how the
+// app works is a better first click than a paragraph about it. Falls back to the app page,
+// then to the grid, so this keeps working as apps are added and nothing is hardcoded.
+// Grouped by KIND of work, not subject. A group is rendered only when something is in
+// it — an empty "Novels" heading would advertise work that does not exist, which is hard
+// rule 1 wearing a different hat.
+const GROUPS: Array<[string, string]> = [
+  ['app', 'Apps'],
+  ['tool', 'Tools'],
+  ['writing', 'Writing'],
+  ['novel', 'Novels'],
+  ['bot', 'Bots'],
+  ['other', 'Other'],
+];
+const grouped = GROUPS
+  .map(([key, label]) => [label, apps.filter((a) => a.data.type === key)] as const)
+  .filter(([, items]) => items.length > 0);
+---
+<Base
+  title="DOUBLEEM — everything I make ends up here"
+  description="One person's work: apps and tools mostly, and whatever else turns out to be worth sharing."
+>
+  <section class="hero wrap">
+    <div class="hero__panel">
+      <div class="hero__copy">
+        <p class="hero__eyebrow">One person's work</p>
+        <h1 class="hero__title">Everything I make ends up here.</h1>
+        <p class="hero__sub">
+          Apps, tools, and whatever else I end up making — each with a page that says
+          plainly what it does and what it doesn't.
+        </p>
+        <div class="hero__actions">
+          <a class="btn btn--primary" href="#work">See the works</a>
+        </div>
+      </div>
+
+      <div class="hero__art" aria-hidden="true">
+        <svg viewBox="0 0 320 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Things made, filed together. Deliberately abstract: a mock-up of apps that
+               do not exist would be inventing work, and a screenshot of the one that does
+               makes the whole site about it. -->
+          <rect x="30" y="152" width="210" height="120" rx="12" fill="#fff" opacity=".07"/>
+          <rect x="48" y="118" width="210" height="120" rx="12" fill="#fff" opacity=".12"/>
+          <g>
+            <rect x="66" y="84" width="210" height="130" rx="12" fill="#fff" opacity=".97"/>
+            <rect x="84" y="104" width="96" height="9" rx="4.5" fill="#14161D" opacity=".85"/>
+            <rect x="84" y="124" width="150" height="6" rx="3" fill="#14161D" opacity=".22"/>
+            <rect x="84" y="138" width="128" height="6" rx="3" fill="#14161D" opacity=".22"/>
+            <rect x="84" y="164" width="62" height="22" rx="6" fill="#FF4D2E"/>
+            <rect x="156" y="164" width="44" height="22" rx="6" fill="#14161D" opacity=".1"/>
+          </g>
+          <circle cx="268" cy="56" r="16" fill="#FF4D2E" opacity=".9"/>
+          <rect x="30" y="40" width="86" height="10" rx="5" fill="#fff" opacity=".18"/>
+          <rect x="30" y="58" width="52" height="10" rx="5" fill="#fff" opacity=".1"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <section class="apps wrap" id="work">
+    <div class="apps__head">
+      <h2>The work</h2>
+      <p>
+        {count === 1
+          ? 'One so far. Things get listed here when they work, not when they are announced.'
+          : 'Everything here is finished enough to use. Things get listed when they work, not when they are announced.'}
+      </p>
+    </div>
+    {grouped.map(([label, items]) => (
+      <section class="group">
+        <h3 class="group__head">
+          {label}
+          <span class="group__count">{items.length}</span>
+        </h3>
+        <div class="grid" data-count={Math.min(items.length, 3)}>
+          {items.map((app) => <AppCard app={app} />)}
+        </div>
+      </section>
+    ))}
+  </section>
+</Base>
+
+<style>
+  .hero { padding-top: 28px; }
+  .hero__panel {
+    background: var(--panel);
+    color: #fff;
+    border-radius: var(--r-xl);
+    padding: clamp(28px, 5vw, 56px);
+    display: grid;
+    gap: clamp(28px, 4vw, 48px);
+    align-items: center;
+  }
+  @media (min-width: 860px) {
+    .hero__panel { grid-template-columns: 1.15fr 0.85fr; }
+  }
+
+  .hero__eyebrow {
+    margin: 0 0 14px;
+    font-size: 13px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--accent);
+  }
+  .hero__title {
+    margin: 0;
+    font-size: clamp(40px, 8vw, 76px);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 0.95;
+  }
+  .hero__sub {
+    margin: 20px 0 0;
+    max-width: 46ch;
+    font-size: clamp(16px, 1.6vw, 18px);
+    color: rgba(255, 255, 255, 0.74);
+  }
+  .hero__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+
+  .hero__art { max-width: 340px; margin-inline: auto; width: 100%; }
+  .hero__art svg { width: 100%; height: auto; display: block; }
+
+  .apps { margin-top: clamp(56px, 9vw, 96px); scroll-margin-top: 80px; }
+  .apps__head h2 {
+    margin: 0;
+    font-size: clamp(26px, 4vw, 36px);
+    font-weight: 700; letter-spacing: -0.02em; line-height: 1.1;
+  }
+  .apps__head p { margin: 8px 0 0; color: var(--ink-soft); max-width: var(--measure); }
+
+  /* One card stretched across three columns looks like a mistake. The grid never opens
+     more columns than there are apps, and caps each card so a sparse grid reads as
+     deliberate rather than empty. */
+  .group { margin-top: clamp(32px, 5vw, 44px); }
+  .group:first-of-type { margin-top: 28px; }
+  .group__head {
+    margin: 0;
+    display: flex; align-items: baseline; gap: 10px;
+    font-size: 13px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--ink-soft);
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .group__count {
+    font-size: 12px; font-weight: 600; letter-spacing: 0;
+    color: var(--ink-soft); opacity: .65;
+  }
+
+  .grid {
+    margin-top: 20px;
+    display: grid;
+    gap: var(--gap);
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 600px) {
+    .grid[data-count="2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid[data-count="3"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (min-width: 1000px) {
+    .grid[data-count="3"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  .grid[data-count="1"] { grid-template-columns: minmax(0, 420px); }
+</style>

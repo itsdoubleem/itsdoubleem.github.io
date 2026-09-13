@@ -1,0 +1,171 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../../layouts/Base.astro';
+
+export async function getStaticPaths() {
+  const [apps, guides] = await Promise.all([getCollection('apps'), getCollection('guides')]);
+  return guides
+    .map((guide) => {
+      const app = apps.find((a) => a.data.slug === guide.data.app);
+      return app ? { params: { slug: app.data.slug }, props: { app, guide } } : null;
+    })
+    .filter(Boolean) as any[];
+}
+
+const { app, guide } = Astro.props;
+const a = app.data;
+const g = guide.data;
+const img = (name: string) => `/assets/${a.slug}/guide/${name}.png`;
+const primary = a.downloads[0];
+---
+<Base title={`${g.title} — DOUBLEEM`} description={g.lead}>
+  <header class="top wrap">
+    <p class="crumb">
+      <a href="/">Apps</a> <span aria-hidden="true">/</span>
+      <a href={`/apps/${a.slug}/`}>{a.name}</a> <span aria-hidden="true">/</span> Guide
+    </p>
+    <h1>{g.title}</h1>
+    <p class="lead">{g.lead}</p>
+  </header>
+
+  <section class="wrap before">
+    <div class="before__card">
+      <h2>{g.before.heading}</h2>
+      <p>{g.before.body}</p>
+      <ul>{g.before.items.map((i: string) => <li>{i}</li>)}</ul>
+    </div>
+  </section>
+
+  <section class="wrap steps" aria-label="Setup, step by step">
+    {g.steps.map((s: any, i: number) => (
+      <article class="step">
+        <div class="step__shot">
+          <img src={img(s.image)} alt={s.alt} width="390" height="844" loading={i < 2 ? 'eager' : 'lazy'} decoding="async" />
+        </div>
+        <div class="step__copy">
+          <p class="step__kicker">{s.kicker}</p>
+          <h2>{s.title}</h2>
+          <p>{s.body}</p>
+          {s.note && <p class="step__note">{s.note}</p>}
+        </div>
+      </article>
+    ))}
+  </section>
+
+  {g.after.length > 0 && (
+    <section class="wrap steps steps--after" aria-label="Using the app">
+      <h2 class="steps__divider">Once it is set up</h2>
+      {g.after.map((s: any) => (
+        <article class="step">
+          <div class="step__shot">
+            <img src={img(s.image)} alt={s.alt} width="390" height="844" loading="lazy" decoding="async" />
+          </div>
+          <div class="step__copy">
+            <p class="step__kicker">{s.kicker}</p>
+            <h2>{s.title}</h2>
+            <p>{s.body}</p>
+            {s.note && <p class="step__note">{s.note}</p>}
+          </div>
+        </article>
+      ))}
+    </section>
+  )}
+
+  <section class="wrap end">
+    <div class="end__card">
+      <h2>Get it</h2>
+      <p>{a.name} is free, works offline, and keeps everything on your own phone.</p>
+      <div class="end__actions">
+        <a class="btn btn--primary" href={primary.href}>{primary.label}</a>
+        <a class="btn btn--ghost" href={`/apps/${a.slug}/`}>Read more about {a.name}</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .top { padding-top: 32px; }
+  .crumb { margin: 0 0 18px; font-size: 14px; color: var(--ink-soft); }
+  .crumb a { color: inherit; text-decoration-color: var(--hairline); }
+  .crumb span { margin: 0 6px; }
+  .top h1 {
+    margin: 0; max-width: 16ch;
+    font-size: clamp(38px, 7vw, 64px);
+    font-weight: 800; letter-spacing: -0.04em; line-height: 0.98;
+  }
+  .lead {
+    margin: 18px 0 0; max-width: 52ch;
+    font-size: clamp(17px, 2vw, 20px); color: var(--ink-soft);
+  }
+
+  .before { margin-top: clamp(32px, 5vw, 48px); }
+  .before__card {
+    background: var(--surface); border: 1px solid var(--hairline);
+    border-radius: var(--r-lg); padding: clamp(20px, 3vw, 28px); max-width: var(--measure);
+  }
+  .before__card h2 {
+    margin: 0 0 8px; font-size: 19px; font-weight: 700; letter-spacing: -0.01em;
+  }
+  .before__card p { margin: 0 0 14px; color: var(--ink-soft); }
+  .before__card ul { margin: 0; padding-left: 1.1em; }
+  .before__card li { margin-bottom: 6px; }
+
+  .steps { margin-top: clamp(48px, 8vw, 88px); }
+  .steps__divider {
+    margin: 0 0 clamp(32px, 5vw, 48px);
+    padding-top: clamp(32px, 5vw, 48px);
+    border-top: 1px solid var(--hairline);
+    font-size: clamp(24px, 4vw, 34px); font-weight: 700; letter-spacing: -0.02em;
+  }
+
+  .step {
+    display: grid; gap: clamp(20px, 4vw, 48px); align-items: center;
+    margin-bottom: clamp(48px, 8vw, 88px);
+  }
+  @media (min-width: 760px) {
+    /* Alternate which side the phone sits on, so the eye is not walking down a single
+       column of screenshots. The column widths swap with it — otherwise the copy lands
+       in the 300px track meant for the phone and wraps to a ribbon. */
+    .step { grid-template-columns: 300px minmax(0, 1fr); }
+    .step:nth-child(even) { grid-template-columns: minmax(0, 1fr) 300px; }
+    .step:nth-child(even) .step__shot { order: 2; }
+  }
+
+  .step__shot {
+    justify-self: center; width: 100%; max-width: 300px;
+    border-radius: var(--r-lg); overflow: hidden;
+    border: 1px solid var(--hairline); background: var(--surface);
+  }
+  .step__shot img { width: 100%; height: auto; display: block; }
+
+  .step__kicker {
+    margin: 0 0 10px;
+    font-size: 13px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--accent-text);
+  }
+  .step__copy h2 {
+    margin: 0 0 12px; max-width: 20ch;
+    font-size: clamp(24px, 3.4vw, 32px);
+    font-weight: 700; letter-spacing: -0.02em; line-height: 1.12;
+  }
+  .step__copy p { margin: 0 0 12px; max-width: 54ch; font-size: 17px; }
+  .step__note {
+    margin: 16px 0 0 !important; padding: 14px 16px;
+    background: var(--surface); border: 1px solid var(--hairline);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--r-sm);
+    font-size: 15px !important; color: var(--ink-soft);
+  }
+
+  .end { margin-top: clamp(24px, 4vw, 40px); }
+  .end__card {
+    background: var(--panel); color: #fff;
+    border-radius: var(--r-xl); padding: clamp(28px, 5vw, 48px);
+  }
+  .end__card h2 {
+    margin: 0 0 10px; font-size: clamp(26px, 4vw, 38px);
+    font-weight: 800; letter-spacing: -0.03em;
+  }
+  .end__card p { margin: 0; max-width: 46ch; color: rgba(255,255,255,.74); }
+  .end__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+</style>

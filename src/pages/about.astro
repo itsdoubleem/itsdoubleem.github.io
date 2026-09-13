@@ -1,0 +1,122 @@
+---
+import Base from '../layouts/Base.astro';
+import { contact } from '../site';
+
+const hasAnyRoute = Boolean(contact.formUrl || contact.issuesUrl || contact.email);
+---
+<Base
+  title="About — DOUBLEEM"
+  description="Why the software here is free, what it collects, and who makes it."
+>
+  <section class="wrap intro">
+    <h1>About this place.</h1>
+    <p class="intro__lead">
+      DOUBLEEM is one person putting their work somewhere people can find it. Software
+      mostly, for now. What each thing does, and what it costs you, is written on its own
+      page — because those answers differ, and a promise made for everything is a promise
+      that gets broken.
+    </p>
+  </section>
+
+  <section class="wrap prose about">
+    <h2>Who makes this</h2>
+    <p>
+      One person. The work tends to start the same way — someone I know has a problem,
+      and the thing that would solve it either does not exist or costs money they should
+      not have to spend. The first app here,
+      <a href="/apps/logger/">LOGGER</a>, was built with a factory worker in Korea who
+      needed to check whether his payslip was right and could not find anything that would
+      do it in a language he reads.
+    </p>
+    <p>
+      What turns up here next is not planned. Tools, probably. Possibly writing. It gets
+      listed when it works.
+    </p>
+
+    <h2>What this site collects</h2>
+    <p>
+      Nothing. No cookies, no analytics, no tracking script, no newsletter box, and no
+      email address required to download anything. The pages load no third-party scripts
+      at all — even the typeface is served from here rather than from Google. That is why
+      you were never shown a consent banner: there is nothing to consent to.
+    </p>
+    <p>
+      What each <em>app</em> collects is a separate question with a separate answer, and it
+      is written on that app's own page. LOGGER, for instance, has no server at all.
+      Another thing built for another purpose might, and if so it will say so plainly.
+    </p>
+
+    <h2>On money</h2>
+    <p>
+      The apps here are free and stay free. For LOGGER that is not only generosity — a
+      free calculator that shows its arithmetic is a different thing under Korean law from
+      paid labour consulting, and that distinction matters more than the money would.
+    </p>
+    <p>
+      No paid tier, no "pro" version held back, nothing here that is a demo of something
+      larger you have to buy.
+    </p>
+
+    <h2>Telling me something is wrong</h2>
+    <p>
+      If something here gives you a wrong number, I want to know. That matters more than
+      anything else on this page — LOGGER works out wages, and a figure that is quietly
+      wrong is worse than no figure at all. You do not need to be sure it is a bug. "This
+      does not match my payslip" is enough to start from.
+    </p>
+
+    {hasAnyRoute ? (
+      <ul class="routes">
+        {contact.formUrl && (
+          <li>
+            <a href={contact.formUrl}>Report a problem</a> — a short form. No account, no
+            sign-up, and it does not go anywhere public.
+          </li>
+        )}
+        {contact.issuesUrl && (
+          <li>
+            <a href={contact.issuesUrl}>Open an issue on GitHub</a> — public and easier to
+            track, if you already have an account.
+          </li>
+        )}
+        {contact.email && (
+          <li><a href={`mailto:${contact.email}`}>{contact.email}</a></li>
+        )}
+      </ul>
+    ) : (
+      <p>There is no way to reach me from this page yet. That is an omission, not a policy.</p>
+    )}
+
+    <h2>Why there are no comments or reviews here</h2>
+    <p>
+      There is nowhere on this site to leave a public comment or a star rating, and that is
+      deliberate. Someone checking whether their employer has underpaid them should not
+      have to attach their name to it in public, and the feedback worth having — <em>this
+      number is wrong</em> — is exactly the kind nobody leaves in a review box.
+    </p>
+    <p>
+      If praise ever appears on this site it will be something a real person said, quoted
+      with their permission. Not a widget, and not a number I cannot show you the source of.
+    </p>
+  </section>
+</Base>
+
+<style>
+  .intro { padding-top: clamp(40px, 7vw, 72px); }
+  .intro h1 {
+    margin: 0;
+    font-size: clamp(40px, 8vw, 72px);
+    font-weight: 800; letter-spacing: -0.04em; line-height: 0.95;
+  }
+  .intro__lead {
+    margin: 22px 0 0;
+    max-width: 52ch;
+    font-size: clamp(17px, 2vw, 21px);
+    color: var(--ink-soft);
+  }
+  .about { margin-top: clamp(40px, 6vw, 64px); }
+
+  .routes { margin: 0 0 1em; padding-left: 1.2em; }
+  .routes li { margin-bottom: 10px; }
+  .routes a { font-weight: 600; }
+</style>

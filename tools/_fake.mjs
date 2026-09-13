@@ -1,0 +1,25 @@
+import { chromium } from 'playwright';
+const b = await chromium.launch();
+const ctx = await b.newContext({ viewport:{width:390,height:1400}, deviceScaleFactor:2, hasTouch:true, isMobile:true, acceptDownloads:true });
+const page = await ctx.newPage();
+const tap = async (t) => { const f = await page.evaluate((t)=>{document.querySelectorAll('[data-pwtap]').forEach(e=>e.removeAttribute('data-pwtap'));
+  const vis=e=>{const r=e.getBoundingClientRect();return r.width>0&&r.height>0;};
+  const els=[...document.querySelectorAll('div,button,a,span')].filter(e=>(e.innerText||'').trim().includes(t)&&vis(e));
+  els.sort((a,b)=>a.innerText.length-b.innerText.length); if(!els[0])return null;
+  els[0].setAttribute('data-pwtap','1'); els[0].scrollIntoView({block:'center'}); return els[0].innerText.replace(/\n/g,' ').slice(0,40);},t);
+  if(!f){console.log(` ✗ ${t}`);return false;}
+  await page.waitForTimeout(250);
+  await page.locator('[data-pwtap]').first().click({timeout:4000}).catch(()=>{});
+  await page.waitForTimeout(700); console.log(` ✓ ${t}`); return true; };
+await page.goto('http://localhost:4321/logger/index.html',{waitUntil:'networkidle'});
+await page.waitForTimeout(900);
+for (const s of ['ENGLISH','START','Next','Next','Not now','Yes, this is right','START PUNCHING']) await tap(s);
+await tap('SETUP'); await page.waitForTimeout(600);
+await tap('My details'); await page.waitForTimeout(900);
+const t = await page.evaluate(()=>document.body.innerText.replace(/\n{2,}/g,'\n').trim());
+const i = t.indexOf('My details');
+console.log('\n=== MY DETAILS ===\n' + t.slice(i, i+900));
+console.log('\n=== inputs on screen ===');
+const inputs = await page.evaluate(()=>[...document.querySelectorAll('input,textarea')].filter(e=>{const r=e.getBoundingClientRect();return r.width>0&&r.height>0;}).map(e=>({ph:e.placeholder||'',val:e.value||'',type:e.type})));
+console.log(JSON.stringify(inputs,null,1));
+await b.close();

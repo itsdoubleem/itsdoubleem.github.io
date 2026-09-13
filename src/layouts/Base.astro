@@ -1,0 +1,126 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+}
+const { title, description } = Astro.props;
+const year = new Date().getFullYear();
+// "/#work" rather than "/" — from the homepage a bare "/" reloads the page and appears
+// to do nothing, which is exactly what it looked like.
+const nav = [
+  { href: '/#work', label: 'Work' },
+  { href: '/about/', label: 'About' },
+];
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link
+      rel="preload"
+      href="/fonts/figtree-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+  </head>
+  <body>
+    <header class="site-head">
+      <div class="wrap site-head__inner">
+        <a href="/" class="wordmark" aria-label="DOUBLEEM, home">
+          DOUBLEEM<span aria-hidden="true">.</span>
+        </a>
+        <nav aria-label="Main">
+          {nav.map((item) => <a href={item.href}>{item.label}</a>)}
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="site-foot">
+      <div class="wrap site-foot__inner">
+        <p class="site-foot__mark">DOUBLEEM<span aria-hidden="true">.</span></p>
+        <p class="site-foot__line">
+          One person, making things and putting them where people can find them.
+          This site collects nothing about you.
+        </p>
+        <p class="site-foot__meta">&copy; {year} DOUBLEEM</p>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .site-head {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: color-mix(in srgb, var(--ground) 88%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--hairline);
+  }
+  .site-head__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 62px;
+  }
+  .wordmark {
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: -0.04em;
+    text-decoration: none;
+  }
+  .wordmark span { color: var(--accent); }
+
+  .site-head nav { display: flex; gap: 4px; }
+  .site-head nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 12px;
+    border-radius: var(--r-sm);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ink-soft);
+    text-decoration: none;
+  }
+  .site-head nav a:hover { color: var(--ink); }
+
+  .site-foot {
+    margin-top: 96px;
+    background: var(--panel);
+    color: #fff;
+  }
+  .site-foot__inner { padding-block: 48px; }
+  .site-foot__mark {
+    margin: 0 0 12px;
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: -0.04em;
+  }
+  .site-foot__mark span { color: var(--accent); }
+  .site-foot__line {
+    margin: 0 0 24px;
+    max-width: 42ch;
+    color: rgba(255, 255, 255, 0.72);
+  }
+  .site-foot__meta {
+    margin: 0;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.45);
+  }
+</style>
