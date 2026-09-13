@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import AppCard from '../components/AppCard.astro';
+import OneTrueThing from '../components/OneTrueThing.astro';
 
 const [allApps, guides] = await Promise.all([getCollection('apps'), getCollection('guides')]);
 const apps = allApps.sort((a, b) => a.data.order - b.data.order);
@@ -88,6 +89,10 @@ const grouped = GROUPS
       </section>
     ))}
   </section>
+
+  {/* Last thing on the page, after the work and before the footer: something to enjoy on
+      the way out, which still obeys the rule everything else here obeys. */}
+  <OneTrueThing />
 </Base>
 
 <style>

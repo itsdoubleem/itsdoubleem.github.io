@@ -1,0 +1,244 @@
+---
+/* A deck of small true things, flipped through with no JavaScript at all.
+ *
+ * The mechanism is a radio group: one hidden radio per card, and every visible control is
+ * a <label> pointing at one of them. Checking a radio reveals its card through a sibling
+ * selector. That is why the source order is radios, then cards, then the dot row — the
+ * combinator only reaches forward, so nothing may move above the inputs.
+ *
+ * Why not JavaScript: this site ships zero script tags, the about page says so, and a
+ * LOGGER claim invites people to count the requests. A toy is not worth making three
+ * honest sentences false. It also means the deck works with JS off, which the design
+ * notes require of every page.
+ *
+ * The show/highlight rules are generated below rather than hand-written, so adding an
+ * entry to curios.ts is the only edit needed. They are injected with `is:inline` because
+ * Astro cannot scope a stylesheet it did not author — the ID in each selector carries
+ * enough specificity to beat the scoped `display: none`.
+ */
+import { curios } from '../curios';
+
+const rules = curios
+  .map(
+    (_, i) => `
+#curio-${i}:checked ~ .curio__card--${i} { display: block; }
+#curio-${i}:checked ~ .curio__dots .curio__dot--${i}::before {
+  background: var(--accent-solid); border-color: var(--accent-solid);
+}
+#curio-${i}:focus-visible ~ .curio__dots .curio__dot--${i} {
+  outline: 2px solid var(--accent); outline-offset: 0;
+}
+#curio-${i}:focus-visible ~ .curio__card--${i} {
+  outline: 2px solid var(--accent); outline-offset: 3px;
+}`,
+  )
+  .join('');
+---
+
+<section class="curio wrap" aria-labelledby="curio-head">
+  <div class="curio__intro">
+    <h2 class="curio__title" id="curio-head">One true thing</h2>
+    <p class="curio__lead">
+      Nothing on this site is invented, and that includes the part that is here for fun.
+      Every one of these says where you can go and check it.
+    </p>
+  </div>
+
+  <div class="curio__deck">
+    {curios.map((_, i) => (
+      <input
+        class="curio__radio"
+        type="radio"
+        name="curio"
+        id={`curio-${i}`}
+        checked={i === 0}
+        aria-label={`Show item ${i + 1} of ${curios.length}`}
+      />
+    ))}
+
+    {curios.map((c, i) => (
+      <article class={`curio__card curio__card--${i}`}>
+        <p class="curio__kind">{c.kind}</p>
+
+        {c.attribution ? (
+          <blockquote class="curio__quote">
+            <p>“{c.lead}”</p>
+            <footer>{c.attribution}</footer>
+          </blockquote>
+        ) : (
+          <p class="curio__ask">{c.lead}</p>
+        )}
+
+        {c.reveal && (
+          <details class="curio__reveal">
+            <summary>Show me</summary>
+            <p>{c.reveal}</p>
+          </details>
+        )}
+
+        <p class="curio__source">
+          {c.sourceUrl ? <a href={c.sourceUrl}>{c.source}</a> : c.source}
+        </p>
+
+        <div class="curio__foot">
+          <label class="curio__next" for={`curio-${(i + 1) % curios.length}`}>
+            Another one <span aria-hidden="true">→</span>
+          </label>
+          {/* Carried on the card so that position is still legible on a phone, where the
+              dot row is not shown — nine dots big enough to tap do not fit a 390px screen. */}
+          <p class="curio__count">{i + 1} of {curios.length}</p>
+        </div>
+      </article>
+    ))}
+
+    <div class="curio__dots">
+      {curios.map((_, i) => (
+        <label class={`curio__dot curio__dot--${i}`} for={`curio-${i}`}>
+          <span class="curio__vh">Show item {i + 1}</span>
+        </label>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style is:inline set:html={rules}></style>
+
+<style>
+  .curio { margin-top: clamp(56px, 9vw, 96px); }
+
+  .curio__intro { max-width: 62ch; }
+  .curio__title {
+    margin: 0;
+    font-size: clamp(24px, 3.2vw, 32px);
+    font-weight: 700; letter-spacing: -0.02em; line-height: 1.1;
+  }
+  .curio__lead { margin: 10px 0 0; color: var(--ink-soft); }
+
+  /* Capped to a reading measure rather than stretched across the page. The intro above it
+     is capped too, and a card running twice as wide as the sentence introducing it reads
+     as an accident. */
+  .curio__deck { margin-top: 22px; max-width: 780px; }
+
+  /* Focusable but invisible: the dots are the visible control, and each one lights up and
+     shows a focus ring through its own radio. Never display:none here — that would take
+     the whole group out of the tab order and off the keyboard. */
+  .curio__radio {
+    position: absolute;
+    width: 1px; height: 1px;
+    margin: -1px; padding: 0; border: 0;
+    clip-path: inset(50%);
+    overflow: hidden; white-space: nowrap;
+  }
+
+  .curio__card {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--r-lg);
+    padding: clamp(20px, 3vw, 30px);
+  }
+
+  .curio__kind {
+    margin: 0 0 14px;
+    font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .curio__ask,
+  .curio__quote p {
+    margin: 0;
+    max-width: 46ch;
+    font-size: clamp(19px, 2.4vw, 25px);
+    font-weight: 600; letter-spacing: -0.02em; line-height: 1.3;
+  }
+  .curio__quote { margin: 0; border: 0; padding: 0; }
+  .curio__quote footer {
+    margin-top: 12px;
+    font-size: 15px; font-weight: 500; color: var(--ink-soft);
+  }
+
+  .curio__reveal { margin-top: 18px; }
+  /* `display: inline-block` drops the native disclosure triangle, so the control loses the
+     one cue that says it opens. This puts a marker back and turns it when open. */
+  .curio__reveal summary {
+    display: inline-flex; align-items: center; gap: 8px;
+    cursor: pointer;
+    font-size: 15px; font-weight: 700;
+    color: var(--accent-text);
+    padding: 4px 0;
+    list-style: none;
+  }
+  .curio__reveal summary::-webkit-details-marker { display: none; }
+  .curio__reveal summary::before {
+    content: '';
+    width: 0; height: 0;
+    border-left: 6px solid currentColor;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+  }
+  .curio__reveal[open] summary::before { transform: rotate(90deg); }
+  @media (prefers-reduced-motion: no-preference) {
+    .curio__reveal summary::before { transition: transform 150ms cubic-bezier(.2,.7,.3,1); }
+  }
+  .curio__reveal summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .curio__reveal p {
+    margin: 10px 0 0;
+    max-width: 66ch;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+
+  .curio__source {
+    margin: 20px 0 0;
+    font-size: 13px; color: var(--ink-soft);
+  }
+  .curio__source a { color: inherit; text-decoration-color: var(--hairline); }
+
+  .curio__foot {
+    margin-top: 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+  }
+  .curio__next {
+    display: inline-block;
+    cursor: pointer;
+    font-size: 15px; font-weight: 700;
+    padding: 10px 16px;
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-md);
+    background: var(--ground);
+  }
+  .curio__next:hover { border-color: var(--accent); }
+  .curio__count { margin: 0; font-size: 13px; color: var(--ink-soft); }
+
+  /* The dot row is an enhancement for screens with room for it. Nine targets at the 44px
+     minimum need 396px before gaps, which does not fit a 390px phone inside its gutters —
+     and shrinking them below 44px to make them fit is the trade this site does not make.
+     Narrow screens get the "3 of 9" counter on the card instead, and the focused card
+     carries its own ring, so keyboard focus stays visible either way. */
+  .curio__dots { display: none; }
+  @media (min-width: 640px) {
+    .curio__dots { display: flex; flex-wrap: wrap; margin-top: 14px; }
+  }
+  .curio__dot {
+    width: 44px; height: 44px;
+    display: grid; place-items: center;
+    cursor: pointer;
+  }
+  .curio__dot::before {
+    content: '';
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    border: 1px solid var(--ink-soft);
+    background: transparent;
+  }
+  .curio__dot:hover::before { border-color: var(--accent); }
+  .curio__vh {
+    position: absolute;
+    width: 1px; height: 1px;
+    margin: -1px; padding: 0;
+    clip-path: inset(50%);
+    overflow: hidden; white-space: nowrap;
+  }
+</style>
