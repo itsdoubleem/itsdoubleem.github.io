@@ -18,14 +18,14 @@ screenshots:
   # app works out, the one button that turns it into a document, and the document itself.
   - src: /assets/logger/guide/08-pay.png
     alt: The PAY tab showing an estimated take-home of ₩1,939,950 for the 09.01 to 09.30 pay period, above an earnings list beginning with basic salary of ₩2,156,880 for 209 hours
-    caption: The month, worked out from your 기본금 and shown line by line before payday. Every figure in this screenshot comes from invented shifts.
+    caption: The month, worked out from your 기본금 and shown line by line before payday. The figures are from invented shifts.
   - src: /assets/logger/guide/10-document.png
     alt: The foot of the PAY tab, with a red button reading CREATE A WORK RECORD (evidence) and a line confirming the file 근무내역서-09010930.html was created
     caption: Making the 근무내역서. It asks for your name first, and tells you the document still works without one.
   - src: /assets/logger/guide/12-record.png
     shape: page
     alt: A one-page Korean work record headed 근무내역서 · Work record, naming the worker and the workplace, with a boxed statement that the worker wrote it themselves, above tables of the rates used and each day worked
-    caption: What comes out — one page, in Korean, whatever language you read the app in. It opens by stating it is a record the worker wrote themselves, not a certificate from a company, and it ends with the free numbers to call for real help. The name and workplace here are invented.
+    caption: What comes out — one page, in Korean, whatever language you read the app in. It says on its own face that the worker wrote it, not a company. The name and workplace here are invented.
 platformNotes:
   - platform: android
     note: Installs from the file itself, with no store account. Your phone will warn you about installing from outside the store — that warning is normal for anything distributed this way. The records live in the app's own storage, so they survive an update.
