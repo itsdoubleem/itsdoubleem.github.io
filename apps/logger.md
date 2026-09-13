@@ -12,7 +12,32 @@ privacy: on-device
 languages: [ko, en, vi, zh, th, id, ne, km]
 icon: /assets/logger/icon.png
 card: /assets/logger/card.png
-screenshots: []
+screenshots:
+  # The punch screen is the hero image at the top of the page and the homepage card, so it
+  # is deliberately not repeated here. This strip picks up where that leaves off: what the
+  # app works out, the one button that turns it into a document, and the document itself.
+  - src: /assets/logger/guide/08-pay.png
+    alt: The PAY tab showing an estimated take-home of ₩1,939,950 for the 09.01 to 09.30 pay period, above an earnings list beginning with basic salary of ₩2,156,880 for 209 hours
+    caption: The month, worked out from your 기본금 and shown line by line before payday. Every figure in this screenshot comes from invented shifts.
+  - src: /assets/logger/guide/10-document.png
+    alt: The foot of the PAY tab, with a red button reading CREATE A WORK RECORD (evidence) and a line confirming the file 근무내역서-09010930.html was created
+    caption: Making the 근무내역서. It asks for your name first, and tells you the document still works without one.
+  - src: /assets/logger/guide/12-record.png
+    shape: page
+    alt: A one-page Korean work record headed 근무내역서 · Work record, naming the worker and the workplace, with a boxed statement that the worker wrote it themselves, above tables of the rates used and each day worked
+    caption: What comes out — one page, in Korean, whatever language you read the app in. It opens by stating it is a record the worker wrote themselves, not a certificate from a company, and it ends with the free numbers to call for real help. The name and workplace here are invented.
+platformNotes:
+  - platform: android
+    note: Installs from the file itself, with no store account. Your phone will warn you about installing from outside the store — that warning is normal for anything distributed this way. The records live in the app's own storage, so they survive an update.
+  - platform: web
+    note: The same app, opened in a browser. Load it once with a connection and it keeps working offline. The records live in that browser's storage for this address — they do not follow you to a different browser, a different phone, or a different address, so export a backup before you switch.
+verify:
+  - claim: It cannot send your records anywhere.
+    how: The Android app asks for no internet permission at all. Unzip the APK and read its manifest — with that permission absent, Android will not let the app use the network, whatever anybody claims about it.
+  - claim: The browser version is the same app as the download.
+    how: Both are built from one source in the same step, and the copy inside the APK is byte-for-byte the file this site serves at /logger/ — the two hash identically.
+  - claim: This page is not watching you either.
+    how: It loads no scripts at all — not one tag, none third-party — and sets no cookies. Open your browser's network panel and count the requests.
 order: 1
 sourceUrl: ""
 downloads:
@@ -91,15 +116,6 @@ app between themselves, and their pay data is nobody else's business.
 The trade-off is real and you should know it: if you lose the phone or clear the app's
 data, the records are gone. Use the backup export in 설정 › 백업과 내보내기, and keep the
 file somewhere you control.
-
-## Getting it
-
-The Android build installs directly from the file — you do not need a store account. Your
-phone will warn you about installing an app from outside the store; that warning is normal
-for any app distributed this way.
-
-The browser version is the same app. Open it once with a connection and it keeps working
-offline after that, including with the phone in airplane mode.
 
 If your phone has a fingerprint sensor, the punch pad can use it, so clocking in is one
 touch. The fingerprint never leaves the phone either — the app only ever learns that the

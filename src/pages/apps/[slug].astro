@@ -28,6 +28,14 @@ const privacyLine =
   d.privacy === 'on-device'
     ? 'Stays on your device — no account, no server'
     : 'Requires an account';
+
+// Phone screens and sheets of paper are laid out differently, so they are separated here
+// rather than in CSS. They were one grid at first, with the page spanning every column —
+// which forced the whole page to 644px on a 390px phone and made it scroll sideways,
+// because a full-column span inside a horizontally scrolling strip has nothing sane to
+// span. Two lists, no spans, and each shape gets the treatment it needs.
+const phoneShots = d.screenshots.filter((s: any) => s.shape !== 'page');
+const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
 ---
 <Base title={`${d.name} — DOUBLEEM`} description={d.tagline}>
   <article>
@@ -52,15 +60,6 @@ const privacyLine =
             First time? <a href={`/apps/${d.slug}/guide/`}>See how it works, screen by screen →</a>
           </p>
         )}
-
-        <div class="top__actions">
-          {d.downloads.map((dl: any, i: number) => (
-            <a class={`btn ${i === 0 ? 'btn--primary' : 'btn--ghost'}`} href={dl.href}>
-              {dl.label}
-              {dl.note && <span class="btn__note">{dl.note}</span>}
-            </a>
-          ))}
-        </div>
       </div>
 
       <div class="top__preview">
@@ -68,9 +67,120 @@ const privacyLine =
       </div>
     </header>
 
-    <div class="body wrap">
-      <div class="prose">
-        <Content />
+    {/* The rail comes first in the source so that a phone, which has no room for a second
+        column, meets the ways of getting the app immediately after the name — the site's
+        second question — and reads the detail underneath. On a wide screen it moves to
+        the right and stays put while the detail scrolls past it. */}
+    <div class="layout wrap">
+      <aside class="rail" aria-label={`Get ${d.name}`}>
+        <div class="rail__card">
+          <h2 class="rail__head">Get it</h2>
+          <div class="rail__actions">
+            {d.downloads.map((dl: any, i: number) => (
+              <a class={`btn ${i === 0 ? 'btn--primary' : 'btn--ghost'}`} href={dl.href}>
+                {dl.label}
+                {dl.note && <span class="btn__note">{dl.note}</span>}
+              </a>
+            ))}
+          </div>
+
+          <dl class="rail__facts">
+            <dt>Price</dt>
+            <dd class="rail__free">Free — and it stays free</dd>
+
+            <dt>Your data</dt>
+            <dd>{privacyLine}</dd>
+
+            <dt>Runs on</dt>
+            <dd>{d.platforms.map((p: string) => platformNames[p] ?? p).join(', ')}</dd>
+
+            {d.languages && (
+              <>
+                <dt>Languages</dt>
+                <dd>{d.languages.map((l: string) => langNames[l] ?? l).join(' · ')}</dd>
+              </>
+            )}
+
+            {d.sourceUrl && (
+              <>
+                <dt>Source</dt>
+                <dd><a href={d.sourceUrl}>View the code</a></dd>
+              </>
+            )}
+          </dl>
+        </div>
+      </aside>
+
+      <div class="main">
+        {d.screenshots.length > 0 && (
+          <section class="screens" aria-label={`What ${d.name} looks like`}>
+            <h2 class="sec__head">What it looks like</h2>
+            <p class="sec__lead">
+              Captured from the build on this page, not drawn. Re-shot whenever the app changes.
+            </p>
+            {phoneShots.length > 0 && (
+              <ol class="screens__strip">
+                {phoneShots.map((s: any) => (
+                  <li class="screens__item">
+                    <img src={s.src} alt={s.alt} loading="lazy" decoding="async" />
+                    {s.caption && <p class="screens__cap">{s.caption}</p>}
+                  </li>
+                ))}
+              </ol>
+            )}
+
+            {pageShots.map((s: any) => (
+              <figure class="sheet">
+                <img src={s.src} alt={s.alt} loading="lazy" decoding="async" />
+                {s.caption && <figcaption class="screens__cap">{s.caption}</figcaption>}
+              </figure>
+            ))}
+          </section>
+        )}
+
+        <div class="prose">
+          <Content />
+        </div>
+
+        {d.platformNotes.length > 0 && (
+          <section class="where">
+            <h2 class="sec__head">Where it runs, and what changes</h2>
+            <p class="sec__lead">
+              The same app either way. These are the differences worth knowing before you pick one.
+            </p>
+            <dl class="where__list">
+              {d.platformNotes.map((p: any) => (
+                <div class="where__row">
+                  <dt>{platformNames[p.platform] ?? p.platform}</dt>
+                  <dd>{p.note}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        )}
+
+        {/* Where a marketplace would put an install counter or a star rating, this site
+            puts the claim and the way to check it. Counters and ratings are numbers a
+            visitor has to believe; these are things they can confirm. Never add an entry
+            here that has not been checked on the shipping build. */}
+        {d.verify.length > 0 && (
+          <section class="verify">
+            <h2 class="sec__head">Don't take my word for it</h2>
+            <p class="sec__lead">
+              This site has no install counts and no ratings, because it has one author and
+              those numbers would be invented. Here is the alternative: what this page claims,
+              and how you or anyone you trust can check it.
+            </p>
+            <ul class="verify__list">
+              {d.verify.map((v: any) => (
+                <li class="verify__item">
+                  <p class="verify__claim">{v.claim}</p>
+                  <p class="verify__how">{v.how}</p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         {(contact.formUrl || contact.issuesUrl) && (
           <aside class="wrong">
@@ -88,34 +198,6 @@ const privacyLine =
           </aside>
         )}
       </div>
-
-      <aside class="facts" aria-label="At a glance">
-        <h2 class="facts__head">At a glance</h2>
-        <dl>
-          <dt>Price</dt>
-          <dd class="facts__free">Free — and it stays free</dd>
-
-          <dt>Your data</dt>
-          <dd>{privacyLine}</dd>
-
-          <dt>Runs on</dt>
-          <dd>{d.platforms.map((p: string) => platformNames[p] ?? p).join(', ')}</dd>
-
-          {d.languages && (
-            <>
-              <dt>Languages</dt>
-              <dd>{d.languages.map((l: string) => langNames[l] ?? l).join(' · ')}</dd>
-            </>
-          )}
-
-          {d.sourceUrl && (
-            <>
-              <dt>Source</dt>
-              <dd><a href={d.sourceUrl}>View the code</a></dd>
-            </>
-          )}
-        </dl>
-      </aside>
     </div>
   </article>
 </Base>
@@ -148,60 +230,171 @@ const privacyLine =
     font-size: clamp(17px, 1.8vw, 20px);
     color: var(--ink-soft);
   }
-  .top__guide {
-    margin: 22px 0 0;
-    font-size: 16px; color: var(--ink-soft);
-  }
+  .top__guide { margin: 22px 0 0; font-size: 16px; color: var(--ink-soft); }
   .top__guide a {
     color: var(--ink); font-weight: 600;
     text-decoration-color: var(--accent); text-underline-offset: 4px;
   }
-  .top__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
-  .top__actions .btn { flex-direction: column; gap: 0; padding-block: 8px; align-items: flex-start; }
 
   .top__preview { max-width: 300px; margin-inline: auto; width: 100%; }
 
-  .body {
-    margin-top: clamp(48px, 7vw, 80px);
+  /* One grid holds the whole page below the hero. The rail is first in the source; on a
+     wide screen it is placed into the second column of the first row, which lets the main
+     column start at the top beside it instead of below it. */
+  .layout {
+    margin-top: clamp(40px, 6vw, 64px);
     display: grid;
     gap: clamp(32px, 5vw, 56px);
     align-items: start;
   }
-  @media (min-width: 860px) { .body { grid-template-columns: minmax(0, 1fr) 280px; } }
+  /* Grid and flex children default to min-width:auto, which lets a wide child push the
+     whole column past the viewport instead of being contained. */
+  .rail, .main { min-width: 0; }
+  @media (min-width: 900px) {
+    .layout { grid-template-columns: minmax(0, 1fr) 304px; }
+    /* `align-self: stretch` is what makes the sticky card work. The grid sets
+       align-items: start, which sizes this column to its own content — and a sticky child
+       can only travel inside its parent, so without the stretch the rail scrolled away
+       with the top of the page instead of staying put. */
+    .rail { grid-column: 2; grid-row: 1; align-self: stretch; }
+    .main { grid-column: 1; grid-row: 1; }
+  }
 
-  .facts {
+  .rail__card {
     background: var(--surface);
     border: 1px solid var(--hairline);
     border-radius: var(--r-lg);
     padding: 22px;
-    position: sticky;
-    top: 82px;
   }
-  .facts__head {
-    margin: 0 0 16px;
+  @media (min-width: 900px) { .rail__card { position: sticky; top: 82px; } }
+
+  .rail__head {
+    margin: 0 0 14px;
     font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
     color: var(--ink-soft);
   }
-  .facts dl { margin: 0; }
-  .facts dt {
-    font-size: 13px; font-weight: 600; color: var(--ink-soft);
-    margin-top: 16px;
+  .rail__actions { display: grid; gap: 10px; }
+  .rail__actions .btn {
+    flex-direction: column; gap: 0; padding-block: 10px;
+    align-items: flex-start; width: 100%;
   }
-  .facts dt:first-of-type { margin-top: 0; }
-  .facts dd { margin: 3px 0 0; font-size: 15px; line-height: 1.45; }
-  .facts__free { color: var(--accent-text); font-weight: 700; }
+
+  .rail__facts {
+    margin: 20px 0 0;
+    padding-top: 18px;
+    border-top: 1px solid var(--hairline);
+  }
+  .rail__facts dt {
+    font-size: 13px; font-weight: 600; color: var(--ink-soft); margin-top: 16px;
+  }
+  .rail__facts dt:first-of-type { margin-top: 0; }
+  .rail__facts dd { margin: 3px 0 0; font-size: 15px; line-height: 1.45; }
+  .rail__free { color: var(--accent-text); font-weight: 700; }
+  .rail__facts a { text-decoration-color: var(--accent-text); text-underline-offset: 3px; }
+
+  /* Section furniture, shared by the three new blocks. */
+  .sec__head {
+    margin: 0;
+    font-size: clamp(24px, 3.2vw, 32px);
+    font-weight: 700; letter-spacing: -0.02em; line-height: 1.1;
+  }
+  .sec__lead {
+    margin: 10px 0 0;
+    max-width: 62ch;
+    color: var(--ink-soft);
+  }
+
+  .screens { margin-bottom: clamp(40px, 6vw, 60px); }
+  /* A strip that scrolls sideways on a phone and becomes a grid when there is room.
+     Scroll snapping keeps a screenshot aligned rather than stranded half off-screen. */
+  .screens__strip {
+    list-style: none;
+    margin: 22px 0 0;
+    padding: 0 0 6px;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(196px, 62vw);
+    gap: 18px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+  }
+  @media (min-width: 700px) {
+    /* Columns are capped rather than stretched, and packed to the start. With a 1fr
+       maximum, two phone shots in a three-column grid left a visibly empty third cell —
+       the grid was sizing to the container instead of to how many screens there are. */
+    .screens__strip {
+      grid-auto-flow: row;
+      grid-template-columns: repeat(auto-fit, minmax(172px, 224px));
+      grid-auto-columns: auto;
+      justify-content: start;
+      overflow-x: visible;
+    }
+  }
+  .screens__item { scroll-snap-align: start; min-width: 0; }
+  .screens__item img {
+    width: 100%; height: auto; display: block;
+    aspect-ratio: 390 / 844;
+    object-fit: cover; object-position: top;
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-md);
+    background: var(--ground);
+  }
+
+  /* A sheet of paper, not a phone: full width, and cropped to its head — enough to show
+     the title, whose record it is, and the statement in the box, which is the part worth
+     looking at. The whole A4 at column width would be a metre of unreadable tables. */
+  .sheet { margin: 22px 0 0; }
+  .sheet img {
+    width: 100%; height: auto; display: block;
+    aspect-ratio: 16 / 10;
+    object-fit: cover; object-position: top;
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-md);
+    background: var(--ground);
+  }
+  .screens__cap {
+    margin: 10px 0 0;
+    font-size: 14px; line-height: 1.45; color: var(--ink-soft);
+  }
+
+  .where { margin-top: clamp(40px, 6vw, 60px); }
+  .where__list { margin: 22px 0 0; }
+  .where__row {
+    padding: 16px 0;
+    border-top: 1px solid var(--hairline);
+    display: grid;
+    gap: 4px;
+  }
+  @media (min-width: 620px) {
+    .where__row { grid-template-columns: 150px minmax(0, 1fr); gap: 20px; }
+  }
+  .where__row:last-child { border-bottom: 1px solid var(--hairline); }
+  .where__row dt { font-weight: 700; }
+  .where__row dd { margin: 0; color: var(--ink-soft); line-height: 1.55; }
+
+  .verify { margin-top: clamp(40px, 6vw, 60px); }
+  .verify__list { list-style: none; margin: 22px 0 0; padding: 0; display: grid; gap: 14px; }
+  .verify__item {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--r-md);
+    padding: 18px 20px;
+  }
+  .verify__claim { margin: 0; font-weight: 700; letter-spacing: -0.01em; }
+  .verify__how { margin: 6px 0 0; color: var(--ink-soft); line-height: 1.55; }
 
   .wrong {
-    margin-top: 2.5em;
+    margin-top: clamp(40px, 6vw, 60px);
     padding: 22px;
     background: var(--surface);
     border: 1px solid var(--hairline);
     border-left: 3px solid var(--accent);
     border-radius: var(--r-md);
   }
-  .wrong h2 { margin: 0 0 10px !important; font-size: 19px !important; }
+  .wrong h2 { margin: 0 0 10px; font-size: 19px; }
   .wrong p { margin: 0 0 10px; }
-  .wrong__links { margin: 14px 0 0 !important; font-weight: 600; }
+  .wrong__links { margin: 14px 0 0; font-weight: 600; }
   .wrong__links a { text-decoration-color: var(--accent); text-underline-offset: 3px; }
-  .facts a { text-decoration-color: var(--accent-text); text-underline-offset: 3px; }
 </style>
