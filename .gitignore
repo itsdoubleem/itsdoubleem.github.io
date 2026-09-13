@@ -11,12 +11,12 @@ dist/
 
 # Project documentation, kept on disk and out of the repo. None of it is read by the
 # build: astro reads src/, apps/logger.md and guides/logger.md, and the content glob
-# excludes every README.md. A fresh clone without these loses the frontmatter schema
-# for adding an app and the signing-key warning, so keep your copies.
+# excludes every README.md. A fresh clone without these loses the signing-key warning
+# and the longer notes on schema and voice, so keep your copies. The root README.md is
+# the exception — it is the repo's front page and is committed.
 BRIEF.md
 DEPLOY.md
 DESIGN.md
-README.md
 ROADMAP.md
 apps/README.md
 guides/README.md
