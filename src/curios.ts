@@ -91,4 +91,85 @@ export const curios: Curio[] = [
       'You will usually meet this as “the trouble with the world is that the stupid are cocksure and the intelligent are full of doubt”. That version is shorter, better balanced, and not what he wrote. The tidier a famous quote sounds, the more likely somebody tidied it.',
     source: '“The Triumph of Stupidity”, New York American, 10 May 1933',
   },
+  {
+    kind: 'Science',
+    lead: 'Helium was found on the Sun before anybody found it on Earth.',
+    reveal:
+      'During the 1868 eclipse, astronomers split the Sun’s light and found a yellow line belonging to no known element. It was named after helios, the Sun, on the assumption it might not exist down here at all. It took until 1895 to isolate it on Earth — an element discovered 150 million kilometres before it was discovered underfoot.',
+    source: 'Named by Norman Lockyer, 1868; isolated by William Ramsay, 1895',
+  },
+  {
+    kind: 'Science',
+    lead: 'There are more trees on Earth than there are stars in our galaxy.',
+    reveal:
+      'A 2015 count in Nature put the world at roughly three trillion trees. The Milky Way holds somewhere between 100 and 400 billion stars. Trees win by a factor of about ten — and the same study found we have removed nearly half of them since farming began.',
+    source: 'Crowther et al., “Mapping tree density at a global scale”, Nature, 2015',
+  },
+  {
+    kind: 'Science',
+    lead: 'An octopus has three hearts, and its blood is blue.',
+    reveal:
+      'Two hearts push blood through the gills, one sends it round the body. The blue is haemocyanin, which carries oxygen with copper where ours uses iron. It works better than haemoglobin in cold, low-oxygen water — and the body heart stops when the animal swims, which is part of why octopuses would rather walk.',
+    source: 'Cephalopod circulatory anatomy; haemocyanin is copper-based',
+  },
+  {
+    kind: 'Science',
+    lead: 'Some animals have been put in open space, unprotected, and lived.',
+    reveal:
+      'Tardigrades — half-millimetre animals found in moss almost everywhere — were carried into low Earth orbit in 2007 and exposed to vacuum and solar radiation. Many survived, and some went on to produce viable offspring. They are probably in your gutter.',
+    source: 'Jönsson et al., Current Biology, 2008 (FOTON-M3 mission)',
+  },
+  {
+    kind: 'History',
+    lead: 'Napoleon was not short.',
+    reveal:
+      'He was recorded at five feet two — in French units, whose inches were longer than English ones. In modern terms that is about 1.69 m, average or slightly above for a Frenchman of his day. The short Napoleon is a British cartoon that outlived the war it was drawn for.',
+    source: 'French pied du roi vs the English foot; British caricature, 1800s',
+  },
+  {
+    kind: 'History',
+    lead: 'Vikings did not wear horned helmets. A costume designer gave them those.',
+    reveal:
+      'No horned helmet has ever been dug from a Viking Age warrior grave. The look comes from Carl Emil Doepler, who designed the costumes for Wagner’s Ring cycle at Bayreuth in 1876 and needed his warriors legible from the cheap seats. Within thirty years it was what everyone pictured.',
+    source: 'Roberta Frank, “The Invention of the Viking Horned Helmet”',
+  },
+  {
+    kind: 'History',
+    lead: 'The Ottoman Empire was still running when the Wright brothers flew.',
+    reveal:
+      'The first powered flight was December 1903. The Ottoman Empire, founded around 1299, was not formally dissolved until 1922. An empire that began before the Black Death was still on the map after the aeroplane.',
+    source: 'First flight 17 December 1903; the sultanate abolished 1 November 1922',
+  },
+  {
+    kind: 'Somebody actually said this',
+    lead: 'The first principle is that you must not fool yourself — and you are the easiest person to fool.',
+    attribution: 'Richard Feynman',
+    source: '“Cargo Cult Science”, Caltech commencement address, 1974',
+  },
+  {
+    kind: 'Somebody actually said this',
+    lead: 'Please accept my resignation. I don’t want to belong to any club that will accept people like me as a member.',
+    attribution: 'Groucho Marx, on resigning from the Friars Club',
+    reveal:
+      'That is the wording in his own memoir, Groucho and Me, in 1959. You will more often see the smoother “I refuse to join any club that would have me as a member” — a version that is funnier, shorter, and not the telegram. Even the man’s own jokes get edited by the retelling.',
+    source: 'Groucho and Me, 1959, p. 321',
+  },
+  {
+    kind: 'Somebody actually said this',
+    lead: 'It always takes longer than you expect, even when you take into account Hofstadter’s Law.',
+    attribution: 'Douglas Hofstadter — Hofstadter’s Law',
+    source: 'Gödel, Escher, Bach: An Eternal Golden Braid, 1979',
+  },
+  {
+    kind: 'Somebody actually said this',
+    lead: 'If you wish to make an apple pie from scratch, you must first invent the universe.',
+    attribution: 'Carl Sagan',
+    source: 'Cosmos, 1980',
+  },
+  {
+    kind: 'Somebody actually said this',
+    lead: 'The trouble with having an open mind, of course, is that people will insist on coming along and trying to put things in it.',
+    attribution: 'Terry Pratchett',
+    source: 'Diggers, 1990',
+  },
 ];

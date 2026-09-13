@@ -3,8 +3,8 @@
  *
  * The mechanism is a radio group: one hidden radio per card, and every visible control is
  * a <label> pointing at one of them. Checking a radio reveals its card through a sibling
- * selector. That is why the source order is radios, then cards, then the dot row — the
- * combinator only reaches forward, so nothing may move above the inputs.
+ * selector. That is why the source order is radios first, then cards — the combinator only
+ * reaches forward, so nothing may move above the inputs.
  *
  * Why not JavaScript: this site ships zero script tags, the about page says so, and a
  * LOGGER claim invites people to count the requests. A toy is not worth making three
@@ -18,16 +18,13 @@
  */
 import { curios } from '../curios';
 
+interface Props { num?: string; }
+const { num = '02' } = Astro.props;
+
 const rules = curios
   .map(
     (_, i) => `
 #curio-${i}:checked ~ .curio__card--${i} { display: block; }
-#curio-${i}:checked ~ .curio__dots .curio__dot--${i}::before {
-  background: var(--accent-solid); border-color: var(--accent-solid);
-}
-#curio-${i}:focus-visible ~ .curio__dots .curio__dot--${i} {
-  outline: 2px solid var(--accent); outline-offset: 0;
-}
 #curio-${i}:focus-visible ~ .curio__card--${i} {
   outline: 2px solid var(--accent); outline-offset: 3px;
 }`,
@@ -36,13 +33,16 @@ const rules = curios
 ---
 
 <section class="curio wrap" aria-labelledby="curio-head">
-  <div class="curio__intro">
-    <h2 class="curio__title" id="curio-head">One true thing</h2>
-    <p class="curio__lead">
-      Nothing on this site is invented, and that includes the part that is here for fun.
-      Every one of these says where you can go and check it.
-    </p>
-  </div>
+  <header class="sec">
+    <p class="sec__num">{num}</p>
+    <div>
+      <h2 class="sec__title" id="curio-head">One true thing</h2>
+      <p class="sec__note">
+        Nothing on this site is invented, and that includes the part that is here for fun.
+        All {curios.length} of these say where you can go and check them.
+      </p>
+    </div>
+  </header>
 
   <div class="curio__deck">
     {curios.map((_, i) => (
@@ -81,23 +81,22 @@ const rules = curios
         </p>
 
         <div class="curio__foot">
-          <label class="curio__next" for={`curio-${(i + 1) % curios.length}`}>
-            Another one <span aria-hidden="true">→</span>
-          </label>
-          {/* Carried on the card so that position is still legible on a phone, where the
-              dot row is not shown — nine dots big enough to tap do not fit a 390px screen. */}
+          <div class="curio__moves">
+            <label class="curio__next" for={`curio-${(i + 1) % curios.length}`}>
+              Another one <span aria-hidden="true">→</span>
+            </label>
+            <label
+              class="curio__back"
+              for={`curio-${(i - 1 + curios.length) % curios.length}`}
+            >
+              <span aria-hidden="true">←</span> Back
+            </label>
+          </div>
           <p class="curio__count">{i + 1} of {curios.length}</p>
         </div>
       </article>
     ))}
 
-    <div class="curio__dots">
-      {curios.map((_, i) => (
-        <label class={`curio__dot curio__dot--${i}`} for={`curio-${i}`}>
-          <span class="curio__vh">Show item {i + 1}</span>
-        </label>
-      ))}
-    </div>
   </div>
 </section>
 
@@ -106,22 +105,14 @@ const rules = curios
 <style>
   .curio { margin-top: clamp(56px, 9vw, 96px); }
 
-  .curio__intro { max-width: 62ch; }
-  .curio__title {
-    margin: 0;
-    font-size: clamp(24px, 3.2vw, 32px);
-    font-weight: 700; letter-spacing: -0.02em; line-height: 1.1;
-  }
-  .curio__lead { margin: 10px 0 0; color: var(--ink-soft); }
+  /* Capped to a reading measure rather than stretched across the page: a card running
+     twice as wide as the sentence introducing it reads as an accident. */
+  .curio__deck { margin-top: clamp(28px, 4vw, 44px); max-width: 820px; }
 
-  /* Capped to a reading measure rather than stretched across the page. The intro above it
-     is capped too, and a card running twice as wide as the sentence introducing it reads
-     as an accident. */
-  .curio__deck { margin-top: 22px; max-width: 780px; }
-
-  /* Focusable but invisible: the dots are the visible control, and each one lights up and
-     shows a focus ring through its own radio. Never display:none here — that would take
-     the whole group out of the tab order and off the keyboard. */
+  /* Focusable but invisible: the Back and Another one labels are the visible controls, and
+     the card itself takes the focus ring when its radio is focused. Never display:none
+     here — that would take the whole group out of the tab order and off the keyboard,
+     which is what makes arrow keys walk the deck. */
   .curio__radio {
     position: absolute;
     width: 1px; height: 1px;
@@ -212,33 +203,20 @@ const rules = curios
   .curio__next:hover { border-color: var(--accent); }
   .curio__count { margin: 0; font-size: 13px; color: var(--ink-soft); }
 
-  /* The dot row is an enhancement for screens with room for it. Nine targets at the 44px
-     minimum need 396px before gaps, which does not fit a 390px phone inside its gutters —
-     and shrinking them below 44px to make them fit is the trade this site does not make.
-     Narrow screens get the "3 of 9" counter on the card instead, and the focused card
-     carries its own ring, so keyboard focus stays visible either way. */
-  .curio__dots { display: none; }
-  @media (min-width: 640px) {
-    .curio__dots { display: flex; flex-wrap: wrap; margin-top: 14px; }
-  }
-  .curio__dot {
-    width: 44px; height: 44px;
-    display: grid; place-items: center;
+  /* This started as a row of dots, one per card, which works for a short deck and stops
+     working the moment it is not one: at twenty-one entries the row is 924px of targets,
+     wrapping into three rows of mostly nothing on a laptop. Two moves and a counter say
+     the same thing in a fixed amount of space, however long the deck gets. */
+  .curio__moves { display: flex; gap: 10px; flex-wrap: wrap; }
+  .curio__back {
+    display: inline-flex; align-items: center; gap: 8px;
+    min-height: 44px;
+    padding: 0 14px;
     cursor: pointer;
+    font-size: 15px; font-weight: 600;
+    color: var(--ink-soft);
+    border: 1px solid transparent;
+    border-radius: var(--r-md);
   }
-  .curio__dot::before {
-    content: '';
-    width: 9px; height: 9px;
-    border-radius: 50%;
-    border: 1px solid var(--ink-soft);
-    background: transparent;
-  }
-  .curio__dot:hover::before { border-color: var(--accent); }
-  .curio__vh {
-    position: absolute;
-    width: 1px; height: 1px;
-    margin: -1px; padding: 0;
-    clip-path: inset(50%);
-    overflow: hidden; white-space: nowrap;
-  }
+  .curio__back:hover { color: var(--ink); border-color: var(--hairline); }
 </style>
