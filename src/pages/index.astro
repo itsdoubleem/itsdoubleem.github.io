@@ -32,9 +32,10 @@ const grouped = GROUPS
   .map(([key, label]) => [label, rest.filter((a) => a.data.type === key)] as const)
   .filter(([, items]) => items.length > 0);
 
-// Three things that are true of everything here, used as the hero's right-hand column and
-// again as the band lower down. Not slogans — each one is a checkable property of the
-// site, which is why they can sit this large without embarrassing anybody.
+// Three things that are true of everything here. Not slogans — each one is a checkable
+// property of the site, which is why they can sit this large without embarrassing anybody.
+// They appear once, in the band. They were in the hero as well until that turned out to be
+// the same three paragraphs twice on one page.
 const stance = [
   { k: 'Free', v: 'Every app here is free and stays free. No tiers, no upgrade screen, no trial running out.' },
   { k: 'No account', v: 'Nothing asks you to sign up, because there is nothing to sign up to.' },
@@ -66,14 +67,6 @@ const stance = [
         </div>
       </div>
 
-      <ul class="stance">
-        {stance.map((s) => (
-          <li class="stance__row">
-            <p class="stance__k">{s.k}</p>
-            <p class="stance__v">{s.v}</p>
-          </li>
-        ))}
-      </ul>
     </div>
   </section>
 
@@ -171,14 +164,6 @@ const stance = [
     color: #fff;
     padding-block: clamp(52px, 9vw, 104px);
   }
-  .hero__inner {
-    display: grid;
-    gap: clamp(36px, 5vw, 64px);
-    align-items: end;
-  }
-  @media (min-width: 900px) {
-    .hero__inner { grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.85fr); }
-  }
 
   .hero__eyebrow {
     margin: 0 0 18px;
@@ -187,8 +172,8 @@ const stance = [
   }
   .hero__title {
     margin: 0;
-    max-width: 15ch;
-    font-size: clamp(40px, 6.4vw, 76px);
+    max-width: 16ch;
+    font-size: clamp(42px, 8vw, 104px);
     font-weight: 800; letter-spacing: -0.045em; line-height: 0.95;
     /* Let the browser even out the lines. A hand-placed <br> here stranded the word
        "make" alone on the middle line at 1440px, because the line above it had already
@@ -220,24 +205,6 @@ const stance = [
   .hero__link:hover { border-bottom-color: var(--accent); }
   .hero__link--ink { color: var(--ink); border-bottom-color: var(--hairline); }
 
-  /* Three facts, set as a ruled list. This column used to hold a drawing of cards that
-     stood for nothing; a list of things that are true of the site earns the space. */
-  .stance { list-style: none; margin: 0; padding: 0; }
-  .stance__row {
-    padding: 16px 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.16);
-  }
-  .stance__row:last-child { border-bottom: 1px solid rgba(255, 255, 255, 0.16); }
-  .stance__k {
-    margin: 0;
-    font-size: 15px; font-weight: 700; letter-spacing: -0.01em;
-    color: var(--accent);
-  }
-  .stance__v {
-    margin: 4px 0 0;
-    font-size: 14px; line-height: 1.55;
-    color: rgba(255, 255, 255, 0.66);
-  }
 
   .work { margin-top: clamp(56px, 9vw, 96px); }
 

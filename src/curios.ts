@@ -30,7 +30,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'On Venus, one turn of the planet takes longer than one trip around the Sun.',
     reveal:
-      'Venus spins once every 243 Earth days and completes its orbit in 225. It finishes the lap before it finishes the spin. Worth one honest caveat: if you define a day as sunrise to sunrise, it is about 117 Earth days, because the planet turns backwards and the two motions partly cancel. The spin really is slower than the year; the sunrises are not.',
+      'Venus spins once every 243 Earth days and completes its orbit in 225. It finishes the lap before it finishes the spin. Worth one honest caveat: if you define a day as sunrise to sunrise, it is about 117 Earth days, because the planet turns backwards and the two motions partly cancel.',
     source: 'NASA, Venus Fact Sheet',
     sourceUrl: 'https://nssdc.gsfc.nasa.gov/planetary/factsheet/venusfact.html',
   },
@@ -54,7 +54,7 @@ export const curios: Curio[] = [
     lead: 'Cleopatra lived closer to the Moon landing than to the building of the Great Pyramid.',
     reveal:
       'The Great Pyramid was finished around 2560 BC, about 2,530 years before Cleopatra died in 30 BC. The Moon landing came 1,998 years after her. The pyramids were already ancient history to the woman we file under ancient history.',
-    source: 'Subtraction. Check it yourself — that is the point of this one.',
+    source: 'Subtraction — check it yourself.',
   },
   {
     kind: 'History',
@@ -81,7 +81,7 @@ export const curios: Curio[] = [
     kind: 'Somebody actually said this',
     lead: 'I love deadlines. I love the whooshing noise they make as they go by.',
     attribution: 'Douglas Adams',
-    source: 'The Salmon of Doubt, published 2002',
+    source: 'The Salmon of Doubt, 2002',
   },
   {
     kind: 'Somebody actually said this',
@@ -151,7 +151,7 @@ export const curios: Curio[] = [
     lead: 'Please accept my resignation. I don’t want to belong to any club that will accept people like me as a member.',
     attribution: 'Groucho Marx, on resigning from the Friars Club',
     reveal:
-      'That is the wording in his own memoir, Groucho and Me, in 1959. You will more often see the smoother “I refuse to join any club that would have me as a member” — a version that is funnier, shorter, and not the telegram. Even the man’s own jokes get edited by the retelling.',
+      'That is the wording in his own memoir, Groucho and Me, in 1959. You will more often see the smoother “I refuse to join any club that would have me as a member” — a version that is funnier, shorter, and not the telegram.',
     source: 'Groucho and Me, 1959, p. 321',
   },
   {
