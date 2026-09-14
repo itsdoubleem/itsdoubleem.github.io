@@ -6,8 +6,8 @@
     "build": "astro build",
     "preview": "astro preview"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "DOUBLEEM",
+  "license": "MIT",
   "type": "module",
   "dependencies": {
     "astro": "^7.3.2"
