@@ -104,6 +104,9 @@ const stance = [
           </h3>
 
           <p class="feature__tagline">{feature.data.tagline}</p>
+          {feature.data.audience && (
+            <p class="feature__audience">{feature.data.audience}</p>
+          )}
           <PlatformIcons platforms={feature.data.platforms} />
 
           <div class="feature__links">
@@ -244,6 +247,20 @@ const stance = [
     font-size: clamp(17px, 1.8vw, 21px);
     line-height: 1.45;
     color: var(--ink-soft);
+  }
+  /* Who it is for, beside the tagline. A stranger on the homepage is deciding whether any
+     of this concerns them, and the tagline alone does not say — "records your shifts"
+     reads as an app for anybody. The accent rule marks it as a different kind of sentence
+     rather than a second tagline, the same treatment it gets on the app page. */
+  .feature__audience {
+    margin: -6px 0 18px;
+    max-width: 42ch;
+    padding-left: 14px;
+    border-left: 2px solid var(--accent);
+    font-size: clamp(15px, 1.5vw, 17px);
+    line-height: 1.5;
+    color: var(--ink);
+    text-wrap: pretty;
   }
   .feature__links {
     margin-top: 24px;

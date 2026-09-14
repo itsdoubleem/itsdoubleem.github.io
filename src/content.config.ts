@@ -12,6 +12,15 @@ const apps = defineCollection({
     name: z.string(),
     nativeName: z.string().optional(),
     tagline: z.string().max(90, 'Taglines over 90 characters wrap badly on a phone.'),
+    // Who the work is for, named plainly — rendered in the hero, directly under the
+    // tagline, because "is this for me?" is the question a stranger asks before "what
+    // does it do?". Optional: leave it out when the honest answer is "anyone", and never
+    // use it to make an audience sound larger than it is. For LOGGER the true answer
+    // names a visa, and a page that does not say so leaves the reader guessing.
+    audience: z
+      .string()
+      .max(120, 'The hero audience line is one or two short sentences, not a paragraph.')
+      .optional(),
     // What KIND of work this is — how the homepage groups it. Distinct from `category`,
     // which is the subject matter. A novel and an app are both work; only one is an app.
     type: z.enum(['app', 'tool', 'writing', 'novel', 'bot', 'other']).default('app'),
