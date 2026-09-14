@@ -29,6 +29,14 @@ jobs:
       # the next push with whatever permissions this job holds. A SHA cannot be moved.
       # To update one: gh api repos/<owner>/<repo>/git/ref/tags/<tag> --jq .object.sha
       # (if .object.type is "tag", dereference it with git/tags/<sha>).
+      #
+      # The repository also *requires* SHA pinning (Settings > Actions), and that rule
+      # reaches inside composite actions. upload-pages-artifact v3 calls
+      # actions/upload-artifact@v4 — a bare tag — so pinning v3 was not enough and the
+      # deploy was refused before it ran. v5.0.0 pins its own inner dependency, which is
+      # why these two are on v5 rather than the v3/v4 pair the Pages docs still show.
+      # If a future version un-pins something, the run fails at "Set up job" naming the
+      # offending action; read that line rather than turning the requirement off.
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
@@ -40,7 +48,7 @@ jobs:
       # install time. Astro needs no install script to build.
       - run: npm ci --ignore-scripts
       - run: npm run build
-      - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: ./dist
 
@@ -55,4 +63,4 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
