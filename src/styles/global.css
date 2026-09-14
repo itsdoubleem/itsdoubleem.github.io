@@ -1,6 +1,33 @@
-/* Figtree, self-hosted. Not loaded from Google: a third-party font request is
-   render-blocking on a slow connection and hands the visitor's IP to Google, which this
-   site's about page says it does not do. Variable weight 400-800 — two files, 30 KB. */
+/* ── Type, self-hosted ──────────────────────────────────────────────────────
+   Nothing is fetched from Google. A third-party font request is render-blocking on a
+   slow connection and hands the visitor's IP to a company they did not choose to
+   visit, which the about page says does not happen here. It is also enforced rather
+   than promised: the Content-Security-Policy in Base.astro is `font-src 'self'`, so a
+   remote font would be blocked rather than quietly loaded.
+
+   Three families, three jobs — and the third is the reason the page stops looking
+   like a template:
+
+     Instrument Serif   headlines only. A display serif over technical content is the
+                        fastest way out of the extra-bold-geometric-sans house style
+                        that every product page has worn since about 2021.
+     Figtree            body text. Already here, still the right tool.
+     system monospace   DATA. Hashes, byte counts, versions, dates, ordinals, statute
+                        numbers. This site is full of things that are evidence, and
+                        setting them in mono says so without a word of copy. It costs
+                        nothing to ship because every OS already has one.
+
+   OFL 1.1, both families. Subset to latin, upright only; 15 KB and 20 KB. */
+@font-face {
+  font-family: 'Instrument Serif';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/instrument-serif-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
+    U+FEFF, U+FFFD;
+}
 @font-face {
   font-family: 'Figtree';
   font-style: normal;
@@ -22,34 +49,40 @@
     U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 
-/* DOUBLEEM — the whole design system.
-   Tokens are defined here once. Never hardcode a hex anywhere else: a colour that
-   only exists at its use site is one the next theme change will miss. */
+/* ── Tokens ─────────────────────────────────────────────────────────────────
+   Defined once. Never hardcode a hex anywhere else: a colour that only exists at its
+   use site is the one the next theme change misses.
 
+   The ground is warm. It used to be #F6F7F9, a cold blue-grey — the default tint of
+   every utility-class starter, and it makes near-black look like slate. Paper makes
+   the same ink look like ink, and it matches the app's own #f3f2f2 rather than
+   fighting it. */
 :root {
-  --ground:     #F6F7F9;
-  --surface:    #FFFFFF;
-  --panel:      #101219;
-  --ink:        #14161D;
-  --ink-soft:   #5A6070;
-  --hairline:   #E3E6EC;
-  /* Three accent tokens, because one colour cannot do all three jobs and pass contrast.
-     Measured against the tokens above — rerun the numbers if any of them change.
-       --accent        the brand colour. Marks, borders, and text on the dark panel
-                       (5.9:1 on --panel). Never white text on it: that is 3.3:1.
-       --accent-solid  filled buttons. White on it is 4.80:1 — AA for body-size labels.
-       --accent-text   the accent used as TEXT on --surface / --ground, which flip with
-                       the theme. 4.90:1 light, 6.32:1 dark. */
-  --accent:        #FF4D2E;
-  --accent-solid:  #D63513;
-  --accent-text:   #CC300F;
+  --ground:     #F7F5F1;   /* paper */
+  --surface:    #FDFCFA;   /* raised card, barely above the paper */
+  --panel:      #16130F;   /* footer, and any inverted block */
+  --ink:        #1A1714;   /* 16.4:1 on the ground */
+  --ink-soft:   #6B6259;   /* 5.5:1 — metadata, still AA at body size */
+  --hairline:   #E4DED4;
+  --rule:       #CFC6B8;   /* a rule you are meant to notice, unlike a hairline */
+
+  /* Two accent jobs, not three. #C2410C carries both because it measured well enough
+     to: white on it is 5.18:1 (AA for a button label) and it is 4.76:1 as text on the
+     paper. The old palette needed a third hex because #FF4D2E could do neither.
+     --accent-bright exists only for the dark footer, where #C2410C falls to 3.6:1.
+     Re-measure all of these if any one of them changes; the audience for this site
+     reads it on a cheap phone in daylight. */
+  --accent:        #C2410C;
+  --accent-bright: #FF6A3D;   /* 6.5:1 on --panel */
   --accent-ink:    #FFFFFF;
 
-  --r-sm: 6px; --r-md: 10px; --r-lg: 16px; --r-xl: 24px;
-  --gap: 24px;
-  --measure: 68ch;
+  --r-sm: 3px; --r-md: 5px; --r-lg: 8px;
+  --gap: 28px;
+  --measure: 66ch;
 
-  --font: Figtree, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font:         Figtree, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --font-mono:    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
   --ease: cubic-bezier(.2, .7, .3, 1);
 
   color-scheme: light dark;
@@ -57,15 +90,20 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --ground:   #0B0D12;
-    --surface:  #15181F;
-    /* In dark mode the panel must sit ABOVE the ground, not below it — a #000 panel on
-       a #0B0D12 ground makes the hero disappear. Keep this lighter than --ground. */
-    --panel:    #171B24;
-    --ink:      #F2F3F5;
-    --ink-soft: #9AA1B0;
-    --hairline:    #262A33;
-    --accent-text: #FF6B50;
+    --ground:   #12100D;
+    --surface:  #1B1815;
+    --panel:    #1B1815;   /* must sit ABOVE the ground, never below, or it vanishes */
+    --ink:      #F2EEE8;
+    --ink-soft: #A79C90;
+    --hairline: #2A2622;
+    --rule:     #3A342E;
+    --accent:        #FF7A55;   /* 7.4:1 as text on the dark ground */
+    --accent-bright: #FF7A55;
+    /* The label on a filled button flips to ink in dark mode. The accent has to be
+       light enough to read as text against a dark ground, which makes it far too light
+       to carry white: white on #FF7A55 measures 2.57:1, and it looked fine in a
+       screenshot right up until it was measured. Dark ink on it is 7.39:1. */
+    --accent-ink:    #12100D;
   }
 }
 
@@ -78,37 +116,134 @@ body {
   background: var(--ground);
   color: var(--ink);
   font-family: var(--font);
-  font-size: 16px;
-  line-height: 1.55;
+  font-size: 16.5px;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  /* Numbers line up in columns everywhere on this site — counts, dates, byte sizes.
+     Proportional figures make a column of them look broken. */
+  font-variant-numeric: tabular-nums;
 }
 
 img, svg { max-width: 100%; display: block; }
-
 a { color: inherit; }
 
-/* Visible focus on everything, in both themes. Not negotiable — someone navigating
-   by keyboard must always be able to see where they are. */
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: var(--r-sm);
 }
 
+/* ── Layout ─────────────────────────────────────────────────────────────────
+   .wrap is the page measure. .spread is the reason the page looks composed rather than
+   stacked: a narrow left column carrying metadata — the ordinal, the count, the
+   status, the date — against a wide right column carrying the thing itself. It is how
+   a catalogue is set, and it uses the width of a desktop window instead of leaving
+   40% of it empty, which is what a single centred column does.
+
+   Below 860px the rail collapses and the metadata sits above its content, which is
+   the same information in the order a phone can read it. */
 .wrap {
   width: 100%;
-  max-width: 1080px;
+  max-width: 1140px;
   margin-inline: auto;
-  padding-inline: 20px;
+  padding-inline: 24px;
+}
+
+.spread {
+  display: grid;
+  grid-template-columns: 148px minmax(0, 1fr);
+  gap: 0 48px;
+  align-items: start;
+}
+@media (max-width: 860px) {
+  .spread { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+}
+
+/* The metadata column. Mono, small, quiet — it should read as a label on a specimen,
+   never as something competing with the content beside it. */
+.spread__meta {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 1.5;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  padding-top: 0.55em;
+}
+.spread__meta dl, .spread__meta dd, .spread__meta dt { margin: 0; }
+.spread__meta dt { color: var(--ink-soft); opacity: .75; }
+.spread__meta dd + dt { margin-top: 12px; }
+/* Collapsed, the pairs must still read as pairs. An earlier version put display:flex
+   on .spread__meta, whose only child is the <dl> — so it did nothing at all — and then
+   zeroed the space between pairs, which ran six lines together into one block. The dl
+   itself is the flex container, and each term keeps its definition next to it. */
+@media (max-width: 860px) {
+  .spread__meta { padding-top: 0; }
+  .spread__meta dl {
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 20px;
+  }
+  .spread__meta dt { width: auto; }
+  .spread__meta dt::after { content: ''; }
+  .spread__meta dd { margin-right: 4px; }
+  .spread__meta dd + dt { margin-top: 0; }
+}
+
+/* ── Type ───────────────────────────────────────────────────────────────────
+   The display face is set at a normal weight and a comfortable size. The old headline
+   was 76px at weight 800 with -0.04em tracking, which is shouting; restraint reads as
+   confidence, and a serif at 56px carries more authority than a sans at 76px because
+   it is not trying so hard. Leading is just over 1 — a serif needs more air than a
+   tight geometric sans. */
+.display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.012em;
+  line-height: 1.04;
+  text-wrap: balance;
+  margin: 0;
+}
+.display--hero  { font-size: clamp(44px, 7vw, 78px); }
+.display--sec   { font-size: clamp(28px, 3.6vw, 40px); }
+.display--card  { font-size: clamp(22px, 2.4vw, 27px); line-height: 1.12; }
+
+/* A short line of mono used as a label. The old kicker was uppercase letterspaced
+   sans IN THE ACCENT COLOUR, which is the single most recognisable tell of a
+   generated page. This one is quiet and does the same job. */
+.label {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0;
+}
+
+/* Data. Anything the reader could check: a hash, a size, a version, a count, a
+   statute number. Mono is the whole point — it says "this is a fact, not a flourish". */
+.data {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  letter-spacing: -0.01em;
+  word-break: break-word;
+}
+
+.lead {
+  font-size: clamp(17px, 1.7vw, 19.5px);
+  line-height: 1.55;
+  color: var(--ink-soft);
+  max-width: 54ch;
+  margin: 0;
+  text-wrap: pretty;
 }
 
 .prose { max-width: var(--measure); }
 .prose h2 {
-  font-size: clamp(22px, 3vw, 28px);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-  margin: 2.2em 0 0.6em;
+  font-family: var(--font-display);
+  font-size: clamp(24px, 3vw, 31px);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  margin: 2em 0 0.5em;
 }
 .prose h2:first-child { margin-top: 0; }
 .prose p { margin: 0 0 1em; }
@@ -116,36 +251,40 @@ a { color: inherit; }
 .prose a { color: var(--ink); text-decoration-color: var(--accent); text-underline-offset: 3px; }
 .prose ul { padding-left: 1.2em; margin: 0 0 1em; }
 .prose li { margin-bottom: 0.4em; }
+.prose code { font-family: var(--font-mono); font-size: 0.9em; }
 
-/* ---------- badges ---------- */
+/* ── Badges ─────────────────────────────────────────────────────────────────
+   Pills became rectangles. A 999px radius on a 12px label is the shape of a component
+   library; a square-ish tag is the shape of a filing system, which is what this is. */
 .badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 4px 9px;
-  border-radius: 999px;
+  padding: 3px 7px;
+  border-radius: var(--r-sm);
   border: 1px solid var(--hairline);
   color: var(--ink-soft);
   white-space: nowrap;
 }
-.badge--accent,
-.badge--free {
-  color: var(--accent-text);
-  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
-}
+/* No accent-coloured badges. "Free" was in the accent, which meant the accent appeared
+   three times before the reader reached anything clickable. */
+.badge--accent, .badge--free { color: var(--ink); border-color: var(--rule); }
 
-/* ---------- buttons ---------- */
+/* ── Buttons ────────────────────────────────────────────────────────────────
+   One filled accent control per screen, and it is always the thing you actually want
+   the visitor to do. Everything else is a rule and a word. */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   min-height: 48px;
-  padding: 0 20px;
+  padding: 0 22px;
   border-radius: var(--r-md);
   font-size: 15px;
   font-weight: 600;
@@ -153,47 +292,36 @@ a { color: inherit; }
   border: 1px solid transparent;
   transition: transform 150ms var(--ease), background-color 150ms var(--ease);
 }
-.btn--primary { background: var(--accent-solid); color: var(--accent-ink); }
-.btn--ghost   { background: transparent; color: var(--ink); border-color: var(--hairline); }
-.btn--on-dark { background: rgba(255,255,255,.09); color: #fff; border-color: rgba(255,255,255,.22); }
+.btn--primary { background: var(--accent); color: var(--accent-ink); }
+.btn--ghost   { background: transparent; color: var(--ink); border-color: var(--rule); }
+.btn--on-dark { background: rgba(255,255,255,.08); color: #fff; border-color: rgba(255,255,255,.2); }
 
 @media (prefers-reduced-motion: no-preference) {
   .btn:hover { transform: translateY(-1px); }
 }
-
 .btn__note { font-weight: 400; opacity: .85; font-size: 13px; }
 
-/* ---------- section header ----------
-   A numbered head with a rule under it, shared by the homepage sections. The number and
-   the count sit in their own columns so the rule runs the full width and the headline
-   always starts at the same place, which is what stops a page of stacked blocks reading
-   like a template that nobody laid out. */
-.sec {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: start;
-  gap: 18px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--hairline);
+/* A text link that behaves like a control without pretending to be a button. */
+.textlink {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: none;
+  padding-bottom: 3px;
+  border-bottom: 1px solid var(--rule);
 }
-.sec__num {
-  margin: 0;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--ink-soft);
-  font-variant-numeric: tabular-nums;
-  padding-top: 6px;
-}
-.sec__title {
-  margin: 0;
-  font-size: clamp(26px, 4vw, 40px);
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1.05;
-}
+.textlink:hover { border-bottom-color: var(--accent); }
+
+/* ── Section head ───────────────────────────────────────────────────────────
+   The ordinal moved into the rail and turned into mono, so the head is now just a
+   title and a line of context, with a rule under it that runs the full measure. */
+.sec { padding-bottom: 18px; border-bottom: 1px solid var(--rule); }
+.sec__title { margin: 0; }
 .sec__note {
-  margin: 8px 0 0;
+  margin: 10px 0 0;
   max-width: 56ch;
   color: var(--ink-soft);
+  text-wrap: pretty;
 }

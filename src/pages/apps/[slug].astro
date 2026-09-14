@@ -222,12 +222,16 @@ const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
   .top__badges { display: flex; flex-wrap: wrap; gap: 6px; }
 
   .top__name {
-    margin: 14px 0 0;
-    font-size: clamp(38px, 7vw, 62px);
-    font-weight: 800; letter-spacing: -0.04em; line-height: 0.98;
-    display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+    margin: 16px 0 0;
+    font-family: var(--font-display);
+    font-size: clamp(42px, 7.4vw, 72px);
+    font-weight: 400; letter-spacing: -0.012em; line-height: 1;
+    display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
   }
-  .top__native { font-size: clamp(16px, 2vw, 22px); font-weight: 600; color: var(--ink-soft); }
+  .top__native {
+    font-family: var(--font);
+    font-size: clamp(15px, 1.8vw, 19px); font-weight: 500; color: var(--ink-soft);
+  }
   .top__tagline {
     margin: 16px 0 0;
     max-width: 46ch;
@@ -236,13 +240,14 @@ const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
   }
   /* Who it is for, in the hero. A stranger asks "is this for me?" before "what does it
      do?", so the answer sits directly under the tagline rather than three screens down in
-     the prose. The accent rule and the full-strength ink stop it reading as a second
-     tagline — it is a different kind of sentence, so it gets a different weight. */
+     the prose. A quiet rule and full-strength ink stop it reading as a second tagline —
+     it is a different kind of sentence, so it gets a different weight. That rule used to
+     be 2px of accent, which spent the page's one colour on something nobody can click. */
   .top__audience {
-    margin: 14px 0 0;
+    margin: 16px 0 0;
     max-width: 46ch;
-    padding-left: 14px;
-    border-left: 2px solid var(--accent);
+    padding-left: 15px;
+    border-left: 1px solid var(--rule);
     font-size: clamp(15px, 1.5vw, 17px);
     line-height: 1.5;
     color: var(--ink);
@@ -306,7 +311,8 @@ const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
 
   .rail__head {
     margin: 0 0 14px;
-    font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    font-family: var(--font-mono);
+    font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
     color: var(--ink-soft);
   }
   .rail__actions { display: grid; gap: 10px; }
@@ -321,18 +327,21 @@ const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
     border-top: 1px solid var(--hairline);
   }
   .rail__facts dt {
-    font-size: 13px; font-weight: 600; color: var(--ink-soft); margin-top: 16px;
+    font-family: var(--font-mono);
+    font-size: 10.5px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink-soft); margin-top: 18px;
   }
   .rail__facts dt:first-of-type { margin-top: 0; }
   .rail__facts dd { margin: 3px 0 0; font-size: 15px; line-height: 1.45; }
-  .rail__free { color: var(--accent-text); font-weight: 700; }
-  .rail__facts a { text-decoration-color: var(--accent-text); text-underline-offset: 3px; }
+  .rail__free { font-weight: 700; }
+  .rail__facts a { text-decoration-color: var(--accent); text-underline-offset: 3px; }
 
   /* Section furniture, shared by the three new blocks. */
   .sec__head {
     margin: 0;
-    font-size: clamp(24px, 3.2vw, 32px);
-    font-weight: 700; letter-spacing: -0.02em; line-height: 1.1;
+    font-family: var(--font-display);
+    font-size: clamp(27px, 3.4vw, 37px);
+    font-weight: 400; letter-spacing: -0.01em; line-height: 1.08;
   }
   .sec__lead {
     margin: 10px 0 0;
@@ -425,7 +434,11 @@ const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
     border-radius: var(--r-md);
     padding: 18px 20px;
   }
-  .verify__claim { margin: 0; font-weight: 700; letter-spacing: -0.01em; }
+  .verify__claim {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 21px; font-weight: 400; letter-spacing: -0.005em; line-height: 1.2;
+  }
   /* Capping the column above stops the page scrolling; this stops the hash from spilling
      out of the card instead. `anywhere` rather than `break-all` so ordinary prose still
      breaks at spaces and only the unbreakable token is cut. */
@@ -442,7 +455,7 @@ const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
     border-left: 3px solid var(--accent);
     border-radius: var(--r-md);
   }
-  .wrong h2 { margin: 0 0 10px; font-size: 19px; }
+  .wrong h2 { margin: 0 0 10px; font-family: var(--font-display); font-weight: 400; font-size: 24px; }
   .wrong p { margin: 0 0 10px; }
   .wrong__links { margin: 14px 0 0; font-weight: 600; }
   .wrong__links a { text-decoration-color: var(--accent); text-underline-offset: 3px; }

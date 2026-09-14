@@ -58,13 +58,12 @@ const nav = [
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link
-      rel="preload"
-      href="/fonts/figtree-latin.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
+    {/* Both faces are preloaded because both are above the fold on every page: the
+        serif sets the headline, Figtree sets the line under it. The mono role uses
+        whatever the OS already has, so it costs nothing to preload and nothing to
+        download. */}
+    <link rel="preload" href="/fonts/instrument-serif-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/figtree-latin.woff2" as="font" type="font/woff2" crossorigin />
   </head>
   <body>
     <header class="site-head">
@@ -100,8 +99,7 @@ const nav = [
     position: sticky;
     top: 0;
     z-index: 10;
-    background: color-mix(in srgb, var(--ground) 88%, transparent);
-    backdrop-filter: blur(10px);
+    background: var(--ground);
     border-bottom: 1px solid var(--hairline);
   }
   .site-head__inner {
@@ -111,13 +109,17 @@ const nav = [
     gap: 16px;
     min-height: 62px;
   }
+  /* The wordmark is set in the display serif at a size that sits quietly beside the
+     nav rather than announcing itself. Its full stop used to be accent-coloured — one
+     of five accent things on the old homepage, and the least useful of them, since a
+     decorative dot cannot be clicked. */
   .wordmark {
-    font-weight: 800;
-    font-size: 18px;
-    letter-spacing: -0.04em;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 23px;
+    letter-spacing: 0.01em;
     text-decoration: none;
   }
-  .wordmark span { color: var(--accent); }
 
   .site-head nav { display: flex; gap: 4px; }
   .site-head nav a {
@@ -132,6 +134,7 @@ const nav = [
     text-decoration: none;
   }
   .site-head nav a:hover { color: var(--ink); }
+  .site-head nav a[aria-current="page"] { color: var(--ink); }
 
   .site-foot {
     margin-top: 96px;
@@ -141,11 +144,11 @@ const nav = [
   .site-foot__inner { padding-block: 48px; }
   .site-foot__mark {
     margin: 0 0 12px;
-    font-weight: 800;
-    font-size: 22px;
-    letter-spacing: -0.04em;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 27px;
+    letter-spacing: 0.01em;
   }
-  .site-foot__mark span { color: var(--accent); }
   .site-foot__line {
     margin: 0 0 24px;
     max-width: 42ch;
@@ -153,7 +156,9 @@ const nav = [
   }
   .site-foot__meta {
     margin: 0;
-    font-size: 13px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    letter-spacing: 0.06em;
     color: rgba(255, 255, 255, 0.45);
   }
 </style>

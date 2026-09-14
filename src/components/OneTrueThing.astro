@@ -33,10 +33,10 @@ const rules = curios
 ---
 
 <section class="curio wrap" aria-labelledby="curio-head">
-  <header class="sec">
-    <p class="sec__num">{num}</p>
-    <div>
-      <h2 class="sec__title" id="curio-head">One true thing</h2>
+  <header class="spread">
+    <p class="spread__meta">{num} — Deck</p>
+    <div class="sec">
+      <h2 class="display display--sec sec__title" id="curio-head">One true thing</h2>
       <p class="sec__note">
         Every one of the {curios.length} says where you can check it.
       </p>
@@ -106,7 +106,11 @@ const rules = curios
 
   /* Capped to a reading measure rather than stretched across the page: a card running
      twice as wide as the sentence introducing it reads as an accident. */
-  .curio__deck { margin-top: clamp(28px, 4vw, 44px); max-width: 820px; }
+  /* The deck lines up with the section title above it rather than with the page
+     edge, which is what the 196px is: the 148px metadata column plus its 48px gap.
+     Below 860px the spread collapses, and so does this. */
+  .curio__deck { margin-top: clamp(28px, 4vw, 44px); max-width: 760px; margin-left: 196px; }
+  @media (max-width: 860px) { .curio__deck { margin-left: 0; } }
 
   /* Focusable but invisible: the Back and Another one labels are the visible controls, and
      the card itself takes the focus ring when its radio is focused. Never display:none
@@ -120,27 +124,32 @@ const rules = curios
     overflow: hidden; white-space: nowrap;
   }
 
+  /* The 3px accent left border is gone. A white rounded card with a coloured stripe
+     down one side is the alert component every utility framework ships, and it was
+     spending the page's one accent on something that is not clickable. */
   .curio__card {
     display: none;
     background: var(--surface);
     border: 1px solid var(--hairline);
-    border-left: 3px solid var(--accent);
-    border-radius: var(--r-lg);
-    padding: clamp(20px, 3vw, 30px);
+    border-radius: var(--r-md);
+    padding: clamp(22px, 3vw, 34px);
   }
 
   .curio__kind {
-    margin: 0 0 14px;
-    font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    margin: 0 0 16px;
+    font-family: var(--font-mono);
+    font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
     color: var(--ink-soft);
   }
 
   .curio__ask,
   .curio__quote p {
     margin: 0;
-    max-width: 46ch;
-    font-size: clamp(19px, 2.4vw, 25px);
-    font-weight: 600; letter-spacing: -0.02em; line-height: 1.3;
+    max-width: 44ch;
+    font-family: var(--font-display);
+    font-size: clamp(22px, 2.8vw, 31px);
+    font-weight: 400; letter-spacing: -0.008em; line-height: 1.18;
+    text-wrap: pretty;
   }
   .curio__quote { margin: 0; border: 0; padding: 0; }
   .curio__quote footer {
@@ -155,7 +164,7 @@ const rules = curios
     display: inline-flex; align-items: center; gap: 8px;
     cursor: pointer;
     font-size: 15px; font-weight: 700;
-    color: var(--accent-text);
+    color: var(--accent);
     padding: 4px 0;
     list-style: none;
   }
