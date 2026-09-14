@@ -5,10 +5,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+# No permissions by default. Each job asks for exactly what it needs below, so the job
+# that runs third-party code (npm ci, which executes package lifecycle scripts) holds no
+# token that can publish anything.
+permissions: {}
 
 # Let a running deploy finish rather than cancelling it half-published.
 concurrency:
@@ -18,24 +18,41 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Read the repo, write an artifact. That is all a build needs; it deliberately does
+    # NOT get pages:write or id-token:write — those live in the deploy job, which runs
+    # nothing but the deploy action.
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      # Actions are pinned to a commit, not a tag. A tag is a movable pointer: whoever
+      # controls the action's repo can repoint v4 at new code, and it would run here on
+      # the next push with whatever permissions this job holds. A SHA cannot be moved.
+      # To update one: gh api repos/<owner>/<repo>/git/ref/tags/<tag> --jq .object.sha
+      # (if .object.type is "tag", dereference it with git/tags/<sha>).
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
+      # `npm ci` installs from the lockfile only — it refuses to resolve a version the
+      # lockfile does not name, which is the reason this is not `npm install`. The
+      # --ignore-scripts flag drops the other half: no dependency gets to run code at
+      # install time. Astro needs no install script to build.
+      - run: npm ci --ignore-scripts
       - run: npm run build
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
         with:
           path: ./dist
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4

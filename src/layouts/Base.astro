@@ -18,6 +18,39 @@ const nav = [
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    {/*
+      The site ships zero script tags, so the policy that matches it is "no scripts at
+      all" — default-src 'none' with nothing granting script-src. That is not belt and
+      braces: markdown in /apps is rendered with <Content />, and Astro passes raw HTML
+      in a markdown body straight through to the page. A <script> in an app file would
+      run. Built and checked: it does. With this header it does not, and the claim on
+      the about page stays true even if a bad file lands.
+
+      Keep it first in <head>: a meta CSP governs only what the parser sees after it.
+
+      What each grant is for, so nothing gets widened by guesswork:
+        img-src   'self' data:      favicon, screenshots, and inline SVG data URIs
+        style-src 'self' 'unsafe-inline'
+                                    build.inlineStylesheets is 'always', and the curio
+                                    deck injects rules with is:inline — both are inline
+                                    styles, so this cannot be tightened without changing
+                                    how the site is built
+        font-src  'self'            the two Figtree woff2 files, self-hosted
+        base-uri / form-action 'none'
+                                    there is no <base> and no <form> on the site; these
+                                    stop an injected one from retargeting a link or
+                                    posting somewhere
+
+      Links out (tally.so, github.com, the curio sources) are navigations, which CSP does
+      not govern — they keep working.
+
+      What this canNOT do: frame-ancestors is ignored in a meta tag, and GitHub Pages
+      cannot send real headers, so the site stays framable. See the security notes.
+    */}
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self'; base-uri 'none'; form-action 'none'"
+    />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
