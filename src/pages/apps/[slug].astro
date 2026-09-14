@@ -37,7 +37,7 @@ const privacyLine =
 const phoneShots = d.screenshots.filter((s: any) => s.shape !== 'page');
 const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
 ---
-<Base title={`${d.name} — DOUBLEEM`} description={d.tagline}>
+<Base title={`${d.name} — DOUBLEEM`} description={d.audience ? `${d.tagline} ${d.audience}` : d.tagline}>
   <article>
     <header class="top wrap">
       <div class="top__copy">
@@ -54,6 +54,7 @@ const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
           {d.nativeName && <span class="top__native">{d.nativeName}</span>}
         </h1>
         <p class="top__tagline">{d.tagline}</p>
+        {d.audience && <p class="top__audience">{d.audience}</p>}
 
         {hasGuide && (
           <p class="top__guide">
@@ -233,6 +234,22 @@ const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
     font-size: clamp(17px, 1.8vw, 20px);
     color: var(--ink-soft);
   }
+  /* Who it is for, in the hero. A stranger asks "is this for me?" before "what does it
+     do?", so the answer sits directly under the tagline rather than three screens down in
+     the prose. The accent rule and the full-strength ink stop it reading as a second
+     tagline — it is a different kind of sentence, so it gets a different weight. */
+  .top__audience {
+    margin: 14px 0 0;
+    max-width: 46ch;
+    padding-left: 14px;
+    border-left: 2px solid var(--accent);
+    font-size: clamp(15px, 1.5vw, 17px);
+    line-height: 1.5;
+    color: var(--ink);
+    /* Two lines ending in a single orphaned word looks like a mistake next to the rule. */
+    text-wrap: pretty;
+  }
+
   .top__guide { margin: 22px 0 0; font-size: 16px; color: var(--ink-soft); }
   .top__guide a {
     color: var(--ink); font-weight: 600;
@@ -393,7 +410,14 @@ const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
   .where__row dd { margin: 0; color: var(--ink-soft); line-height: 1.55; }
 
   .verify { margin-top: clamp(40px, 6vw, 60px); }
-  .verify__list { list-style: none; margin: 22px 0 0; padding: 0; display: grid; gap: 14px; }
+  /* minmax(0, 1fr), not the default `auto`: an auto column sizes itself to the widest
+     unbreakable thing inside it, and one of these entries prints a 64-character SHA-256
+     with nowhere to break. The column grew to 600px, the page scrolled sideways on a
+     phone, and nothing looked wrong on a desktop — measure at 390px after touching this. */
+  .verify__list {
+    list-style: none; margin: 22px 0 0; padding: 0;
+    display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px;
+  }
   .verify__item {
     background: var(--surface);
     border: 1px solid var(--hairline);
@@ -402,7 +426,13 @@ const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
     padding: 18px 20px;
   }
   .verify__claim { margin: 0; font-weight: 700; letter-spacing: -0.01em; }
-  .verify__how { margin: 6px 0 0; color: var(--ink-soft); line-height: 1.55; }
+  /* Capping the column above stops the page scrolling; this stops the hash from spilling
+     out of the card instead. `anywhere` rather than `break-all` so ordinary prose still
+     breaks at spaces and only the unbreakable token is cut. */
+  .verify__how {
+    margin: 6px 0 0; color: var(--ink-soft); line-height: 1.55;
+    overflow-wrap: anywhere;
+  }
 
   .wrong {
     margin-top: clamp(40px, 6vw, 60px);

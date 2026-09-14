@@ -73,3 +73,25 @@ its built output — the Android package and the offline web build — so the do
 have something to point at on a CI runner, which builds from the repository and cannot see
 an ignored file. Re-copy both after any rebuild of the app; they are committed
 deliberately, not by accident.
+
+### Checking the download
+
+The APK this site serves is committed at `public/downloads/logger.apk`. Its SHA-256 is
+
+```
+10365336ace6fcaa46f4b8d31709d5e2c9a7b01a19bef1976153092831b92e4a
+```
+
+The app page prints the same hash, but a hash is only worth as much as the page it sits
+on — anyone who could swap the APK on the site could swap the hash printed beside it. This
+copy is the second opinion. It lives on github.com rather than on the site, so a tampered
+download has to survive two places instead of one.
+
+Regenerate it in the same commit that replaces the APK, never later:
+
+```bash
+shasum -a 256 public/downloads/logger.apk
+```
+
+A hash here that does not match the file is worse than no hash at all — it teaches the one
+reader who bothered to check that checking is pointless.
