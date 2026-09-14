@@ -40,7 +40,7 @@ verify:
   - claim: This page is not watching you either.
     how: It loads no scripts at all — not one tag, none third-party — and sets no cookies. Open your browser's network panel and count the requests.
   - claim: The APK you download is the file I built.
-    how: Hash it before you install it — shasum -a 256 logger.apk on macOS or Linux, certutil -hashfile logger.apk SHA256 on Windows. It must print 10365336ace6fcaa46f4b8d31709d5e2c9a7b01a19bef1976153092831b92e4a. One character out and it is not my build, so delete it. The same hash is on the repo's front page on GitHub, and that is the copy worth trusting — anyone able to swap the file on this site could swap the hash beside it just as easily.
+    how: Hash it before you install it — shasum -a 256 logger.apk on macOS or Linux, certutil -hashfile logger.apk SHA256 on Windows. It must print c180c7398240e4a1b0f1ef572418238253d373ce8d967ab314f3a32f37698dc7. One character out and it is not my build, so delete it. The same hash is on the repo's front page on GitHub, and that is the copy worth trusting — anyone able to swap the file on this site could swap the hash beside it just as easily.
 order: 1
 sourceUrl: ""
 downloads:

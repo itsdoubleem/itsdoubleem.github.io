@@ -79,7 +79,7 @@ deliberately, not by accident.
 The APK this site serves is committed at `public/downloads/logger.apk`. Its SHA-256 is
 
 ```
-10365336ace6fcaa46f4b8d31709d5e2c9a7b01a19bef1976153092831b92e4a
+c180c7398240e4a1b0f1ef572418238253d373ce8d967ab314f3a32f37698dc7
 ```
 
 The app page prints the same hash, but a hash is only worth as much as the page it sits
