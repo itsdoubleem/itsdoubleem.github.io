@@ -3,6 +3,7 @@ slug: logger
 name: LOGGER
 nativeName: 근무기록
 tagline: Records your shifts and works out what you're actually owed.
+audience: For foreign workers in Korea, and above all for people on an E‑9 visa.
 type: app
 category: Work
 status: live
@@ -38,6 +39,8 @@ verify:
     how: Both are built from one source in the same step, and the copy inside the APK is byte-for-byte the file this site serves at /logger/ — the two hash identically.
   - claim: This page is not watching you either.
     how: It loads no scripts at all — not one tag, none third-party — and sets no cookies. Open your browser's network panel and count the requests.
+  - claim: The APK you download is the file I built.
+    how: Hash it before you install it — shasum -a 256 logger.apk on macOS or Linux, certutil -hashfile logger.apk SHA256 on Windows. It must print 10365336ace6fcaa46f4b8d31709d5e2c9a7b01a19bef1976153092831b92e4a. One character out and it is not my build, so delete it. The same hash is on the repo's front page on GitHub, and that is the copy worth trusting — anyone able to swap the file on this site could swap the hash beside it just as easily.
 order: 1
 sourceUrl: ""
 downloads:
@@ -79,9 +82,15 @@ translation, so the words on your screen match the words on the company's paperw
 
 ## Who it's for
 
-It was built with and for a factory worker in Korea on an EPS E-9 visa, then generalised
-so it works for any visa and any company. If you work shifts in Korea, are paid by the
-hour, and want to check the number on your payslip yourself, this is for you.
+**Foreign workers in Korea, and above all people on an EPS E-9 visa** — factory, farm,
+fishing and construction work, paid by the hour, with a payslip written in a language you
+are still learning. The eight languages the app speaks are the ones E-9 workers arrive
+with, and every Korean payslip term stays on screen beside the translation, so the words
+you read match the words on the company's paperwork.
+
+It was built with and for one E-9 factory worker in Korea, then generalised so it works
+for any visa and any company. If you work shifts in Korea, are paid by the hour, and want
+to check the number on your payslip yourself, this is for you.
 
 You do not need to read Korean to use it. You do not need to be good with phones.
 
