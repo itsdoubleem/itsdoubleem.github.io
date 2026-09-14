@@ -8,10 +8,11 @@ const d = app.data;
 ---
 <article class="card">
   <a class="card__link" href={`/apps/${d.slug}/`}>
-    <span class="card__badges">
-      <span class="badge">{d.category}</span>
-      {d.status === 'beta' && <span class="badge">Beta</span>}
-      <span class="badge badge--free">Free</span>
+    {/* Mono metadata instead of a row of pills. Three rounded badges above every card
+        is component-library furniture; a single line of small caps reads as a catalogue
+        entry, which is what the card is. */}
+    <span class="card__meta">
+      {d.category} · {d.status === 'beta' ? 'Beta' : 'Live'} · Free
     </span>
 
     <Preview name={d.name} icon={d.icon} card={d.card} />
@@ -30,7 +31,7 @@ const d = app.data;
   .card {
     background: var(--surface);
     border: 1px solid var(--hairline);
-    border-radius: var(--r-lg);
+    border-radius: var(--r-md);
     transition: border-color 150ms var(--ease), transform 150ms var(--ease);
   }
   .card__link {
@@ -42,13 +43,20 @@ const d = app.data;
     color: inherit;
     height: 100%;
   }
-  .card__badges { display: flex; flex-wrap: wrap; gap: 6px; }
+  .card__meta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
   .card__name {
     margin: 2px 0 0;
-    font-size: 19px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.2;
-    display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+    font-family: var(--font-display);
+    font-size: 25px; font-weight: 400; letter-spacing: -0.008em; line-height: 1.1;
+    display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap;
   }
-  .card__native { font-size: 13px; font-weight: 500; color: var(--ink-soft); }
+  .card__native { font-size: 13px; font-weight: 500; color: var(--ink-soft); font-family: var(--font); }
   .card__tagline { margin: 0; color: var(--ink-soft); font-size: 15px; line-height: 1.45; }
   /* Who it is for, on the grid. A stranger scanning the homepage has nothing else to go
      on, so the card answers "is this for me?" before they decide whether to click. It is
@@ -62,7 +70,7 @@ const d = app.data;
     font-size: 13px; line-height: 1.4;
   }
 
-  .card:hover { border-color: color-mix(in srgb, var(--accent) 55%, var(--hairline)); }
+  .card:hover { border-color: var(--rule); }
   @media (prefers-reduced-motion: no-preference) {
     .card:hover { transform: translateY(-2px); }
   }

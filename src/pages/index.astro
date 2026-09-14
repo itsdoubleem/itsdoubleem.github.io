@@ -34,8 +34,6 @@ const grouped = GROUPS
 
 // Three things that are true of everything here. Not slogans — each one is a checkable
 // property of the site, which is why they can sit this large without embarrassing anybody.
-// They appear once, in the band. They were in the hero as well until that turned out to be
-// the same three paragraphs twice on one page.
 const stance = [
   { k: 'Free', v: 'Every app here is free and stays free. No tiers, no upgrade screen, no trial running out.' },
   { k: 'No account', v: 'Nothing asks you to sign up, because there is nothing to sign up to.' },
@@ -46,35 +44,49 @@ const stance = [
   title="DOUBLEEM — everything I make ends up here"
   description="One person's work: apps and tools mostly, and whatever else turns out to be worth sharing."
 >
-  {/* The hero is full-bleed rather than an inset rounded panel, and the type is the
-      picture. It used to carry an abstract SVG of stacked cards, which read as the
-      placeholder art it was. A screenshot cannot go here either — that would make the
-      whole site look like it is about one app — so the headline does the work instead. */}
+  {/* The hero sits on the paper, not in a dark panel.
+
+      It used to be an inverted full-bleed block carrying an uppercase letterspaced
+      kicker in the accent colour, a 104px extra-bold headline with a coloured full
+      stop, and a filled button beside a ghost link. That is the single most
+      reproduced hero on the web, and a reader recognises the shape of it before
+      reading a word of it — which is exactly the problem, because the words are the
+      part of this site worth reading.
+
+      What replaces it is a catalogue opening: a column of mono metadata on the left, a
+      serif line on the right, and one thing to click. */}
   <section class="hero">
-    <div class="hero__inner wrap">
+    <div class="hero__inner wrap spread">
+      <div class="spread__meta">
+        <dl>
+          <dt>Index</dt>
+          <dd>{count} {count === 1 ? 'entry' : 'entries'}</dd>
+          <dt>Made by</dt>
+          <dd>One person</dd>
+          <dt>Price</dt>
+          <dd>Free, always</dd>
+        </dl>
+      </div>
+
       <div class="hero__copy">
-        <p class="hero__eyebrow">One person's work</p>
-        <h1 class="hero__title">
-          Everything I make ends up here<span class="hero__dot">.</span>
-        </h1>
-        <p class="hero__sub">
+        <h1 class="display display--hero">Everything I make ends up here.</h1>
+        <p class="lead">
           Apps, tools, and whatever else I end up making — each with a page that says
           plainly what it does and what it doesn't.
         </p>
         <div class="hero__actions">
           <a class="btn btn--primary" href="#work">See the work</a>
-          <a class="hero__link" href="/about/">What this is <span aria-hidden="true">→</span></a>
+          <a class="textlink" href="/about/">What this is <span aria-hidden="true">→</span></a>
         </div>
       </div>
-
     </div>
   </section>
 
   <section class="work wrap" id="work">
-    <header class="sec">
-      <p class="sec__num">01</p>
-      <div class="sec__text">
-        <h2 class="sec__title">The work</h2>
+    <header class="spread">
+      <p class="spread__meta">01 — Work</p>
+      <div class="sec">
+        <h2 class="display display--sec sec__title">The work</h2>
         <p class="sec__note">
           {count === 1
             ? 'One so far. Things get listed here when they work, not when they are announced.'
@@ -84,18 +96,22 @@ const stance = [
     </header>
 
     {feature && (
-      <article class="feature">
-        <a class="feature__shot" href={`/apps/${feature.data.slug}/`} tabindex="-1" aria-hidden="true">
-          <Preview name={feature.data.name} icon={feature.data.icon} card={feature.data.card} />
-        </a>
+      <article class="feature spread">
+        {/* The metadata that used to be pill-shaped badges scattered over the card.
+            Set as a specimen label in the margin, which is what it always was. */}
+        <div class="spread__meta feature__meta">
+          <dl>
+            <dt>Kind</dt>
+            <dd>{feature.data.category}</dd>
+            <dt>Status</dt>
+            <dd>{feature.data.status === 'beta' ? 'Beta' : 'Live'}</dd>
+            <dt>Price</dt>
+            <dd>Free</dd>
+          </dl>
+        </div>
 
         <div class="feature__body">
-          <div class="feature__badges">
-            <span class="badge">{feature.data.category}</span>
-            {feature.data.status === 'beta' && <span class="badge">Beta</span>}
-            <span class="badge badge--free">Free</span>
-          </div>
-
+          <div class="feature__text">
           <h3 class="feature__name">
             <a href={`/apps/${feature.data.slug}/`}>{feature.data.name}</a>
             {feature.data.nativeName && (
@@ -114,21 +130,29 @@ const stance = [
               Open {feature.data.name}
             </a>
             {featureGuide && (
-              <a class="hero__link hero__link--ink" href={`/apps/${feature.data.slug}/guide/`}>
+              <a class="textlink" href={`/apps/${feature.data.slug}/guide/`}>
                 See how it works <span aria-hidden="true">→</span>
               </a>
             )}
           </div>
+
+          </div>
+
+          {/* The screenshot sits beside the text, not under it, and it is capped at the
+              width it was captured at. It is a phone screen: card.png is 780px wide for
+              a 390px layout, so anything past ~390 CSS px is upscaling a picture of a
+              phone until it looks like a zoom rather than a screenshot. "Show the
+              artifact big" means give it room and weight, not magnification. */}
+          <a class="feature__shot" href={`/apps/${feature.data.slug}/`} tabindex="-1" aria-hidden="true">
+            <Preview name={feature.data.name} icon={feature.data.icon} card={feature.data.card} />
+          </a>
         </div>
       </article>
     )}
 
     {grouped.map(([label, items]) => (
-      <section class="group">
-        <h3 class="group__head">
-          {label}
-          <span class="group__count">{items.length}</span>
-        </h3>
+      <section class="group spread">
+        <p class="spread__meta">{label} — {items.length}</p>
         <div class="grid" data-count={Math.min(items.length, 3)}>
           {items.map((app) => <AppCard app={app} />)}
         </div>
@@ -136,12 +160,12 @@ const stance = [
     ))}
   </section>
 
-  {/* The same three statements as the hero, given room. It breaks a long light page with
-      a dark band, which is the rhythm the design notes describe, and it puts the site's
-      position where somebody scrolling past the work will actually meet it. */}
+  {/* A dark band to break a long light page — the one inversion left on the site, now
+      that the hero has given it up. The keys are set in the display serif rather than
+      in extra-bold sans, and the lead above them is mono instead of accent-coloured. */}
   <section class="band">
-    <div class="band__inner wrap">
-      <p class="band__lead">What is true of everything on this site</p>
+    <div class="band__inner wrap spread">
+      <p class="spread__meta band__lead">True of everything here</p>
       <ul class="band__list">
         {stance.map((s) => (
           <li>
@@ -158,158 +182,110 @@ const stance = [
 
 <style>
   /* ---------- hero ---------- */
-  /* <main> is unstyled and full-width, so a section is already edge to edge and the inner
-     .wrap does the centring. Deliberately not the `margin-inline: calc(50% - 50vw)` trick:
-     100vw counts the scrollbar, so on any desktop that shows one it hands the page a few
-     pixels of horizontal scroll. */
-  .hero {
-    background: var(--panel);
-    color: #fff;
-    padding-block: clamp(52px, 9vw, 104px);
-  }
-
-  .hero__eyebrow {
-    margin: 0 0 18px;
-    font-size: 13px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--accent);
-  }
-  .hero__title {
-    margin: 0;
-    max-width: 16ch;
-    font-size: clamp(42px, 8vw, 104px);
-    font-weight: 800; letter-spacing: -0.045em; line-height: 0.95;
-    /* Let the browser even out the lines. A hand-placed <br> here stranded the word
-       "make" alone on the middle line at 1440px, because the line above it had already
-       wrapped on its own. Balancing beats guessing at one viewport width. */
-    text-wrap: balance;
-  }
-  /* The wordmark's accent dot, borrowed as the full stop. */
-  .hero__dot { color: var(--accent); }
-
-  .hero__sub {
-    margin: 22px 0 0;
-    max-width: 44ch;
-    font-size: clamp(16px, 1.6vw, 19px);
-    line-height: 1.6;
-    color: rgba(255, 255, 255, 0.72);
-  }
+  .hero { padding-block: clamp(56px, 9vw, 116px) clamp(40px, 6vw, 72px); }
+  /* The measure belongs on each element, never on the block that holds them. Capping
+     .hero__copy capped the paragraph too, and a 46ch lead inside a 17ch parent wraps
+     into seven two-word lines that look like a mistake — because they are one. */
+  .hero__copy { max-width: none; }
+  .hero__copy .display--hero { max-width: 13ch; }
+  .hero .lead { margin-top: 28px; max-width: 44ch; }
   .hero__actions {
-    margin-top: 30px;
-    display: flex; align-items: center; flex-wrap: wrap; gap: 12px 22px;
+    margin-top: 34px;
+    display: flex; align-items: center; flex-wrap: wrap; gap: 14px 26px;
   }
-  .hero__link {
-    display: inline-flex; align-items: center; gap: 8px;
-    min-height: 44px;
-    font-weight: 600;
-    color: #fff;
-    text-decoration: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-  }
-  .hero__link:hover { border-bottom-color: var(--accent); }
-  .hero__link--ink { color: var(--ink); border-bottom-color: var(--hairline); }
 
-
-  .work { margin-top: clamp(56px, 9vw, 96px); }
+  .work { margin-top: clamp(40px, 6vw, 72px); }
 
   /* ---------- the featured work ---------- */
-  .feature {
-    margin-top: clamp(28px, 4vw, 44px);
-    display: grid;
-    gap: clamp(24px, 4vw, 48px);
-    align-items: center;
-  }
-  @media (min-width: 760px) {
-    .feature { grid-template-columns: minmax(0, 340px) minmax(0, 1fr); }
-  }
-  .feature__shot {
-    display: block;
-    padding: 8px;
-    background: var(--surface);
-    border: 1px solid var(--hairline);
-    border-radius: var(--r-lg);
-    max-width: 340px;
-  }
-  .feature__badges { display: flex; flex-wrap: wrap; gap: 6px; }
+  .feature { margin-top: clamp(30px, 4vw, 52px); }
+  .feature__meta { padding-top: 0.9em; }
+
   .feature__name {
-    margin: 16px 0 0;
-    font-size: clamp(30px, 4.6vw, 48px);
-    font-weight: 800; letter-spacing: -0.035em; line-height: 1;
-    display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(32px, 4.6vw, 52px);
+    font-weight: 400; letter-spacing: -0.012em; line-height: 1.02;
+    display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
   }
   .feature__name a { color: inherit; text-decoration: none; }
-  .feature__name a:hover { color: var(--accent-text); }
+  .feature__name a:hover { color: var(--accent); }
   .feature__native {
-    font-size: clamp(15px, 1.6vw, 20px); font-weight: 600; color: var(--ink-soft);
+    font-family: var(--font);
+    font-size: clamp(14px, 1.4vw, 17px); font-weight: 500; color: var(--ink-soft);
   }
   .feature__tagline {
-    margin: 14px 0 18px;
-    max-width: 42ch;
-    font-size: clamp(17px, 1.8vw, 21px);
-    line-height: 1.45;
+    margin: 16px 0 16px;
+    max-width: 46ch;
+    font-size: clamp(17px, 1.8vw, 20px);
+    line-height: 1.5;
     color: var(--ink-soft);
+    text-wrap: pretty;
   }
-  /* Who it is for, beside the tagline. A stranger on the homepage is deciding whether any
-     of this concerns them, and the tagline alone does not say — "records your shifts"
-     reads as an app for anybody. The accent rule marks it as a different kind of sentence
-     rather than a second tagline, the same treatment it gets on the app page. */
+  /* Who it is for. The rule beside it used to be 2px of accent — the fourth accent
+     object on a page that is allowed one. A quiet rule says "different kind of
+     sentence" just as clearly without spending the colour. */
   .feature__audience {
-    margin: -6px 0 18px;
-    max-width: 42ch;
-    padding-left: 14px;
-    border-left: 2px solid var(--accent);
-    font-size: clamp(15px, 1.5vw, 17px);
+    margin: 0 0 20px;
+    max-width: 46ch;
+    padding-left: 15px;
+    border-left: 1px solid var(--rule);
+    font-size: clamp(15px, 1.5vw, 16.5px);
     line-height: 1.5;
     color: var(--ink);
     text-wrap: pretty;
   }
   .feature__links {
-    margin-top: 24px;
-    display: flex; align-items: center; flex-wrap: wrap; gap: 12px 22px;
+    margin-top: 26px;
+    display: flex; align-items: center; flex-wrap: wrap; gap: 14px 24px;
+  }
+  .feature__body { display: grid; gap: clamp(30px, 4vw, 44px); align-items: start; }
+  @media (min-width: 1040px) {
+    .feature__body { grid-template-columns: minmax(0, 1fr) 340px; column-gap: 56px; }
+  }
+  .feature__shot {
+    display: block;
+    padding: 9px;
+    max-width: 380px;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-lg);
   }
 
   /* ---------- the grid, for everything after the first ---------- */
-  .group { margin-top: clamp(40px, 6vw, 64px); }
-  .group__head {
-    display: flex; align-items: center; gap: 10px;
-    margin: 0 0 18px;
-    font-size: 13px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--ink-soft);
-  }
-  .group__count { font-weight: 500; }
+  .group { margin-top: clamp(44px, 6vw, 72px); }
   .grid {
     display: grid;
     gap: var(--gap);
     grid-template-columns: 1fr;
   }
-  @media (min-width: 620px) { .grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (min-width: 1000px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (min-width: 620px) and (max-width: 860px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 1000px) { .grid { grid-template-columns: repeat(2, 1fr); } }
 
   /* ---------- the dark band ---------- */
   .band {
-    margin-block: clamp(64px, 10vw, 112px) 0;
+    margin-block: clamp(72px, 10vw, 120px) 0;
     background: var(--panel);
     color: #fff;
-    padding-block: clamp(48px, 7vw, 80px);
+    padding-block: clamp(52px, 7vw, 84px);
   }
-  .band__lead {
-    margin: 0 0 28px;
-    font-size: 13px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--accent);
-  }
+  .band__lead { color: rgba(255, 255, 255, 0.5); }
   .band__list {
     list-style: none; margin: 0; padding: 0;
-    display: grid; gap: clamp(24px, 3vw, 40px);
+    display: grid; gap: clamp(26px, 3vw, 40px);
   }
   @media (min-width: 760px) { .band__list { grid-template-columns: repeat(3, 1fr); } }
-  .band__list li { border-top: 1px solid rgba(255, 255, 255, 0.2); padding-top: 18px; }
+  .band__list li { border-top: 1px solid rgba(255, 255, 255, 0.18); padding-top: 20px; }
   .band__k {
     margin: 0;
-    font-size: clamp(20px, 2.4vw, 26px);
-    font-weight: 800; letter-spacing: -0.02em;
+    font-family: var(--font-display);
+    font-size: clamp(23px, 2.6vw, 30px);
+    font-weight: 400; letter-spacing: -0.005em;
   }
   .band__v {
     margin: 10px 0 0;
     font-size: 15px; line-height: 1.6;
-    color: rgba(255, 255, 255, 0.68);
+    color: rgba(255, 255, 255, 0.66);
   }
 </style>
