@@ -66,20 +66,31 @@ builds to plain HTML that works with JavaScript switched off, and GitHub Pages s
 files. If `astro build` ever prints an `adapter:` line, something has reintroduced one —
 take it out, because Pages cannot run a server entrypoint.
 
-## A note on LOGGER
+## A note on the apps
 
-LOGGER is a separate project in its own folder and is not vendored here. This repo carries
-its built output — the Android package and the offline web build — so the download buttons
-have something to point at on a CI runner, which builds from the repository and cannot see
-an ignored file. Re-copy both after any rebuild of the app; they are committed
-deliberately, not by accident.
+Every app is a separate project in its own folder and none of their source is vendored
+here. This repo carries their **built output** — LOGGER's Android package and offline web
+build in `public/downloads/` and `public/logger/`, HANGIL's in `public/hangil/` — so the
+download buttons have something to point at on a CI runner, which builds from the
+repository and cannot see an ignored file. Re-copy after any rebuild of an app; these
+files are committed deliberately, not by accident.
 
-### Checking the download
+| App | Source | Built into |
+|---|---|---|
+| LOGGER | `~/Logger_app` | `public/logger/`, `public/downloads/logger.apk` |
+| HANGIL | `~/Hangil_app` | `public/hangil/`, `public/downloads/hangil.apk` |
 
-The APK this site serves is committed at `public/downloads/logger.apk`. Its SHA-256 is
+Each has its own `DEPLOY.md` with the exact copy step, and its own `CLAUDE.md` that is the
+authority on what that app is. HANGIL's screenshots are captured from the shipping build by
+`tools/capture-hangil.mjs`, the same way LOGGER's guide is by `tools/capture-guide.mjs`.
+
+### Checking the downloads
+
+The APKs this site serves are committed under `public/downloads/`. Their SHA-256 sums are
 
 ```
-c180c7398240e4a1b0f1ef572418238253d373ce8d967ab314f3a32f37698dc7
+c180c7398240e4a1b0f1ef572418238253d373ce8d967ab314f3a32f37698dc7  logger.apk
+5e23b7fd8dea632702ea1d8939567752467bacfc0a854e4c9707778868918846  hangil.apk
 ```
 
 The app page prints the same hash, but a hash is only worth as much as the page it sits
@@ -87,10 +98,10 @@ on — anyone who could swap the APK on the site could swap the hash printed bes
 copy is the second opinion. It lives on github.com rather than on the site, so a tampered
 download has to survive two places instead of one.
 
-Regenerate it in the same commit that replaces the APK, never later:
+Regenerate them in the same commit that replaces an APK, never later:
 
 ```bash
-shasum -a 256 public/downloads/logger.apk
+shasum -a 256 public/downloads/*.apk
 ```
 
 A hash here that does not match the file is worse than no hash at all — it teaches the one
