@@ -1,4 +1,6 @@
 {
-  "note": "Drop official EPS-TOPIK listening files into this folder and list them here. Nothing is shipped with the app; this file starts empty on purpose. See content/listening/README.md.",
+  "note": "Official EPS-TOPIK listening files published free by 한국산업인력공단 at epstopik.hrdkorea.or.kr. Used under KOGL Type 3 — attribution required, no derivative works — so every file here is exactly as published: not re-encoded, not trimmed, not split.",
+  "source": "한국산업인력공단 · EPS-TOPIK 한국어 표준교재 듣기파일 (2024)",
+  "licence": "KOGL 제3유형: 출처표시 + 변경금지",
   "sets": []
 }
