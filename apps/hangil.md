@@ -45,7 +45,7 @@ verify:
   - claim: The Android app cannot reach the internet at all.
     how: It asks for no internet permission. Unzip the APK and read its manifest — with that permission absent, Android will not let the app use the network, whatever anybody claims about it. The trade-off is real and worth knowing — it also rules out the speech engines' online voices, which are better than the offline ones, so the app is limited to the Korean voices already on your phone.
   - claim: The APK you download is the file I built.
-    how: Hash it before you install it — shasum -a 256 hangil.apk on macOS or Linux, certutil -hashfile hangil.apk SHA256 on Windows. It must print 5e23b7fd8dea632702ea1d8939567752467bacfc0a854e4c9707778868918846. One character out and it is not my build, so delete it.
+    how: Hash it before you install it — shasum -a 256 hangil.apk on macOS or Linux, certutil -hashfile hangil.apk SHA256 on Windows. It must print 9ef09b8044cf8dfc4bf337aac690617598e4d46dd95e4c702191d9984c02bdc0. One character out and it is not my build, so delete it.
   - claim: The Korean audio is your own phone speaking, not a download.
     how: Turn airplane mode on and press any play button. It still speaks, because the app hands the sentence to the phone's own text-to-speech engine. That is why there is no audio to wait for — and why, if your phone has no Korean voice installed, the app says so on the first screen instead of playing you something wrong.
 order: 2
@@ -53,7 +53,7 @@ sourceUrl: ""
 downloads:
   - label: Download for Android
     href: /downloads/hangil.apk
-    note: APK, 1.4 MB — install directly, no store account
+    note: APK, 2.2 MB — install directly, no store account
   - label: Open in browser
     href: /hangil/
     note: Works offline after the first load — add it to your home screen

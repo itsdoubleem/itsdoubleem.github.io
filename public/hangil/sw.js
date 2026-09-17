@@ -7,7 +7,7 @@
 // replaced the comment and left the code holding raw placeholders. The service
 // worker then failed to parse and the app quietly stopped working offline.
 
-const VERSION = '37db2c1934';
+const VERSION = 'e9f5c35754';
 const CACHE = `hangil-${VERSION}`;
 const FILES = [
   "./",
@@ -20,18 +20,23 @@ const FILES = [
   "data/course-4.json",
   "data/exam-drills.json",
   "data/exam-mock-1.json",
+  "data/exam-mock-2.json",
+  "data/guide.json",
   "data/hangeul.json",
   "data/pictures.json",
+  "data/tags.json",
+  "data/trades-1.json",
+  "data/trades-2.json",
   "data/vocab-1.json",
   "data/vocab-2.json",
   "icon-180.png",
   "icon-192.png",
   "icon-512.png",
   "icon-maskable-512.png",
-  "icon-source.png",
   "index.html",
   "js/app.js",
   "js/data.js",
+  "js/deck.js",
   "js/i18n.js",
   "js/mock.js",
   "js/quiz.js",

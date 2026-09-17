@@ -45,11 +45,21 @@ await ctx.setOffline(true);
 await page.reload({ waitUntil: 'domcontentloaded' });
 await page.waitForTimeout(1200);
 
-// Three screens, three different content files: the course, the exam paper, the words.
+// One screen per content file that has to come out of the cache. A file added to
+// data/ but left out of the precache list fails here and nowhere else — the app
+// still loads, and only the one screen that needed it is empty.
 const CHECKS = [
   ['#/course', 'Twenty-four units'],
   ['#/exam/paper/mock1', 'Forty questions'],
+  ['#/exam/paper/mock2', 'Forty questions'],
   ['#/vocab/v04', '안전'],
+  ['#/trade/t-chemical', '화학·제약'],
+  ['#/trade/t-wood', '펄프·종이·목재'],
+  ['#/guide', 'forty questions in fifty minutes'],
+  ['#/hangeul/chart', 'Read it down a column'],
+  ['#/course/g05/learn', 'Tell someone where you are going'],
+  ['#/vocab/v04/learn', '안전'],
+  ['#/weak', 'Weak spots'],
 ];
 let failed = 0;
 for (const [hash, expect] of CHECKS) {
