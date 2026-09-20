@@ -121,8 +121,13 @@ const nav = [
 
     {/* The second script, and the only one that can pull in more. /globe.js paints
         nothing: it checks for a wide screen, a real pointer and a WebGL context, and
-        only then fetches /three.min.js and /globe-scene.js to draw the globe in the
-        sky behind the story on the front page.
+        only then fetches /three.min.js and /globe-scene.js — the globe in the sky behind
+        the story on the front page, and on every other page the orb field that globe
+        sits in, mounted from the same scene with the planet left out.
+
+        That second case is why the fetch is no longer front-page-only: /globe.js used to
+        stop when it found no `.curio` deck, and does not any more. One extra request on
+        an interior page, cached across the site after the first.
 
         On a phone it loads, finds it has nothing to do and stops — which is the point
         of splitting it. /three.min.js is 589KB and a handset never fetches it. What a

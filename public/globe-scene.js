@@ -295,6 +295,24 @@
     var MANUAL_POS = o.manualPlacement === true; // caller owns the placement
     var MO      = (o.motion === undefined ? 1 : o.motion);
     var AUTO    = (o.autoRotate === undefined ? 0.150 : o.autoRotate) * MO;
+    /* ── Dust only ──
+       The ambient field in § 9 is the one part of this scene that is not about a planet:
+       it is the orb field — lit motes that swell and go ice-white near the cursor — and it
+       reads as atmosphere anywhere. `dustOnly` builds that and nothing else — no body,
+       no city lights, no graticule, no arcs, no rings — which is what the interior pages
+       mount. Everything downstream of § 9 has to cope with those objects being absent,
+       and the three places that do are marked `DUSTONLY`.
+
+       Skipping §§ 1-8 is not only about what is drawn. § 2 walks 46,000 points and runs
+       a point-in-polygon test against every coastline ring for each one; that is the
+       single most expensive thing in this file and it happens before the first frame.
+       A field that does not need it must not pay for it. */
+    var DUSTONLY = o.dustOnly === true;
+    /* The field is a hollow shell around the globe, opening at 1.15R so the motes never
+       sit inside the body. With no body there is nothing for the hole to hide behind,
+       and it projects as a bare disc in the middle of the screen — so dust-only closes
+       it almost to the centre. */
+    var DUST_IN = DUSTONLY ? 0.12 : 1.15;
     var FOV     = 30;
 
     var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -368,6 +386,17 @@
     var junk = [];
     function keep(x) { junk.push(x); return x; }
 
+    /* --- 1-8. The planet ------------------------------------------------
+       Everything from here to § 9 is the globe and its furniture. `dustOnly`
+       skips the lot; see the note on DUSTONLY above for why that matters more
+       than the pixels it saves. The `var`s inside still hoist to the factory's
+       scope, so they exist and are `undefined` — which is exactly what the three
+       DUSTONLY guards below are testing for.
+
+       The body of this block is deliberately NOT re-indented. Shifting 218 lines by
+       two spaces would bury the four real changes in this file under a diff nobody
+       can read, and the brace is the only thing that moved. */
+    if (!DUSTONLY) {
     /* --- 1. Opaque night-side body ------------------------------------ */
     var bodyMat = keep(new THREE.ShaderMaterial({
       vertexShader: FRESNEL_VERT, fragmentShader: BODY_FRAG,
@@ -586,13 +615,15 @@
                 halo: 0.10, opacity: 0.62,
                 dim: col.violet.clone().lerp(col.cyan, 0.35).multiplyScalar(0.35), hot: col.ice });
 
+    }
+
     /* --- 9. Ambient dust ------------------------------------------------ */
     var uPos = [], uSize = [], uPhase = [], uSeed = [];
     for (var p = 0; p < NDUST; p++) {
       var pu = Math.random() * 2 - 1;
       var pp = Math.random() * Math.PI * 2;
       var prr = Math.sqrt(Math.max(0, 1 - pu * pu));
-      var pd = R * (1.15 + Math.pow(Math.random(), 0.55) * 2.6) * SPREAD;
+      var pd = R * (DUST_IN + Math.pow(Math.random(), 0.55) * 2.6) * SPREAD;
       uPos.push(Math.cos(pp) * prr * pd * 1.7, pu * pd * 0.9, Math.sin(pp) * prr * pd);
       uSize.push(R * (0.0045 + Math.pow(Math.random(), 2.2) * 0.026));
       uPhase.push(Math.random() * 6.283);
@@ -607,7 +638,8 @@
       vertexShader: DUST_VERT, fragmentShader: DUST_FRAG,
       uniforms: {
         uTime: { value: 0 }, uH: { value: 800 }, uDpr: { value: 1 }, uAspect: { value: 1 },
-        uMouse: { value: new THREE.Vector2(0, 0) }, uDrift: { value: reduced ? 0.2 : 1 }, uOpacity: { value: 1.1 },
+        uMouse: { value: new THREE.Vector2(0, 0) }, uDrift: { value: reduced ? 0.2 : 1 },
+        uOpacity: { value: o.dustOpacity === undefined ? 1.1 : o.dustOpacity },
         uCyan: { value: col.cyan }, uViolet: { value: col.violet }, uIce: { value: col.ice }
       },
       transparent: true, depthWrite: false, depthTest: true, blending: THREE.AdditiveBlending
@@ -653,7 +685,8 @@
     /* ------------------------------- Resize ------------------------------- */
     var dpr = 1, aspect = 1, halfW = 1, halfH = 1;
     var blurHalf = new THREE.Vector2(0.002, 0.002), blurQuarter = new THREE.Vector2(0.004, 0.004);
-    var sizedMats = [dotMat, nodeMat, dustMat].concat(ringMats);
+    /* DUSTONLY guard 1 of 3: with §§ 1-8 skipped these materials do not exist. */
+    var sizedMats = DUSTONLY ? [dustMat] : [dotMat, nodeMat, dustMat].concat(ringMats);
 
     function resize() {
       var w = canvas.clientWidth || (canvas.parentElement && canvas.parentElement.clientWidth) || 1;
@@ -697,7 +730,7 @@
         blurHalf.set(1 / hw, 1 / hh);
         blurQuarter.set(1 / qw, 1 / qh);
       }
-      dotMat.uniforms.uScale.value = (narrow && !FIXED_FILL) ? 0.9 : 1.0;
+      if (!DUSTONLY) dotMat.uniforms.uScale.value = (narrow && !FIXED_FILL) ? 0.9 : 1.0;
     }
     resize();
 
@@ -717,7 +750,8 @@
     document.addEventListener('visibilitychange', onVisibility);
     function kick() { if (alive && !raf) { prev = performance.now(); raf = requestAnimationFrame(frame); } }
 
-    var timed = [dotMat, nodeMat, dustMat].concat(gridMats, arcMats);
+    /* DUSTONLY guard 2 of 3. */
+    var timed = DUSTONLY ? [dustMat] : [dotMat, nodeMat, dustMat].concat(gridMats, arcMats);
 
     function frame(now) {
       raf = 0;
@@ -729,13 +763,17 @@
       smooth.x += (pointer.x - smooth.x) * Math.min(1, dt * 3.0);
       smooth.y += (pointer.y - smooth.y) * Math.min(1, dt * 3.0);
 
-      globe.rotation.y += (reduced ? AUTO * 0.25 : AUTO) * dt;
-      globe.rotation.x = smooth.y * 0.10;
+      /* DUSTONLY guard 3 of 3: there is no globe to spin, no rings to advance and no
+         body whose view-space centre the ring shader needs. */
+      if (!DUSTONLY) {
+        globe.rotation.y += (reduced ? AUTO * 0.25 : AUTO) * dt;
+        globe.rotation.x = smooth.y * 0.10;
 
-      for (var rg = 0; rg < ringGroups.length; rg++) ringGroups[rg].rotation.y = clock * ringGroups[rg].userData.spin * MO;
-      body.getWorldPosition(centerWorld);
-      centerView.copy(centerWorld).applyMatrix4(camera.matrixWorldInverse);
-      for (var rm = 0; rm < ringMats.length; rm++) ringMats[rm].uniforms.uCenter.value.copy(centerView);
+        for (var rg = 0; rg < ringGroups.length; rg++) ringGroups[rg].rotation.y = clock * ringGroups[rg].userData.spin * MO;
+        body.getWorldPosition(centerWorld);
+        centerView.copy(centerWorld).applyMatrix4(camera.matrixWorldInverse);
+        for (var rm = 0; rm < ringMats.length; rm++) ringMats[rm].uniforms.uCenter.value.copy(centerView);
+      }
       dust.rotation.y = clock * 0.006 * MO;
 
       world.rotation.y = smooth.x * 0.13;
@@ -923,4 +961,97 @@
   window.addEventListener('load', function () { layout(); place(); }, { once: true });
 
   window.__doubleemSky = hero;
+})();
+
+/* ──────────────────────────────────────────────────────────────────────────
+   DOUBLEEM — the same field, on every page that has no globe.
+
+   The block above mounts the planet behind the curio deck, and the dust around
+   it is the part of that scene that carries up behind the header. This mounts
+   that field alone — `dustOnly` — on /about, /apps/<slug> and /404, so the
+   interior pages stand in the same air the front page does.
+
+   ── The canvas is fixed, and the front page's is not ──
+   The curio canvas is `position: absolute` and as tall as the page down to the
+   foot of the deck, because the globe has to stay pinned to the hero device's
+   lower edge while the page scrolls. Nothing here is pinned to anything, and an
+   app page can run to several thousand pixels — at dpr 2 that is a drawing
+   buffer tens of megabytes wide for a background. So this one is the size of the
+   viewport and stays there. The field drifts and answers the cursor either way;
+   what it stops doing is scrolling, which on a page of text reads as depth
+   rather than as a mistake.
+
+   ── Rules this keeps, the same ones every decorative layer here keeps ──
+    1. The page is complete without it. Everything below is the ground, the glow
+       and the grid from global.css, which are CSS and are the whole appearance on
+       their own. JS off, a phone, a narrow window, no WebGL: no canvas, no gap.
+    2. It reads nothing and stores nothing. One passive pointermove listener,
+       already in the factory, and no network of any kind.
+    3. It cannot take a click. z-index -1, pointer-events: none, aria-hidden, and
+       it holds no text.
+
+   Creating the element here rather than putting it in Base.astro is the same
+   choice the block above makes, and it is safe for the same reason: the rules
+   for it are injected next to it, from script, so they are not Astro-scoped and
+   cannot miss. See DESIGN.md § The second script for what happened the one time
+   a runtime canvas relied on a component stylesheet instead — the box is stated
+   in full here (inset, width, height) precisely so this canvas can never take
+   part in layout and feed a ResizeObserver.
+   ────────────────────────────────────────────────────────────────────────── */
+(function () {
+  'use strict';
+
+  if (document.querySelector('.curio')) return;   // the front page: the block above owns it
+  if (!window.THREE || !window.createGlobeHero) return;
+
+  var main = document.querySelector('main');
+  if (!main) return;
+
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Fewer orbs than the front page's 520, because that number fills a canvas the
+     height of the whole page and this one only has to fill a viewport. */
+  /* Tuned by looking at it, which is the only way this is tunable — every number here
+     changes two things at once. `fill` sets how much world a viewport holds, so raising
+     it brings the camera in and the same orbs read larger and fewer; `spread` pushes
+     the shell outward, which mostly adds distant specks. The front page's 520 orbs fill
+     a canvas the height of the whole page; at 200 in one viewport this lands at the same
+     density on screen, which is the thing that has to match. */
+  var TUNE = { particles: 200, fill: 0.85, spread: 1.0, opacity: 0.9,
+               bloom: 0.5, dpr: 2, motion: 0.65 };
+
+  var style = document.createElement('style');
+  style.textContent =
+    '.page-sky{position:fixed;inset:0;width:100%;height:100%;' +
+    'z-index:-1;display:block;pointer-events:none}';
+  document.head.appendChild(style);
+
+  var cv = document.createElement('canvas');
+  cv.className = 'page-sky';
+  cv.setAttribute('aria-hidden', 'true');
+  /* Inside <main>, which carries `position: relative; z-index: 1` — so z-index -1 puts
+     the field behind everything main holds while still sitting above body::before and
+     body::after, the glow and the grid. Appending it to <body> instead would put it
+     under both of those and it would barely be visible. */
+  main.appendChild(cv);
+
+  /* Fade the field out at the top and the bottom so it never crowds the floating
+     header bar or runs into the footer's own background. */
+  var mask = 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.4) 9%, ' +
+             '#000 26%, #000 84%, rgba(0,0,0,.45) 95%, transparent 100%)';
+  cv.style.webkitMaskImage = mask;
+  cv.style.maskImage = mask;
+
+  var cs = getComputedStyle(document.documentElement);
+  var accent = (cs.getPropertyValue('--accent') || '').trim() || '#08DF9C';
+
+  window.__doubleemSky = window.createGlobeHero(cv, {
+    dustOnly: true,
+    colors: { violet: accent, cyan: '#6FF3C8', ice: '#DFFBF0', plum: '#0C5B45', deep: '#0B1410' },
+    fill: TUNE.fill, fieldScale: TUNE.spread, dustOpacity: TUNE.opacity,
+    motion: reduced ? 0.25 : TUNE.motion,
+    bloom: TUNE.bloom, exposure: 1.04,
+    particles: TUNE.particles,
+    dprCap: TUNE.dpr, manualPlacement: true
+  });
 })();
