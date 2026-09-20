@@ -31,11 +31,15 @@
  * app says "HOLD TO CLOCK IN" and omitted a whole card. Do not reintroduce one.
  *
  * ── The one measurement that makes this work ──
- * Every capture is 780 x 1688, which is exactly 2x of 390 x 844. So a screen laid out at
- * or under 390 CSS px is showing the picture at its native density or better, and never
- * upscaling it. That is the trap DESIGN.md § The app card describes, avoided by
- * construction rather than by remembering — but if you ever widen --phone-w past 390px,
- * you have walked into it.
+ * Every capture is 1170 x 2532, which is exactly 3x of 390 x 844. So a screen laid out
+ * at or under 390 CSS px is showing the picture at its native density or better on a 3x
+ * display, and never upscaling it. That is the trap DESIGN.md § The app card describes,
+ * avoided by construction rather than by remembering — but if you ever widen --phone-w
+ * past 390px, you have walked into it.
+ *
+ * These were 780 x 1688 (2x) until 2026-09-20. On a 3.75x phone a 780px source is 1:1
+ * only up to 208 CSS px, so the device at 290px was upscaling it by 1.39x. Recaptured at
+ * deviceScaleFactor: 3 — see the note at the top of tools/capture-guide.mjs.
  */
 interface Screen {
   src: string;

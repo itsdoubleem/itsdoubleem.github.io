@@ -19,8 +19,41 @@ await mkdir(OUT, { recursive: true });
 const b = await chromium.launch();
 const page = await b.newPage({
   viewport: { width: 390, height: 844 },
-  deviceScaleFactor: 2, hasTouch: true, isMobile: true,
+  /* ── 3, not 2 ──
+     These were captured at 2, which makes a 780px file for a 390px layout: pixel-perfect
+     on a 2x display and on nothing since. Checked on a Galaxy S24 Ultra at dpr 3.75, a
+     780px source is 1:1 only up to 208 CSS px, so every place the site draws a capture
+     wider than that was upscaling it — the guide's steps at 289px were running 1.39x.
+
+     3 gives 1170 x 2532, which covers 390 CSS px on a 3x screen and 312 CSS px on this
+     one. It does not make 3.75x perfect; it makes the sizes the site actually uses
+     correct. Going to 4 would, at 2 MB a file — not worth it for the last 12%.
+
+     Everything downstream assumes only that the file is SOME whole multiple of
+     390 x 844 and is never drawn above 390 CSS px. If you change this number, grep for
+     "780" — PhoneDevice.astro and DESIGN.md both state the old arithmetic. */
+  deviceScaleFactor: 3, hasTouch: true, isMobile: true,
 });
+
+/* ── The clock is pinned, and it has to be ──
+ * These captures are of a real app that behaves differently on different days. Re-run on
+ * a Sunday and LOGGER correctly shows 특근 holiday work with a "Holiday work x1.5" badge
+ * and a different explanation — a true screen of a state the guide's copy never mentions,
+ * and on card.png, which is the hero image on the front page.
+ *
+ * That is how a screenshot set drifts without anyone touching the app: the first set was
+ * taken on Monday 2026-09-14, the second on a Sunday, and only a side-by-side caught it.
+ *
+ * So the day is fixed. This is still the real app — nothing is mocked, the wage engine
+ * runs exactly as it does for a worker — it is simply told what day it is, which makes
+ * the set reproducible instead of depending on when someone happened to run the script.
+ * Monday 06:45 is the moment the existing guide copy was written against.
+ *
+ * `install` freezes time; `resume` lets it tick on from there, which the punch screen's
+ * live clock needs. */
+const CAPTURE_TIME = new Date('2026-09-14T06:45:00');
+await page.clock.install({ time: CAPTURE_TIME });
+await page.clock.resume();
 
 const tap = async (text) => {
   const found = await page.evaluate((t) => {
