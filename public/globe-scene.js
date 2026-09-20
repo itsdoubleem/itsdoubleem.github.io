@@ -1188,6 +1188,16 @@
   var ro = new ResizeObserver(function () { layout(); place(); });
   ro.observe(main);
 
+  /* Two more re-measures, because layout() reads the device's box and that box moves
+     after first paint: the hero's faces load late, and a ResizeObserver on <main> does
+     not always fire for a shift that leaves main's own size unchanged. Without these a
+     visitor with the fonts already cached and one loading them cold can get the canvas
+     pinned in different places. Both are one-shot and cost nothing after they run. */
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(function () { layout(); place(); });
+  }
+  window.addEventListener('load', function () { layout(); place(); }, { once: true });
+
   /* Drive the cursor light. One rAF for the two writes, for the same reason motion.js
      coalesces its own: pointermove fires far faster than the compositor draws, and each
      custom-property write invalidates style for the subtree it lands on. */
