@@ -903,11 +903,14 @@
       pointer.x = Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width) * 2 - 1));
       pointer.y = Math.max(-1, Math.min(1, -(((e.clientY - r.top) / r.height) * 2 - 1)));
     }
-    // Back to rest when the cursor leaves the document, rather than freezing off-centre.
-    function onLeave() { pointer.x = 0; pointer.y = 0; }
+    /* Back to rest when the cursor leaves the window, rather than freezing off-centre.
+       Guarded on a null relatedTarget: `pointerleave` on the document also fires for
+       transitions that never left the page, which was quietly re-centring the scene
+       mid-movement. */
+    function onLeave(e) { if (e.relatedTarget === null) { pointer.x = 0; pointer.y = 0; } }
 
     window.addEventListener('pointermove', onMove, { passive: true });
-    document.addEventListener('pointerleave', onLeave, { passive: true });
+    document.addEventListener('pointerout', onLeave, { passive: true });
 
     /* ------------------------------- Resize ------------------------------- */
     var dpr = 1, aspect = 1, halfW = 1, halfH = 1;
@@ -1043,7 +1046,7 @@
       if (raf) cancelAnimationFrame(raf);
       raf = 0;
       window.removeEventListener('pointermove', onMove);
-      document.removeEventListener('pointerleave', onLeave);
+      document.removeEventListener('pointerout', onLeave);
       window.removeEventListener('resize', resize);
       document.removeEventListener('visibilitychange', onVisibility);
       if (ro) ro.disconnect();

@@ -54,34 +54,49 @@ if (fine.matches && !still.matches) {
      which is what lets the media query at 900px flatten the tilt to zero without this
      file knowing anything about breakpoints.
 
-     The pointer is tracked against a *region* — [data-tilt-area] — rather than against
-     the device itself, so the phone responds to the cursor crossing the hero instead of
-     only to the cursor being on top of it. A tilt you have to be hovering to trigger
-     reads as a hover state; one that answers the whole section reads as parallax.
+     ── What the pointer is measured against, and why it changed twice ──
+     It started as the hero region, [data-tilt-area], so the device answered the cursor
+     crossing the section rather than only the cursor being on top of it: a tilt you have
+     to hover to trigger reads as a hover state, one that answers a region reads as
+     parallax. On 2026-09-21 it was briefly narrowed to the device itself, on the theory
+     that the device and the new globe answering one cursor would look out of step. Both
+     of those are gone, for the same reason: a listener bound to an element only fires
+     while the pointer is over that element, so the device froze the moment you left it —
+     first the moment you left the hero, then the moment you left the phone. Beside a sky
+     that keeps answering the cursor the whole way down the page, a device that stops
+     reads as broken.
 
-     ── It was scoped to the device for part of 2026-09-21, and put back ──
-     When the globe arrived the worry was that two objects answering one cursor would
-     read as out of step, so this briefly measured the device itself and the phone sat
-     still unless you were on it. Watched side by side, the opposite is true: the globe
-     and the device leaning the same way at the same time is the effect, and a phone that
-     ignores the cursor next to a sky that follows it reads as broken rather than calm.
-     Both move together. If that ever needs undoing again, the change is this one line —
-     measure against `target` instead of `area`. */
+     So it is measured against the VIEWPORT and listened for on the window, which is the
+     same footing the globe is on. Cursor left edge, device leans left; cursor bottom
+     right, it leans down and right; and it keeps answering in the footer, because the
+     window never stops sending the events. Rest is the middle of the screen, and a
+     pointer that leaves the document entirely resets it rather than freezing it.
+
+     The [data-tilt-area] attribute stays: it is the markup contract that says which
+     region owns a tiltable thing, and the loop still uses it to find the target. It is
+     simply no longer what the pointer is measured against. */
   for (const area of document.querySelectorAll('[data-tilt-area]')) {
     const target = area.querySelector('[data-tilt]');
     if (!target) continue;
 
-    area.addEventListener('pointermove', (e) => {
-      const r = area.getBoundingClientRect();
+    addEventListener('pointermove', (e) => {
       set(target, {
-        '--tx': ((e.clientX - r.left) / r.width  * 2 - 1).toFixed(3),
-        '--ty': ((e.clientY - r.top)  / r.height * 2 - 1).toFixed(3),
+        '--tx': (e.clientX / innerWidth  * 2 - 1).toFixed(3),
+        '--ty': (e.clientY / innerHeight * 2 - 1).toFixed(3),
       });
     }, { passive: true });
 
-    // Return to rest rather than freezing mid-tilt. The CSS transition on --tx/--ty is
-    // what makes this a glide and not a snap.
-    area.addEventListener('pointerleave', () => set(target, { '--tx': '0', '--ty': '0' }), { passive: true });
+    /* Return to rest rather than freezing mid-tilt when the pointer leaves the window.
+       The CSS transition on --tx/--ty is what makes this a glide and not a snap.
+
+       `pointerout` with a null relatedTarget, NOT `pointerleave` on the document. The
+       latter looks like the right event and is not: it fires on transitions that are
+       still inside the page, so the device kept snapping back to centre a moment after
+       it had been aimed. A null relatedTarget is the one signal that means the pointer
+       actually went outside the window. */
+    document.addEventListener('pointerout', (e) => {
+      if (e.relatedTarget === null) set(target, { '--tx': '0', '--ty': '0' });
+    }, { passive: true });
   }
 
   /* ── The edge highlight ──
