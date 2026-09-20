@@ -153,7 +153,11 @@
   --accent-ink: #010704;   /* 11.7:1 as a label on --accent */
   --glow:       rgba(8, 223, 156, 0.30);
   --glow-soft:  rgba(8, 223, 156, 0.08);
-  --grid:       rgba(150, 214, 190, 0.055);
+  /* The grid was 0.055, which measured 1.072:1 against the ground. At 0.035 it is
+     1.042:1 — still there, and further knocked down towards the corners by the mask
+     on body::after, which is where it was reading as drawn-on rather than as
+     texture. Below about 0.025 it stops surviving the mask at all. */
+  --grid:       rgba(150, 214, 190, 0.035);   /* 1.042:1 — a texture, not a table */
 
   /* ── Glass ──
      A frosted panel is the one piece of 2020s furniture this design does take, and it
