@@ -172,6 +172,12 @@ const stepCount = g.steps.length + g.after.length;
   .trail a:hover { color: var(--ink); text-decoration-color: var(--accent); }
   .trail span { opacity: .45; }
   .trail b { color: var(--ink); font-weight: 600; }
+  /* 22px on a phone, and the lowest of everything measured. A breadcrumb is a row of
+     links rather than a sentence, so the inline exception does not cover it. */
+  @media (pointer: coarse) {
+    .trail { gap: 4px; }
+    .trail a { padding-block: 11px; }
+  }
 
   .top h1 {
     margin: 0;

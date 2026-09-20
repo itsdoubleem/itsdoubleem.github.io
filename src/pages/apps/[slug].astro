@@ -322,6 +322,12 @@ const heroScreen = d.card
     transition: color 160ms var(--ease), border-color 160ms var(--ease);
   }
   .crumb a:hover { color: var(--ink); border-bottom-color: var(--accent); }
+  /* A standalone back link that happens to live in a <p>, not a link inside a
+     sentence — so it takes the 44px floor rather than the inline exception. */
+  @media (pointer: coarse) {
+    .crumb a { display: inline-flex; align-items: center; min-height: 44px; }
+    .apphead__links a { display: inline-flex; align-items: center; min-height: 44px; }
+  }
 
   .apphead .pill { margin: 0 0 18px; }
   .apphead .pill i { font-style: normal; opacity: .5; margin-inline: 7px; }

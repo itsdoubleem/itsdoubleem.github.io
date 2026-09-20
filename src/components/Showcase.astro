@@ -172,6 +172,11 @@ const swipeCss = panels
                 background-color 200ms var(--ease);
   }
   .showcase__tab:hover { color: var(--ink); border-color: var(--rule); }
+  /* 38px is comfortable with a cursor and under the floor with a thumb, and these are
+     the primary control of the whole section. */
+  @media (pointer: coarse) {
+    .showcase__tab { min-height: 44px; padding-inline: 18px; }
+  }
 
   /* Which tab is active when nothing has been clicked yet. The matching "and this one
      when that panel is targeted" rules are generated in the frontmatter above — they

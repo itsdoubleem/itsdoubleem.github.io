@@ -276,6 +276,12 @@ const nav = [
   }
   .site-head nav a:hover { color: var(--ink); border-color: var(--rule); }
 
+  /* The wordmark is a link and measured 34px on a phone — the mark is 36px tall but the
+     lockup's box was shorter. The nav chips are already 44. */
+  @media (pointer: coarse) {
+    .wordmark { min-height: 44px; }
+  }
+
   /* The header is the one row on the site with four fixed-width things in it, and the
      mark going from 13.5px to 42px is what pushed it over: at 360px the page gained 4px
      of horizontal scroll on every route. Everything in the row gives a little rather than

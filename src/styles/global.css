@@ -773,6 +773,25 @@ main,
 }
 .textlink:hover { border-bottom-color: var(--accent); }
 
+/* ── The 44px floor, and where it does and does not apply ──
+   DESIGN.md § Accessibility floor: touch targets at least 44x44px, because the audience
+   is on phones. Measured against the live site on a Pixel 7, six standalone controls
+   were under it — this is the shared one, at 28px.
+
+   It is `pointer: coarse` rather than a width query on purpose: the constraint is the
+   finger, not the screen. A narrow desktop window does not need a 44px link and a
+   tablet at 1024px does.
+
+   **Inline links inside a sentence are exempt and must stay exempt.** The floor as
+   written does not say so and cannot be met there: a 44px target on a link in a
+   paragraph would overlap the lines above and below it. WCAG 2.5.8 carves out exactly
+   this case — a target "in a sentence, or whose size is otherwise constrained by the
+   line-height of non-target text". So `/motion.js` in the about page's prose stays
+   20px, and that is correct rather than tolerated. */
+@media (pointer: coarse) {
+  .textlink { min-height: 44px; }
+}
+
 /* ── Section head ───────────────────────────────────────────────────────────
    The ordinal moved into the rail and turned into mono, so the head is now just a
    title and a line of context, with a rule under it that runs the full measure. */

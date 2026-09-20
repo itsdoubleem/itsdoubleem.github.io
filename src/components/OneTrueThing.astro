@@ -346,6 +346,15 @@ const rules = curios
     padding: 4px 0;
     list-style: none;
   }
+  /* "Show me" measured 32px on a phone, under the 44px floor. This has to come AFTER
+     the rule above: the first attempt was written before it and lost to that rule's
+     `padding: 4px 0` — equal specificity, so source order decided it and the fix
+     silently did nothing. Padding rather than min-height, because a <summary> lays out
+     around its disclosure marker and a min-height would strand the marker at the top
+     of the taller box. */
+  @media (pointer: coarse) {
+    .curio__reveal summary { padding-block: 11px; }
+  }
   .curio__reveal summary::-webkit-details-marker { display: none; }
   .curio__reveal summary::before {
     content: '';
