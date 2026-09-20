@@ -100,8 +100,8 @@ You do not need to read Korean to use it. You do not need to be good with phones
 
 It applies the law to a record you keep yourself and shows you the arithmetic. It does not
 tell you what to do about the result, it does not draft or file a 진정 for you, it gives no
-legal advice, and it is free — and it stays free, which is part of what keeps it a
-calculator rather than labour consulting.
+legal advice, and it is free, which is part of what keeps it a calculator rather than
+labour consulting.
 
 The binding numbers are the ones on your company's 급여명세서. Whether wages are actually
 owed to you is for 고용노동부 and a 노무사 or a lawyer to decide, not for an app.

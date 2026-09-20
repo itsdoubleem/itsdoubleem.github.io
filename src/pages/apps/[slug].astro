@@ -87,7 +87,9 @@ const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
 
           <dl class="rail__facts">
             <dt>Price</dt>
-            <dd class="rail__free">Free — and it stays free</dd>
+            {/* The price today, not a promise about every version after this one.
+                This used to read "Free — and it stays free". */}
+            <dd class="rail__free">Free</dd>
 
             <dt>Your data</dt>
             <dd>{privacyLine}</dd>

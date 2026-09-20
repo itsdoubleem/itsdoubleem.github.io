@@ -32,10 +32,19 @@ const grouped = GROUPS
   .map(([key, label]) => [label, rest.filter((a) => a.data.type === key)] as const)
   .filter(([, items]) => items.length > 0);
 
-// Three things that are true of everything here. Not slogans — each one is a checkable
+// Things that are true of everything here. Not slogans — each one is a checkable
 // property of the site, which is why they can sit this large without embarrassing anybody.
+//
+// There used to be a third, first in the row: "Free — every app here is free and stays
+// free." It was removed on purpose. The other two describe how the site is built, and
+// they stay true by construction: there is no sign-up form to regret and no script to
+// take back. "Stays free" is different in kind — it is a promise about work that does
+// not exist yet, printed at 27px, and the only way to keep it is to never charge for
+// anything ever. Each app still states its own price on its own page, where it is a
+// fact about that app rather than a pledge about all future ones.
+//
+// Do not add one that is a claim rather than a checkable property.
 const stance = [
-  { k: 'Free', v: 'Every app here is free and stays free. No tiers, no upgrade screen, no trial running out.' },
   { k: 'No account', v: 'Nothing asks you to sign up, because there is nothing to sign up to.' },
   { k: 'Nothing collected', v: 'No cookies, no analytics, not one script on the page. That is why you were never shown a banner.' },
 ];
@@ -58,15 +67,27 @@ const stance = [
   <section class="hero">
     <div class="hero__inner wrap">
       <div class="hero__copy">
-        <p class="label enter enter--1">
-          {count} {count === 1 ? 'entry' : 'entries'}<i>·</i>One person<i>·</i>Free, always
-        </p>
-        <h1 class="display display--hero enter enter--2">Everything I make ends up here.</h1>
-        <p class="lead enter enter--3">
+        {/* There is deliberately no kicker over this headline.
+
+            It used to read "N entries · One person · Free, always", and every part of
+            that was a hostage. The count went stale the moment the grid below it
+            grouped work differently. "One person" is a promise about who will always
+            be making this, which forecloses ever working with anybody. "Free, always"
+            is a promise about every future thing on the site, made in the one place a
+            first-time visitor is guaranteed to read it — and it costs nothing to keep
+            only until the day something here is not free, at which point the site has
+            lied on its front page.
+
+            None of that was load-bearing. The headline and the line under it already
+            say what this is. If you want a fact above the headline later, make it one
+            that is true of what is on the page today rather than of everything that
+            will ever be on it. */}
+        <h1 class="display display--hero enter enter--1">Everything I make ends up here.</h1>
+        <p class="lead enter enter--2">
           Apps, tools, and whatever else I end up making — each with a page that says
           plainly what it does and what it doesn't.
         </p>
-        <div class="hero__actions enter enter--4">
+        <div class="hero__actions enter enter--3">
           <a class="btn btn--primary" href="#work">See the work</a>
           <a class="textlink" href="/about/">What this is <span aria-hidden="true">→</span></a>
         </div>
@@ -137,7 +158,13 @@ const stance = [
 
     {grouped.map(([label, items]) => (
       <section class="group">
-        <p class="label reveal">{label} — {items.length}</p>
+        {/* No count here. It said "Apps — 1" on a site with two apps, because the
+            lowest-ordered work is pulled out as the feature above and this counts only
+            what is left in the grid. That is defensible and completely illegible: the
+            reader sees an app, then a heading claiming there is one app. A heading that
+            names the kind of work is doing its whole job; the reader can see how many
+            cards are under it. */}
+        <p class="label reveal">{label}</p>
         <div class="grid" data-count={Math.min(items.length, 3)}>
           {items.map((app) => <AppCard app={app} />)}
         </div>
@@ -150,13 +177,14 @@ const stance = [
       round: it is the lightest surface on the page rather than the darkest, lifted off
       the ground by a rule and a thin line of the accent along its top edge.
 
-      The three things it says are each a checkable property of the site, which is why
-      they can sit this large without embarrassing anybody. Do not add a fourth that is
-      a claim rather than a fact. */}
+      Each thing it says is a checkable property of the site, which is why they can sit
+      this large without embarrassing anybody. Do not add one that is a claim rather
+      than a fact — see the note on `stance` for the one that was removed for being
+      exactly that. */}
   <section class="band">
     <div class="band__inner wrap">
       <p class="label band__lead">True of everything here</p>
-      <ul class="band__list">
+      <ul class="band__list" data-count={stance.length}>
         {stance.map((s) => (
           <li class="reveal">
             <p class="band__k">{s.k}</p>
@@ -300,7 +328,13 @@ const stance = [
     list-style: none; margin: 0; padding: 0;
     display: grid; gap: clamp(26px, 3vw, 40px);
   }
-  @media (min-width: 760px) { .band__list { grid-template-columns: repeat(3, 1fr); } }
+  /* Driven by how many there are, not hardcoded at three. With the "Free" card removed
+     a fixed `repeat(3, 1fr)` left the last third of the row empty, which reads as a
+     card that failed to load rather than as a deliberate pair. */
+  @media (min-width: 760px) {
+    .band__list[data-count="2"] { grid-template-columns: repeat(2, 1fr); }
+    .band__list[data-count="3"] { grid-template-columns: repeat(3, 1fr); }
+  }
   .band__list li { border-top: 1px solid var(--rule); padding-top: 20px; }
   .band__k {
     margin: 0;

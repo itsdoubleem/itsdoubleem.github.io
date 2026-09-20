@@ -20,8 +20,13 @@ Three, and they are not style preferences.
    it came from. One honest page beats ten fabricated metrics, and a visitor who catches a
    single made-up figure is right to discount everything else on it. Where there is no
    number yet, say what the thing *does* instead.
-2. **Everything here is free, and stays free.** That is a position, not a launch promo.
-   No pricing, no tiers, no upgrade prompts, no email-gated downloads.
+2. **Do not promise that anything stays free.** Everything here is free today, and each
+   app says so on its own page, where it is a fact about that app. "Free, always" and
+   "and it stays free" are promises about work that does not exist yet — the only way to
+   keep one is to never charge for anything, ever — so they are not made. If something
+   here is ever paid, put the price plainly on its page. What stays banned is the
+   furniture around money, not money: no tiers, no "pro" version held back, no upgrade
+   prompts, no email-gated downloads.
 3. **Verify a claim against the running app, not against a grep.** Check that a feature
    exists by using it on screen, and that it is gone by failing to find it on screen. This
    applies doubly to privacy claims: if a page says data never leaves the device, someone
