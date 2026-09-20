@@ -856,9 +856,9 @@
 
     var globePx = Math.round(Math.min(c.height, window.innerHeight) * TUNE.globeFrac);
     /* The field runs from the very top of the page down to the foot of the section, so
-       the orbs and comets carry up behind the header instead of starting partway down
-       the hero. The globe is still pinned to the device's lower edge — `anchor` does
-       that — it is only the canvas around it that got taller. */
+       the orbs carry up behind the header instead of starting partway down the hero.
+       The globe is still pinned to the device's lower edge — `anchor` does that — it is
+       only the canvas around it that got taller. */
     var top     = 0;
     var h       = Math.max(240, secBottom - top);
     var vw      = document.documentElement.clientWidth;   // excludes the scrollbar
