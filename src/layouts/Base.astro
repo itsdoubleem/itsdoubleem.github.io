@@ -187,18 +187,29 @@ const nav = [
     top: 0;
     z-index: 10;
     padding-block: var(--head-gap) 0;
-    /* The bar is WIDER than the content under it. publik insets its bar 30px from the
-       window and its content 91px, so the nav spans almost the full width while the
-       page beneath sits in from it — which is what makes the bar read as chrome
-       belonging to the window rather than as the first row of the page. Overriding
-       .wrap's padding here is the whole of that effect. */
-    --bar-inset: clamp(12px, 2.1vw, 34px);
+    /* ── The bar used to be WIDER than the content, and it is not any more ──
+       This is the second borrowed structure from publik to be handed back; DESIGN.md
+       § The fourth change lists the others. publik insets its bar 30px from the window
+       and its content 91px, so the nav spans almost the full width while the page sits
+       in from it, and the bar reads as chrome belonging to the window rather than as
+       the first row of the page. That is a real effect and it worked.
+
+       The owner asked for it removed on 2026-09-21: on a wide window the bar ran
+       34px to 1676px while everything beneath it ran 125px to 1585px, and the extra
+       180px read as a bar that had been stretched rather than one that had been placed.
+       The override that produced it — `max-width: none` plus a `--bar-inset` of
+       clamp(12px, 2.1vw, 34px) — is gone, so .wrap--bar is now simply .wrap and the bar
+       measures exactly what the page measures.
+
+       The bar keeps its own 14px/12px padding, so the wordmark sits that far inside the
+       headline's left edge rather than flush with it. That was offered and not taken:
+       aligning the two would mean pulling the bar box back out past the measure, which
+       is the thing being removed here. */
     /* No background and no border. A sticky element with neither still captures pointer
        events across its full width, which would swallow clicks on whatever scrolls
        under it — so the header itself is inert and only the bar inside it is not. */
     pointer-events: none;
   }
-  .site-head .wrap--bar { max-width: none; padding-inline: var(--bar-inset); }
   .site-head__bar {
     pointer-events: auto;
     display: flex;
