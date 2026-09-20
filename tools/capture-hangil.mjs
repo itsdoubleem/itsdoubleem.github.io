@@ -19,8 +19,31 @@ await mkdir(`${OUT}/shots`, { recursive: true });
 const b = await chromium.launch();
 const page = await b.newPage({
   viewport: { width: 390, height: 844 },
-  deviceScaleFactor: 2, hasTouch: true, isMobile: true,
+  /* 3, matching tools/capture-guide.mjs — see the long note there. 2 makes a 780px file
+     for a 390px layout, which is 1:1 only on a 2x display; on a 3.75x phone that is
+     pixel-perfect only up to 208 CSS px, and every place this site draws a capture is
+     wider than that. 3 gives 1170 x 2532. */
+  deviceScaleFactor: 3, hasTouch: true, isMobile: true,
   colorScheme: 'light',
+});
+
+/* ── Math.random is seeded, and it has to be ──
+ * HANGIL shuffles: which exercise a unit opens on, and the order of a question's
+ * options. Re-run the capture and 04-practice came back as a fill-the-gap question where
+ * it had been a matching one, and 08-picture's four drawings came back in a different
+ * order. Both are true screens of the real app — and both mean the file on disk changes
+ * every run, so no diff of a capture set ever means anything, and an `alt` written
+ * against one order quietly stops describing the picture.
+ *
+ * So the app's randomness is made deterministic before it loads. This is NOT mocking the
+ * app: every question, drawing and answer is the app's own, the wage of the thing is
+ * untouched, and a reader sees a screen the app really produces. It is only fixed which
+ * of them, so that re-running this script twice gives the same files twice.
+ *
+ * Same purpose as the pinned clock in tools/capture-guide.mjs, for the same reason. */
+await page.addInitScript(() => {
+  let s = 20260920 >>> 0;
+  Math.random = () => ((s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296);
 });
 
 // A little progress, so the screens show the app in use rather than empty. These

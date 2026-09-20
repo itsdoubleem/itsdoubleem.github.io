@@ -18,11 +18,11 @@ screenshots:
   # what a lesson actually looks like, what the exam side offers, and the shape of a
   # question you will meet on the paper.
   - src: /assets/hangil/shots/03-lesson.png
-    alt: A lesson titled Turning a whole sentence into an adjective, with the forms (으)ㄴ, 는 and (으)ㄹ in orange beneath it, above several paragraphs explaining how Korean puts a whole clause in front of the noun
+    alt: A lesson titled Turning a whole sentence into an adjective, with the forms (으)ㄴ, 는 and (으)ㄹ in a tinted pill beneath it, then a Walk me through it button, above several paragraphs explaining how Korean puts a whole clause in front of the noun
     caption: A unit from the last level. The explanation comes first and is written out in full — the app is not a flashcard deck with a grammar note attached.
   - src: /assets/hangil/shots/05-exam.png
-    alt: The exam menu, offering Practice paper 1 at 40 questions and 50 minutes, above a list of question types including Signs and notices and The right word, each labelled 읽기 reading with a question count
-    caption: The exam side. The question types are the ones the paper uses, so nothing on the day is a surprise format. The day-streak and review counts visible in these captures come from a sample of progress made while taking them, not from anyone's study record.
+    alt: The exam menu, explaining that the EPS-TOPIK paper is forty questions at five points each, then a How the exam works reader, then Practice paper 1 and Practice paper 2 each labelled 40 questions and 50 minutes, above a section headed 업종별 by trade
+    caption: The exam side. Below what is shown here it drills each question type the paper uses, so nothing on the day is a surprise format. The day-streak and review counts visible in these captures come from a sample of progress made while taking them, not from anyone's study record.
   - src: /assets/hangil/shots/06-sign.png
     alt: A practice question showing the Korean sign 출입 금지 in a bordered box, with the Korean instruction to choose the correct meaning and four Korean answer options below it
     caption: A sign question. Where the paper photographs a sign, this prints the sign's own words — the words are the thing being tested. Questions built on a drawing have a drawing.
