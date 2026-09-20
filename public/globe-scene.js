@@ -203,7 +203,7 @@
   var METEOR_VERT = [
     'attribute vec3 aOrigin;','attribute vec3 aDir;','attribute float aLen;','attribute float aWidth;',
     'attribute float aSpeed;','attribute float aSeed;','attribute float aSpan;','attribute float aDuty;',
-    'uniform float uTime;','uniform float uWidth;',
+    'uniform float uTime;','uniform float uWidth;','uniform vec3 uTailDir;','uniform float uUseTailDir;',
     'varying vec2 vUv;','varying float vFade;','varying float vSeed;','varying float vNdcX;','varying float vDepth;',
     'void main(){',
     '  vUv = uv;',
@@ -213,9 +213,12 @@
     '  float trip = cycle / max(aDuty, 0.0001);',
     '  vec3 dir = normalize(aDir);',
     '  vec3 head = aOrigin + dir * (trip * aSpan);',
-    '  vec3 p = head - dir * (uv.y * aLen);',           // uv.y: 0 at head, 1 at tail
+    // A meteor's trail follows its own path. A comet's does not: the tail is blown off
+    // it by the solar wind and points away from the light wherever the comet is going.
+    '  vec3 tdir = uUseTailDir > 0.5 ? normalize(uTailDir) : dir;',
+    '  vec3 p = head - tdir * (uv.y * aLen);',           // uv.y: 0 at head, 1 at tail
     '  vec4 mv = modelViewMatrix * vec4(p, 1.0);',
-    '  vec3 dv = normalize((modelViewMatrix * vec4(dir, 0.0)).xyz);',
+    '  vec3 dv = normalize((modelViewMatrix * vec4(tdir, 0.0)).xyz);',
     '  vec3 side = cross(dv, vec3(0.0, 0.0, 1.0));',
     '  float sl = length(side);',
     '  side = sl > 0.0001 ? side / sl : vec3(1.0, 0.0, 0.0);',
@@ -373,6 +376,7 @@
     var TILT    = (o.tilt === undefined ? 23.5 : o.tilt);
     var DENSITY = o.density  || 46000;
     var NDUST   = o.particles|| 480;
+    var SPREAD  = o.fieldScale || 1;   // widens the field when the canvas is tall
     var FILL    = o.fill     || 0.67;
     var FIXED_FILL = o.fill !== undefined;       // caller owns the framing
     var MANUAL_POS = o.manualPlacement === true; // caller owns the placement
@@ -733,7 +737,8 @@
         uniforms: {
           uTime: { value: 0 }, uWidth: { value: width },
           uHead: { value: head }, uTrail: { value: trail }, uOpacity: { value: opacity },
-          uCopyGuard: { value: 1 }
+          uCopyGuard: { value: 1 },
+          uTailDir: { value: new THREE.Vector3(0, 1, 0) }, uUseTailDir: { value: 0 }
         },
         transparent: true, depthWrite: false, depthTest: true, side: THREE.DoubleSide,
         blending: THREE.AdditiveBlending
@@ -747,6 +752,78 @@
     }
     meteorLayer(3.4, 0.18, col.cyan.clone().lerp(col.ice, 0.5), col.violet, 6);
     meteorLayer(1.4, 0.85, new THREE.Color(0xF4FBFF), col.violet.clone().lerp(col.cyan, 0.30), 7);
+
+    /* --- 7c. Comets ------------------------------------------------------
+       A meteor is only luminous while it ablates in air, which is why those stay pinned
+       to 1.055R. A comet is not: its coma and tail are driven by sunlight and solar
+       wind, so it can be anywhere in the field — which is what lets these reach the top
+       of the page without the scene telling a lie. The tail is therefore NOT drawn
+       behind its motion; it points away from the light, via uTailDir. */
+    var NCOMET = o.comets === undefined ? 5 : o.comets;
+    var kq = [], kuv = [], korig = [], kdir = [], klen = [], kwid = [], kspd = [], kseed = [], kspan = [], kduty = [], kidx = [];
+    for (var ci = 0; ci < NCOMET; ci++) {
+      var cu = Math.random() * 2 - 1;
+      var cp = Math.random() * Math.PI * 2;
+      var cr = Math.sqrt(Math.max(0, 1 - cu * cu));
+      var cd = new THREE.Vector3(Math.cos(cp) * cr, cu * 0.5, Math.sin(cp) * cr).normalize();
+      var far = R * (2.4 + Math.random() * 3.2) * SPREAD;
+      var off = new THREE.Vector3(
+        (Math.random() - 0.5) * far * 1.6,
+        (Math.random() * 0.75 + 0.15) * far,      // biased high: the upper field is the point
+        (Math.random() - 0.5) * far * 0.8);
+      var cspan = R * (2.5 + Math.random() * 3.0) * SPREAD;
+      var corg = off.sub(cd.clone().multiplyScalar(cspan * 0.5));
+      var clen = R * (0.9 + Math.random() * 1.6) * SPREAD;
+      var cwid = R * (0.010 + Math.random() * 0.012);
+      var cspd = (0.004 + Math.random() * 0.006) * MO * (reduced ? 0.3 : 1);
+      var csd  = Math.random();
+      var cbase = ci * 4;
+      var cuv = [[0, 0], [1, 0], [0, 1], [1, 1]];
+      for (var cv = 0; cv < 4; cv++) {
+        kq.push(corg.x, corg.y, corg.z);
+        kuv.push(cuv[cv][0], cuv[cv][1]);
+        korig.push(corg.x, corg.y, corg.z);
+        kdir.push(cd.x, cd.y, cd.z);
+        klen.push(clen); kwid.push(cwid); kspd.push(cspd); kseed.push(csd);
+        kspan.push(cspan); kduty.push(1);          // always out, unlike a meteor
+      }
+      kidx.push(cbase, cbase + 1, cbase + 2, cbase + 2, cbase + 1, cbase + 3);
+    }
+    var cometGeo = keep(new THREE.BufferGeometry());
+    cometGeo.setAttribute('position', new THREE.Float32BufferAttribute(kq, 3));
+    cometGeo.setAttribute('uv',       new THREE.Float32BufferAttribute(kuv, 2));
+    cometGeo.setAttribute('aOrigin',  new THREE.Float32BufferAttribute(korig, 3));
+    cometGeo.setAttribute('aDir',     new THREE.Float32BufferAttribute(kdir, 3));
+    cometGeo.setAttribute('aLen',     new THREE.Float32BufferAttribute(klen, 1));
+    cometGeo.setAttribute('aWidth',   new THREE.Float32BufferAttribute(kwid, 1));
+    cometGeo.setAttribute('aSpeed',   new THREE.Float32BufferAttribute(kspd, 1));
+    cometGeo.setAttribute('aSeed',    new THREE.Float32BufferAttribute(kseed, 1));
+    cometGeo.setAttribute('aSpan',    new THREE.Float32BufferAttribute(kspan, 1));
+    cometGeo.setAttribute('aDuty',    new THREE.Float32BufferAttribute(kduty, 1));
+    cometGeo.setIndex(kidx);
+
+    // Anti-sunward, in world space: the key light points one way, the tail the other.
+    var TAIL = new THREE.Vector3(0.52, -0.46, -0.72).normalize();
+    function cometLayer(width, opacity, headCol, trailCol, order) {
+      var mtl = keep(new THREE.ShaderMaterial({
+        vertexShader: METEOR_VERT, fragmentShader: METEOR_FRAG,
+        uniforms: {
+          uTime: { value: 0 }, uWidth: { value: width },
+          uHead: { value: headCol }, uTrail: { value: trailCol }, uOpacity: { value: opacity },
+          uCopyGuard: { value: 1 },
+          uTailDir: { value: TAIL }, uUseTailDir: { value: 1 }
+        },
+        transparent: true, depthWrite: false, depthTest: true, side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending
+      }));
+      meteorMats.push(mtl);
+      var mesh = new THREE.Mesh(cometGeo, mtl);
+      mesh.frustumCulled = false;
+      mesh.renderOrder = order;
+      world.add(mesh);
+    }
+    cometLayer(4.2, 0.085, col.cyan.clone().lerp(col.ice, 0.4), col.violet, 4);
+    cometLayer(1.2, 0.30,  new THREE.Color(0xEAFBF4), col.violet.clone().lerp(col.cyan, 0.35), 5);
 
     var headGeo = keep(new THREE.BufferGeometry());
     headGeo.setAttribute('position', new THREE.Float32BufferAttribute(hPos, 3));
@@ -777,7 +854,7 @@
       var pu = Math.random() * 2 - 1;
       var pp = Math.random() * Math.PI * 2;
       var prr = Math.sqrt(Math.max(0, 1 - pu * pu));
-      var pd = R * (1.15 + Math.pow(Math.random(), 0.55) * 2.6);
+      var pd = R * (1.15 + Math.pow(Math.random(), 0.55) * 2.6) * SPREAD;
       uPos.push(Math.cos(pp) * prr * pd * 1.7, pu * pd * 0.9, Math.sin(pp) * prr * pd);
       uSize.push(R * (0.0045 + Math.pow(Math.random(), 2.2) * 0.026));
       uPhase.push(Math.random() * 6.283);
@@ -1013,8 +1090,23 @@
   style.textContent =
     '.curio .neb,.curio .sky,.curio .sky-fx{display:none!important}' +
     'main{position:relative}' +
-    '.curio-sky{position:absolute;z-index:-1;display:block;pointer-events:none}';
+    '.curio-sky{position:absolute;z-index:-1;display:block;pointer-events:none}' +
+    /* The light the cursor carries. Fixed, so it follows across the whole page rather
+       than only over the canvas; screen-blended so it lifts what is under it instead of
+       washing it out; and pointer-events: none like every other decorative layer here.
+       It is painted from two custom properties and nothing else, which is the same
+       contract motion.js works to. */
+    '.cursor-glow{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:0;' +
+      'transition:opacity .45s ease;mix-blend-mode:screen;' +
+      'background:radial-gradient(500px 500px at var(--mx,50%) var(--my,50%),' +
+      'rgba(8,223,156,.22) 0%,rgba(111,243,200,.11) 32%,rgba(8,223,156,.04) 55%,transparent 72%)}' +
+    '.cursor-glow.is-lit{opacity:1}';
   document.head.appendChild(style);
+
+  var glow = document.createElement('div');
+  glow.className = 'cursor-glow';
+  glow.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(glow);
 
   var main = document.querySelector('main') || curio.parentElement;
   var device = document.querySelector('.hero__device');
@@ -1039,28 +1131,33 @@
       : (c.top + sy) - 40;
 
     var globePx = Math.round(Math.min(c.height, window.innerHeight) * TUNE.globeFrac);
-    var head    = Math.round(globePx * TUNE.headFrac);
-    var top     = anchor - head;
+    /* The field runs from the very top of the page down to the foot of the section, so
+       the orbs and comets carry up behind the header instead of starting partway down
+       the hero. The globe is still pinned to the device's lower edge — `anchor` does
+       that — it is only the canvas around it that got taller. */
+    var top     = 0;
     var h       = Math.max(240, secBottom - top);
     var vw      = document.documentElement.clientWidth;   // excludes the scrollbar
 
-    cv.style.top    = (top - (m.top + sy)) + 'px';
+    cv.style.top    = (0 - (m.top + sy)) + 'px';
     cv.style.left   = (0 - m.left) + 'px';
     cv.style.width  = vw + 'px';
     cv.style.height = h + 'px';
 
     geo.h = h;
     geo.fill = globePx / h;
-    geo.cyFrac = (head + globePx / 2) / h;
+    // A taller canvas shows more world, so the particle field has to grow with it or it
+    // pools around the globe and leaves the top of the page empty.
+    geo.spread = Math.max(1, h / Math.max(globePx, 1) * 0.6);
+    geo.cyFrac = (anchor + globePx / 2 - top) / h;   // sphere top still lands on `anchor`
     geo.cxFrac = device
       ? ((device.getBoundingClientRect().left + device.getBoundingClientRect().width / 2) / vw)
       : 0.66;
 
     /* Fade top and bottom only. The page's own edges are the horizontal boundary,
        so the field runs the full width instead of dying in a pool round the globe. */
-    var t1 = (head * 0.78 / h * 100).toFixed(1);
-    var mask = 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.65) ' + t1 +
-               '%, #000 ' + (+t1 + 14).toFixed(1) + '%, #000 86%, transparent 100%)';
+    var mask = 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.45) 6%, ' +
+               'rgba(0,0,0,.8) 16%, #000 30%, #000 86%, transparent 100%)';
     cv.style.webkitMaskImage = mask;
     cv.style.maskImage = mask;
   }
@@ -1080,7 +1177,7 @@
   var accent = (cs.getPropertyValue('--accent') || '').trim() || '#08DF9C';
   hero = window.createGlobeHero(cv, {
     colors: { violet: accent, cyan: '#6FF3C8', ice: '#DFFBF0', plum: '#0C5B45', deep: '#0B1410' },
-    fill: geo.fill, tilt: 23.5,
+    fill: geo.fill, tilt: 23.5, fieldScale: geo.spread,
     motion: reduced ? 0.25 : TUNE.motion,
     bloom: TUNE.bloom, exposure: 1.04,
     meteors: TUNE.meteors, particles: TUNE.particles,
@@ -1090,5 +1187,26 @@
 
   var ro = new ResizeObserver(function () { layout(); place(); });
   ro.observe(main);
+
+  /* Drive the cursor light. One rAF for the two writes, for the same reason motion.js
+     coalesces its own: pointermove fires far faster than the compositor draws, and each
+     custom-property write invalidates style for the subtree it lands on. */
+  if (!reduced) {
+    var gx = 0, gy = 0, gq = false, lit = false;
+    var paint = function () {
+      gq = false;
+      glow.style.setProperty('--mx', gx.toFixed(1) + 'px');
+      glow.style.setProperty('--my', gy.toFixed(1) + 'px');
+    };
+    window.addEventListener('pointermove', function (e) {
+      gx = e.clientX; gy = e.clientY;
+      if (!lit) { lit = true; glow.classList.add('is-lit'); }
+      if (!gq) { gq = true; requestAnimationFrame(paint); }
+    }, { passive: true });
+    document.addEventListener('pointerleave', function () {
+      lit = false; glow.classList.remove('is-lit');
+    }, { passive: true });
+  }
+
   window.__doubleemSky = hero;
 })();
