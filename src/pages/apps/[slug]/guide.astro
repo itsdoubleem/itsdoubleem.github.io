@@ -300,19 +300,25 @@ const stepCount = g.steps.length + g.after.length;
   /* The capture. Full width under the copy on a phone, a fixed column beside it above
      760px — and capped either way at the 390px it was taken at. */
   .step__shot { grid-column: 2; }
+  /* Above the breakpoint the capture moves into its own 208px column, and THAT is what
+     sizes it — the image is width: 100% of whatever column it is in. There is no
+     `max-width: 208px` here any more: it was added with the fix below, it never applied
+     (the base rule is later in the file at equal specificity, so it always won), and
+     desktop was correct anyway because the column governs. A dead rule that looks
+     load-bearing is worse than no rule. */
   @media (min-width: 760px) {
     .step__shot { grid-column: 3; grid-row: 1; }
-    .step__shot img { max-width: 208px; }
   }
-  /* ── The cap belongs to the desktop column, not to the phone ──
-     208px is the width of the side column this sits in above 760px. It was applied
-     unconditionally, so on a phone — where the capture is stacked under the copy and has
-     the whole column to itself — it rendered at 208px inside a 289px slot and left 28%
-     of the width empty. Measured on a Galaxy S24 Ultra.
+  /* ── The capture fills its column, whatever that column is ──
+     This carried `max-width: 208px` unconditionally — the width of the side column it
+     sits in above 760px. On a phone, where it is stacked under the copy and has the
+     whole column, that rendered it at 208px inside a 289px slot and left 28% of the
+     width empty. Measured on a Galaxy S24 Ultra: the guide exists to show you the
+     screen, and the phone is where somebody actually follows it.
 
-     That is the wrong way round: the guide exists to show you the screen, and the phone
-     is where somebody actually follows it. Below the breakpoint the capture fills its
-     column, still capped at the 390px it was taken at so it is never magnified. */
+     The only cap left is 390px, which is not a layout choice — it is the width the
+     capture was taken at, past which it would be magnified rather than shown. See
+     DESIGN.md § The app card. */
   .step__shot img {
     width: 100%; max-width: 390px; height: auto; display: block;
     border: 1px solid var(--hairline);
