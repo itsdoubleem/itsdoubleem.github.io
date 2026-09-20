@@ -39,13 +39,13 @@ platformNotes:
     note: It opens in any browser and there is nothing to install, but it is meant to be added to your home screen — on Android, Chrome's menu › Add to Home screen; on iPhone, Safari's share button › Add to Home Screen. After that it opens full screen like any other app and works with no connection. Your progress lives in that browser's storage for this address, so it does not follow you to another phone or another browser — take a backup from Settings before you switch.
 verify:
   - claim: It works with no connection.
-    how: Open it once with a connection, then turn airplane mode on and open it again. The course, the vocabulary, the exam papers and the review deck all still work. The whole app is 857 KB and your browser keeps a copy after the first visit.
+    how: Open it once with a connection, then turn airplane mode on and open it again. The course, the vocabulary, the exam papers and the review deck all still work. The whole app is 843 KB and your browser keeps a copy after the first visit.
   - claim: It cannot send your progress anywhere.
     how: Open your browser's network panel and use the app. Every request it makes is for its own files, and once it has loaded it makes none at all — answering a question sends nothing. There is no account to sign into, no analytics, and no third-party script on the page.
   - claim: The Android app cannot reach the internet at all.
     how: It asks for no internet permission. Unzip the APK and read its manifest — with that permission absent, Android will not let the app use the network, whatever anybody claims about it. The trade-off is real and worth knowing — it also rules out the speech engines' online voices, which are better than the offline ones, so the app is limited to the Korean voices already on your phone.
   - claim: The APK you download is the file I built.
-    how: Hash it before you install it — shasum -a 256 hangil.apk on macOS or Linux, certutil -hashfile hangil.apk SHA256 on Windows. It must print ce5c778114ce1c92cf19fab02e11494dc841921b76ca758f000f5ca0a1d31f6e. One character out and it is not my build, so delete it.
+    how: Hash it before you install it — shasum -a 256 hangil.apk on macOS or Linux, certutil -hashfile hangil.apk SHA256 on Windows. It must print 0ed67ab7beb51714863133ae3c3e5db142e916acc35ea4cfab03d01ba67239a8. One character out and it is not my build, so delete it.
   - claim: The Korean audio is your own phone speaking, not a download.
     how: Turn airplane mode on and press any play button. It still speaks, because the app hands the sentence to the phone's own text-to-speech engine. That is why there is no audio to wait for — and why, if your phone has no Korean voice installed, the app says so on the first screen instead of playing you something wrong.
 wrong:
