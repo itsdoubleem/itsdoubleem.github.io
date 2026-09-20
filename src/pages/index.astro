@@ -109,11 +109,24 @@ const platformLine =
           plainly what it does and what it doesn't.
         </p>
         {/* The one door, and the whole job of this page. It is the only filled control
-            on it, and it goes to the catalogue rather than to an anchor further down —
-            because there is nothing further down. */}
+            on it, and it goes to the catalogue.
+
+            The second control pointed at /about/ and read "What this is". That was right
+            when the front page was only a hero — the note here used to end "because there
+            is nothing further down", and there wasn't. Both halves of that are now false:
+            there is a 42-chapter deck below, and the nav already carries an About button
+            two inches up, so the link was spending the page's one secondary control on a
+            destination the reader could already reach.
+
+            It names its destination rather than teasing it: the text is the section's own
+            heading, so nothing about the arrival is a surprise. The arrow points down
+            because the link moves you down this page instead of leaving it, and
+            .textlink--down turns the hover slide to match — see global.css. */}
         <div class="hero__actions enter enter--4">
           <a class="btn btn--primary" href="/apps/">See the work</a>
-          <a class="textlink" href="/about/">What this is <span aria-hidden="true">→</span></a>
+          <a class="textlink textlink--down" href="#how-we-got-here">
+            How we got here <span aria-hidden="true">↓</span>
+          </a>
         </div>
       </div>
 

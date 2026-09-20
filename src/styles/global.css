@@ -231,6 +231,13 @@
 *, *::before, *::after { box-sizing: border-box; }
 
 html { -webkit-text-size-adjust: 100%; }
+/* The hero's second control is an in-page jump, and an instant jump gives no sense of
+   having travelled. Inside the reduced-motion guard like every other movement here:
+   someone who asked their OS to stop moving things gets the instant jump, which is the
+   correct finished behaviour and not a degraded one. */
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
 
 body {
   margin: 0;
@@ -403,6 +410,10 @@ main,
 @media (prefers-reduced-motion: no-preference) {
   .textlink:hover span,
   .btn:hover span { transform: translateX(4px); }
+  /* A link that moves you DOWN the page carries a down arrow, and an arrow that points
+     one way while sliding another is a small thing that reads as broken. This has to
+     come after the rule above — equal specificity, so source order decides it. */
+  .textlink--down:hover span { transform: translateY(3px); }
 }
 
 /* ── Split-line headlines ───────────────────────────────────────────────────

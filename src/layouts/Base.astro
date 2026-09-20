@@ -310,30 +310,37 @@ const nav = [
      Every rgba(255,255,255,…) that used to be in here is gone. Those values were written
      when the footer was guaranteed to be the darkest thing on the page; they now sit on
      --panel, which is the lightest, and white-at-45%-opacity on it measured 2.9:1. */
+  /* ── Deliberately modest ──
+     This was half again as tall: 64px of clearance, 52px of padding, a 50px mark and a
+     29px wordmark, which gave the sign-off more presence than most of the sections above
+     it. A footer that restates the site's name at nearly headline size competes with the
+     page for no reason — it is a sign-off, not a section. */
   .site-foot {
-    margin-top: 64px;
+    margin-top: 44px;
     background: var(--panel);
     border-top: 1px solid var(--rule);
     color: var(--ink);
   }
-  .site-foot__inner { padding-block: 52px; }
+  .site-foot__inner { padding-block: clamp(26px, 3.2vw, 34px); }
   .site-foot__mark {
-    margin: 0 0 14px;
+    margin: 0 0 10px;
     display: inline-flex;
     align-items: center;
-    gap: 13px;
+    gap: 10px;
   }
-  .site-foot__mark img { flex: none; width: 50px; height: auto; }
+  .site-foot__mark img { flex: none; width: 32px; height: auto; }
   .site-foot__mark span {
     font-family: var(--font);
     font-weight: 600;
-    font-size: 29px;
+    font-size: 19px;
     letter-spacing: -0.018em;
     line-height: 1;
   }
   .site-foot__line {
-    margin: 0 0 24px;
-    max-width: 42ch;
+    margin: 0 0 12px;
+    max-width: 46ch;
+    font-size: 14.5px;
+    line-height: 1.55;
     color: var(--ink-soft);
   }
   .site-foot__meta {

@@ -1,5 +1,5 @@
 ---
-/* A deck of small true things, flipped through with no JavaScript at all.
+/* The story of how we got here, told one card at a time, with no JavaScript at all.
  *
  * The mechanism is a radio group: one hidden radio per card, and every visible control is
  * a <label> pointing at one of them. Checking a radio reveals its card through a sibling
@@ -50,19 +50,58 @@ import { curios } from '../curios';
  * The positions are still generated from a FIXED SEED so the same sky comes out of every
  * build — a random field would re-roll on each deploy and fill the diff with noise.
  */
-function field(seed: number, count: number, w: number, h: number, r: number, alpha: number) {
+/* ── Star colours ──
+ * Real stars are not white, and a field of one colour is the difference between a sky and
+ * a spray of dots. These are deliberately close together: at one pixel across, a hue that
+ * reads as "blue" in a swatch reads as "dirt" on screen, so the spread is in colour
+ * temperature only — cool white through to a faint amber — and never in saturation.
+ * %23 rather than # in every one: a literal hash ends a data: URL. */
+const TEMPS = ['%23dff0ff', '%23e8f6ff', '%23ffffff', '%23fff4e2', '%23ffe9c9', '%23e4fff4'];
+
+function field(
+  seed: number, count: number, w: number, h: number, r: number, alpha: number,
+  /* Floor for the brightness roll. The default 0.4 is the ordinary sky. The spark layer
+   * passes a high floor so every star it draws clears the halo and spike thresholds
+   * below — it is a handful of bright stars by definition, not a lucky roll. */
+  minMag = 0.4,
+) {
   let s = seed >>> 0;
   const next = () => ((s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296);
   let dots = '';
   for (let i = 0; i < count; i++) {
-    const x = (next() * w).toFixed(1);
-    const y = (next() * h).toFixed(1);
+    const x = +(next() * w).toFixed(1);
+    const y = +(next() * h).toFixed(1);
     // Vary each star's brightness, or the field reads as a regular grid of identical dots.
-    const o = (alpha * (0.4 + next() * 0.6)).toFixed(2);
-    dots += `<circle cx='${x}' cy='${y}' r='${r}' fill='%23e4fff4' opacity='${o}'/>`;
+    const mag = minMag + next() * (1 - minMag);
+    const o = alpha * mag;
+    const col = TEMPS[Math.floor(next() * TEMPS.length)];
+
+    /* ── The bright few ──
+     * A sky where every star is the same size is the other half of the same problem. The
+     * top of the brightness range gets a halo and, brighter still, a pair of spikes.
+     *
+     * THE HALO IS CONCENTRIC CIRCLES, NOT A GRADIENT, AND THAT IS NOT A STYLE CHOICE.
+     * DESIGN.md § The cosmos: this field was a stack of radial-gradients once and it
+     * froze a real phone for over a second at a time. Three flat circles rasterise for
+     * nothing; a <radialGradient> per star walks straight back toward what was measured
+     * and removed. If you want a softer falloff, add a fourth ring. */
+    if (mag > 0.72) {
+      dots += `<circle cx='${x}' cy='${y}' r='${(r * 3.6).toFixed(2)}' fill='${col}' opacity='${(o * 0.07).toFixed(3)}'/>`;
+      dots += `<circle cx='${x}' cy='${y}' r='${(r * 2.2).toFixed(2)}' fill='${col}' opacity='${(o * 0.14).toFixed(3)}'/>`;
+    }
+    if (mag > 0.9) {
+      /* Two hairlines crossing the star. Four-point diffraction is what a camera does to
+       * a bright point, and it is the cheapest cue that this is a photograph of a sky
+       * rather than a pattern. Kept under a tenth of the star's own opacity — at full
+       * strength it reads as a sparkle sticker. */
+      const len = (r * 7).toFixed(2);
+      const sw = (r * 0.42).toFixed(2);
+      dots += `<path d='M${(x - +len).toFixed(2)} ${y}H${(x + +len).toFixed(2)}M${x} ${(y - +len).toFixed(2)}V${(y + +len).toFixed(2)}' stroke='${col}' stroke-width='${sw}' opacity='${(o * 0.09).toFixed(3)}'/>`;
+    }
+
+    dots += `<circle cx='${x}' cy='${y}' r='${r}' fill='${col}' opacity='${o.toFixed(2)}'/>`;
   }
-  // %23 rather than # — a literal hash ends the URL. Single quotes inside so the whole
-  // thing can sit in a double-quoted url().
+  // Single quotes inside so the whole thing can sit in a double-quoted url().
   return `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}'>${dots}</svg>")`;
 }
 
@@ -73,8 +112,50 @@ const sky = {
   mid:   { f: field(70112358, 7,  150, 120, 0.9, 0.75), w: 150, h: 120 },
   nearA: { f: field(31415927, 5,  230, 180, 1.2, 0.95), w: 230, h: 180 },
   nearB: { f: field(27182818, 4,  200, 160, 1.1, 0.90), w: 200, h: 160 },
+  /* ── The spark layer ──
+   * Three bright stars on a deliberately LARGE tile, carrying the only conspicuous
+   * twinkle in the sky. Everything about its size is a compromise between two failures:
+   *
+   *   too small a tile — the same three stars blink in step across thirty repeats, and
+   *     a grid of synchronised blinks is unmistakably a texture, not a sky;
+   *   too large a tile — the bitmap the browser has to hold grows with its area, and at
+   *     a phone's 3.75x that gets expensive fast. 300x240 is 1125x900 device pixels.
+   *
+   * This is also why there is one spark layer and not three. Individual stars cannot
+   * really twinkle independently while the field is a repeating tile; what sells it is
+   * several layers breathing on periods that never line up, which is what the block in
+   * the stylesheet does. */
+  spark: { f: field(16180339, 3, 300, 240, 1.35, 1, 0.88), w: 300, h: 240 },
 };
 
+/* ── Auto-advance ──
+ * Seconds each chapter holds before the deck moves itself on. The whole loop is this
+ * times the number of chapters, so at 42 chapters and 10 seconds it is 7 minutes end to
+ * end. Ten is about the floor for a block of two sentences — below it the deck is moving
+ * before an average reader has finished, and the hover pause stops being a courtesy and
+ * starts being the only way to read the thing.
+ */
+const DWELL = 10;
+const LOOP = DWELL * curios.length;
+/* A chapter's share of the loop, and the entry fade as a share of it. The fade is 640ms
+ * to match .curio__card's own curio-in, so a card that arrives on the timer looks like a
+ * card that arrived because you pressed the button. */
+const WIN = (100 / curios.length).toFixed(6);
+const FADE = ((0.64 / LOOP) * 100).toFixed(6);
+
+  /* ── Why a sentinel radio and not "checked" on the first card ──
+   * #curio-auto is a 43rd radio in the same group, checked on load, pointing at no card.
+   * While it holds the check the deck is in AUTO mode; the instant a label is pressed a
+   * real radio takes the check away from it and the deck is in MANUAL mode for good.
+   * That is the whole state machine, and it is one selector.
+   *
+   * The obvious alternative — leave "checked" on card 1 and detect "some other card is
+   * checked" — was tried and is subtly wrong: pressing Back from card 2 returns the check
+   * to card 1, which is indistinguishable from never having pressed anything, so the deck
+   * would silently start moving again under a reader who had just taken control of it.
+   *
+   * It also means no ":has()". The sentinel is the first element in the deck, so a plain
+   * sibling combinator reaches every card. */
 const rules = curios
   .map(
     (_, i) => `
@@ -83,10 +164,190 @@ const rules = curios
   outline: 2px solid var(--accent); outline-offset: 3px;
 }`,
   )
-  .join('');
+  .join('') +
+  `
+/* ── THE FLOOR, and it is outside the media query on purpose ──
+   If the timer cannot run for any reason at all, chapter 1 is still on screen. */
+#curio-auto:checked ~ .curio__card--0 { display: block; }
+
+@media (prefers-reduced-motion: no-preference) {
+  /* ── Every card needs a box before it can be animated ──
+     The first working version flipped "display" in the keyframes, and it failed in a way
+     worth recording: a card whose base style is "display: none" has no box, so the
+     animation that was supposed to give it a box never runs at all. Measured on the page,
+     42 cards carried the animation properties and document.getAnimations() returned 1.
+
+     So the cards stack in one grid cell and the timer moves VISIBILITY instead. This is
+     the same conclusion DESIGN.md reaches for the showcase swipe, for the same reason,
+     and it is worth reading that note before changing this one. What it costs is the
+     usual price of a shared cell: the deck is as tall as its tallest chapter, about
+     420px, rather than as tall as the one on screen. */
+  #curio-auto:checked ~ .curio__card {
+    display: block;
+    grid-area: 1 / 1;
+    visibility: hidden;
+    opacity: 0;
+  }
+  /* A second floor, for the case where the query matches but the animation does not
+     start: chapter 1 stays up rather than the deck going blank. Its own animation has
+     delay 0, so it takes over on the first frame and this never flickers. */
+  #curio-auto:checked ~ .curio__card--0 { visibility: visible; opacity: 1; }
+
+ 
+ 
+#
+c
+u
+r
+i
+o
+-
+a
+u
+t
+o
+:
+c
+h
+e
+c
+k
+e
+d
+ 
+~
+ 
+.
+c
+u
+r
+i
+o
+_
+_
+c
+a
+r
+d
+-
+-
+$
+{
+i
+}
+ 
+{
+ 
+a
+n
+i
+m
+a
+t
+i
+o
+n
+:
+ 
+c
+u
+r
+i
+o
+-
+c
+y
+c
+l
+e
+ 
+$
+{
+L
+O
+O
+P
+}
+s
+ 
+s
+t
+e
+p
+-
+e
+n
+d
+ 
+$
+{
+i
+ 
+*
+ 
+D
+W
+E
+L
+L
+}
+s
+ 
+i
+n
+f
+i
+n
+i
+t
+e
+;
+ 
+}
+` +
+  curios
+    .map(
+      (_, i) => `  #curio-auto:checked ~ .curio__card--${i} { animation: curio-cycle ${LOOP}s step-end ${i * DWELL}s infinite; }`,
+    )
+    .join('\n') +
+  `
+  /* ── The pause, which is not a nicety ──
+     Text that replaces itself on a timer while someone is halfway through reading it is
+     the whole reason WCAG 2.2.2 exists. Two things answer it: hovering or tab-focusing the
+     deck holds the current chapter, and pressing any control stops the timer for the rest
+     of the visit. The specificity has to match the rules above or the animation shorthand
+     wins and resets play-state to running — hence repeating the #curio-auto prefix. */
+  .curio__deck:hover #curio-auto:checked ~ .curio__card,
+  .curio__deck:focus-within #curio-auto:checked ~ .curio__card {
+    animation-play-state: paused;
+  }
+
+  /* The per-card delay is POSITIVE, and it is the one number here that is easy to get
+     backwards. A negative delay does not hold an animation back, it starts it already
+     that far advanced — so -30s on chapter 2 put it 30s PAST its own window and the deck
+     went blank after the first card.
+
+     NOTE FOR ANYONE EDITING THIS BLOCK: it lives inside a JS template literal, so a
+     backtick in one of these CSS comments closes the literal and the file stops compiling
+     with a message that points nowhere near here. That already happened once. Use quotes.
+
+     "step-end" is what makes visibility flip at the end of an interval rather than
+     halfway through it. The one keyframe that overrides the timing is the fade, which
+     needs a real curve. */
+  @keyframes curio-cycle {
+    0% {
+      visibility: visible; opacity: 0; transform: translate3d(0, 12px, 0) scale(0.988);
+      animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    ${FADE}% { visibility: visible; opacity: 1; transform: none; }
+    ${WIN}%  { visibility: hidden;  opacity: 0; transform: none; }
+    100%     { visibility: hidden;  opacity: 0; transform: none; }
+  }
+}
+`;
 ---
 
-<section class="curio wrap" aria-labelledby="curio-head">
+<section class="curio wrap" id="how-we-got-here" aria-labelledby="curio-head">
   {/* ── The sky ──
       Decoration, and it obeys the same rules as the page's own glow and grid: it holds
       no text, it takes no pointer, and the section is complete without it. It is masked
@@ -96,12 +357,33 @@ const rules = curios
       Scoped to the section's own box rather than bled to 100vw. A full-bleed layer is
       the more dramatic version and it is how this page has twice grown a horizontal
       scrollbar; the mask does most of the same work with none of that risk. */}
+  {/* ── The rendered nebula ──
+      A picture, built by tools/render-sky.mjs and checked in. Read that file's header
+      for why it is a file at all; the short version is that domain-warped noise with
+      carved dust lanes is not something to ask a browser for, and DESIGN.md § The cosmos
+      is emphatic about what this section may cost to paint.
+
+      IT SITS OUTSIDE .sky ON PURPOSE, AND MOVING IT IN WILL BREAK IT SILENTLY.
+      It is screen-blended, and blending only reaches an element's real backdrop while no
+      ancestor isolates it. .sky carries a mask, a mask makes a stacking context, and a
+      stacking context isolates the blending of everything inside it. Nested in .sky this
+      element would screen against nothing, go opaque black across its dark two-thirds,
+      and hide the page grid — which is the rectangle this section spent a whole round
+      getting rid of. As a sibling its backdrop is the page, which is what screen wants.
+      .curio is safe to sit in: position: relative with z-index auto and overflow: clip
+      makes no stacking context. */}
+  {/* The image is on an INNER element because .neb carries the edge-fade mask, and a
+      transform on .neb would drag the mask along with it — the fade would swim about and
+      the section would show its edges again. Outer element holds still and masks; inner
+      element drifts. */}
+  <div class="neb" aria-hidden="true"><div class="neb__drift"></div></div>
+
   <div class="sky" aria-hidden="true">
     <div class="sky__neb"></div>
     <div class="sky__limb"></div>
-    {(['far','mid','nearA','nearB'] as const).map((k, i) => (
+    {(['far','mid','nearA','nearB','spark'] as const).map((k, i) => (
       <div
-        class={`sky__layer sky__layer--${['far','mid','near-a','near-b'][i]}`}
+        class={`sky__layer sky__layer--${['far','mid','near-a','near-b','spark'][i]}`}
         style={`--f: ${sky[k].f}; --tw: ${sky[k].w}px; --th: ${sky[k].h}px`}
       ></div>
     ))}
@@ -109,60 +391,143 @@ const rules = curios
 
   <header>
     <div class="sec">
-      <h2 class="display display--sec sec__title" id="curio-head">One true thing</h2>
+      {/* The heading was "One true thing" while the deck was a shuffle of unrelated facts
+          and each card really was one true thing on its own. It is now a single story told
+          in order, so the heading promises a story and the note gives its span.
+
+          The note used to end "Every one says where you can check it." That was removed on
+          the owner's instruction, and it costs nothing, because the sourcing was never a
+          claim made up here — every card carries its own linked citation under the text,
+          where a reader who wants it will look. Announcing it twice was the redundant half.
+          What must NOT follow is dropping the citations themselves: curios.ts requires a
+          `source` on every entry and that rule is the reason this block is allowed to sit
+          on this site at all.
+
+          Keep {curios.length}: the count is read from curios.ts so it can never drift from
+          what is on the page. */}
+      <h2 class="display display--sec sec__title" id="curio-head">How did we come about?</h2>
       <p class="sec__note">
-        Every one of the {curios.length} says where you can check it.
+        What the evidence tells us about our history.
       </p>
+
+      {/* ── The primer ──
+          Four sentences on what "science says" means, because the deck makes 42 confident
+          claims about things nobody watched happen, and a reader is entitled to know on
+          what basis. It sits BEFORE the cards for that reason: it frames them.
+
+          The worked example is chapter 24, and it is chapter 24 on purpose — the primer
+          should be checkable against something already on this page rather than asserting
+          an anecdote of its own. It carries the same source link that chapter does.
+
+          The two dates here were wrong in the draft this came from, and both were fixed
+          rather than shipped: the earlier figure was given as 150,000 years (the accepted
+          benchmark was Omo Kibish at about 195,000; Herto, at about 160,000, is the
+          nearest thing to 150,000) and the Jebel Irhoud paper was given as 2019 (it is
+          Hublin et al., Nature, June 2017). CLAUDE.md hard rule 1 applies to a paragraph
+          about honest evidence more than to anywhere else on the site.
+
+          The date sits in the Jebel Irhoud sentence rather than in an opening "Until 2017"
+          clause, because that is the sentence making the claim — a reader should not have
+          to carry a date forward from one sentence to place the event in the next. */}
+      <div class="curio__primer">
+        <p>
+          Science is the study of nature — whatever nature turns out to be, that is what
+          science reports. It changes its answer when the evidence changes, and that is the
+          method working rather than failing. A conclusion later shown to be wrong was not a
+          lie; it was the honest reading of everything available at the time.
+        </p>
+        {/* {' '} before the <em>: a line break between text and an inline element is
+            collapsed away here, and the first render read "confidentlyHomo sapiens". */}
+        <p>
+          Chapter 24 is the example. The oldest fossils confidently called{' '}
+          <em>Homo sapiens</em> were about 195,000 years old, from Omo Kibish in Ethiopia.
+          Then in June 2017 remains from Jebel Irhoud in Morocco were dated to roughly
+          300,000 years, and our species became a hundred thousand years older in a single
+          paper. The old number never claimed nothing older existed — only that nothing
+          older had been found.
+        </p>
+        {/* Its own line, and styled like a card's citation rather than trailing off the
+            end of a sentence — every other claim in this section names its source that
+            way and this one should not look like an afterthought. */}
+        <p class="curio__primer-src">
+          <a href="https://humanorigins.si.edu/research/whats-hot-human-origins/our-species-arose-least-300000-years-ago">Smithsonian’s Human Origins Program, Our species arose at least 300,000 years ago</a>
+        </p>
+      </div>
     </div>
   </header>
 
   <div class="curio__deck">
+    {/* The sentinel. It must stay FIRST — every auto-mode rule reaches the cards through a
+        sibling combinator from here. Hidden from assistive tech and off the tab order: it
+        is a piece of state, not a control, and announcing "43 of 42" helps nobody. */}
+    <input
+      class="curio__radio"
+      type="radio"
+      name="curio"
+      id="curio-auto"
+      checked
+      tabindex="-1"
+      aria-hidden="true"
+    />
     {curios.map((_, i) => (
       <input
         class="curio__radio"
         type="radio"
         name="curio"
         id={`curio-${i}`}
-        checked={i === 0}
         aria-label={`Show item ${i + 1} of ${curios.length}`}
       />
     ))}
 
     {curios.map((c, i) => (
-      <article class={`curio__card curio__card--${i}`}>
+      <article class={`curio__card curio__card--${i}`} data-glow>
         <p class="curio__kind">{c.kind}</p>
 
-        {c.attribution ? (
-          <blockquote class="curio__quote">
-            <p>“{c.lead}”</p>
-            <footer>{c.attribution}</footer>
-          </blockquote>
-        ) : (
-          <p class="curio__ask">{c.lead}</p>
-        )}
+        <p class="curio__ask">{c.lead}</p>
 
-        {c.reveal && (
-          <details class="curio__reveal">
-            <summary>Show me</summary>
-            <p>{c.reveal}</p>
-          </details>
-        )}
+        {/* Plain paragraph, not a <details>. It was behind a "Show me" toggle while the
+            deck was a shuffle and `lead` was a standalone claim you could read on its own
+            — the toggle held back an answer. In a 42-part story `lead` is only a chapter
+            title, so the toggle was holding back the entire content of the card and every
+            one of the 42 needed a click before it said anything. */}
+        {c.reveal && <p class="curio__text">{c.reveal}</p>}
 
         <p class="curio__source">
           {c.sourceUrl ? <a href={c.sourceUrl}>{c.source}</a> : c.source}
         </p>
 
+        {/* ── Which controls a chapter gets, and why it needs no state to decide ──
+            Chapter 1 has nowhere to go back to, and chapters 1 and 2 have nothing to
+            restart from — chapter 2's Back already IS the way to the start. So:
+
+              chapter 1      Next
+              chapter 2      Next, Back
+              chapter 3–42   Next, Back, Start from the start
+
+            Every one of those is decided by the index at build time and baked into that
+            card's own markup, which is why this stays a static page. There is no rule
+            anywhere asking "which chapter is showing" — the showing card simply carries
+            the controls it should have.
+
+            Back no longer wraps. It used to send chapter 1 round to chapter 42, which in a
+            deck of unrelated facts was fine and in a story that starts at the Big Bang is
+            just wrong. Next still wraps, because reaching the end and being offered the
+            beginning is a different thing from falling off the front. */}
         <div class="curio__foot">
           <div class="curio__moves">
             <label class="curio__next" for={`curio-${(i + 1) % curios.length}`}>
-              Another one <span aria-hidden="true">→</span>
+              Next <span aria-hidden="true">→</span>
             </label>
-            <label
-              class="curio__back"
-              for={`curio-${(i - 1 + curios.length) % curios.length}`}
-            >
-              <span aria-hidden="true">←</span> Back
-            </label>
+            {i >= 1 && (
+              <label class="curio__back" for={`curio-${i - 1}`}>
+                <span aria-hidden="true">←</span> Back
+              </label>
+            )}
+            {i >= 2 && (
+              <label class="curio__back curio__restart" for="curio-0">
+                <span aria-hidden="true">↺</span> Start from the start
+              </label>
+            )}
           </div>
           <p class="curio__count">{i + 1} of {curios.length}</p>
         </div>
@@ -177,6 +542,10 @@ const rules = curios
 <style>
   .curio {
     margin-top: clamp(44px, 6vw, 78px);
+    /* The hero links down to this section, and the header floats over the page — without
+       this the jump parks the heading underneath the bar. --head-h is the bar plus its
+       inset; the rest is the same breathing room the hero gives itself. */
+    scroll-margin-top: calc(var(--head-h) + 14px);
     position: relative;
     /* Nothing inside .sky may reach the page. The layers are deliberately larger than
        this box so their drift never exposes an edge, and without this they would widen
@@ -188,15 +557,99 @@ const rules = curios
   }
 
   /* ---------- the cosmos ---------- */
-  .sky {
+  /* The edge fade is defined once and worn by both layers. Custom properties are
+     substituted at the point of use, so the percentages inside resolve against whichever
+     element applies them — both happen to be inset: 0 on .curio, so they agree. */
+  .sky,
+  .neb {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    /* Fades to nothing at every edge so the field has no border. Same idea as the
-       page grid's mask in global.css — a texture the section stands in, not a
-       rectangle drawn on it. */
-    -webkit-mask-image: radial-gradient(118% 104% at 50% 42%, #000 28%, transparent 100%);
-    mask-image: radial-gradient(118% 104% at 50% 42%, #000 28%, transparent 100%);
+
+    /* ── Why three masks and not one ──
+       This was a single radial — radial-gradient(118% 104% at 50% 42%, #000 28%,
+       transparent 100%) — described in this comment as fading "to nothing at every
+       edge". It did not. Its 100% stop is an ellipse 118% of the width and 104% of the
+       height, so the stop only lands out past the CORNERS; along the edges themselves
+       the mask is still nearly opaque. Measured on a 1660x629 section:
+
+           left 0.80   right 0.80   top 0.83   bottom 0.61
+
+       The section is `overflow: clip`, so those figures are exactly the problem: the
+       starfield was cut off at 80% opacity, which draws a visible rectangle around the
+       whole block — the thing this mask exists to prevent.
+
+       The fix is to INTERSECT the radial with a horizontal and a vertical linear fade,
+       each of which genuinely reaches zero at its edge. The radial keeps the vignette;
+       the two linears guarantee the four edges. Order matters only for readability —
+       intersect is commutative.
+
+       The extra stops inside each linear fade are an ease. A plain two-stop gradient
+       ramps alpha linearly, and the eye finds the kink where the ramp begins; these
+       approximate a smoothstep so the fade has no detectable start.
+
+       ── The ramps are clamped lengths, not bare percentages ──
+       Hiding a ramp takes a roughly FIXED distance — about 55-70px — because that is a
+       property of the eye, not of the layout. A bare percentage does not give you that:
+       9% is a comfortable 150px on this desktop section and a useless 32px on a 360px
+       phone, where the edge would quietly come back. So each ramp is a clamp() with a
+       px floor for narrow screens, a percentage in the middle, and a px ceiling so a
+       tall section does not fade away its own middle. The eased stops are fractions of
+       the ramp rather than fixed percentages, so they scale with it.
+
+       Top and bottom differ on purpose. The top edge meets the hero's flat black and the
+       stars there are crisp, so it needs the longer ramp. The bottom edge has only the
+       soft green glow to hide. A long bottom ramp erased that glow altogether, which is
+       how this first came out — see the note on .sky__neb's centre. */
+    --ramp-x: clamp(56px, 9%, 170px);
+    --ramp-top: clamp(64px, 16%, 120px);
+    --ramp-bot: clamp(44px, 11%, 90px);
+
+    --fade-x: linear-gradient(to right,
+      transparent 0,
+      rgba(0, 0, 0, 0.18) calc(var(--ramp-x) * 0.28),
+      rgba(0, 0, 0, 0.62) calc(var(--ramp-x) * 0.62),
+      #000 var(--ramp-x),
+      #000 calc(100% - var(--ramp-x)),
+      rgba(0, 0, 0, 0.62) calc(100% - var(--ramp-x) * 0.62),
+      rgba(0, 0, 0, 0.18) calc(100% - var(--ramp-x) * 0.28),
+      transparent 100%);
+    --fade-y: linear-gradient(to bottom,
+      transparent 0,
+      rgba(0, 0, 0, 0.18) calc(var(--ramp-top) * 0.28),
+      rgba(0, 0, 0, 0.62) calc(var(--ramp-top) * 0.62),
+      #000 var(--ramp-top),
+      #000 calc(100% - var(--ramp-bot)),
+      rgba(0, 0, 0, 0.62) calc(100% - var(--ramp-bot) * 0.62),
+      rgba(0, 0, 0, 0.18) calc(100% - var(--ramp-bot) * 0.28),
+      transparent 100%);
+    --vignette: radial-gradient(118% 104% at 50% 42%, #000 28%, transparent 100%);
+
+    -webkit-mask-image: var(--fade-x), var(--fade-y), var(--vignette);
+    mask-image: var(--fade-x), var(--fade-y), var(--vignette);
+    /* Without this the layers COMPOSITE AS `add`, which is a union — the result would be
+       more opaque than any one of them and the edges would come back worse than before.
+       The -webkit- line is the legacy spelling of the same operation, kept for older
+       WebKit; both are widely supported now, and every browser that runs this site
+       honours one of them. */
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
+  }
+
+  .neb {
+    /* The image is opaque and already multiplied down onto black; screen turns that back
+       into light. Black adds nothing, so the page grid survives underneath. */
+    mix-blend-mode: screen;
+  }
+  .neb__drift {
+    position: absolute;
+    /* Oversized by 4% on every side so the drift below always has somewhere to go. The
+       cloud must never pull its own edge into view — same reasoning as the star tiles
+       being one tile larger than the section. */
+    inset: -4%;
+    /* cover, so the crop changes with the section's shape instead of the cloud stretching
+       — a stretched cloud is instantly readable as a stretched picture. */
+    background: url('/assets/sky/nebula.webp') center / cover no-repeat;
   }
 
   /* The nebula does NOT move, and that is deliberate. DESIGN.md § Motion: a pulsing or
@@ -208,7 +661,14 @@ const rules = curios
     background:
       radial-gradient(38% 52% at 22% 18%, color-mix(in oklab, var(--accent) 16%, transparent) 0%, transparent 70%),
       radial-gradient(46% 60% at 82% 72%, rgba(90, 150, 200, 0.10) 0%, transparent 72%),
-      radial-gradient(70% 80% at 50% 100%, var(--glow-soft) 0%, transparent 76%);
+      /* Centred at 92%, not 100%. .sky__neb is inset -30% top and bottom, so its own
+         100% is a long way BELOW the section's bottom edge — the glow's peak used to sit
+         189px outside the box and only its upper skirt was ever visible. That was fine
+         while the mask cut the bottom off at 0.61 alpha and hid the difference; once the
+         mask actually fades to zero down there, the skirt faded with it and the green
+         went out of the section entirely. Raising the centre puts the bright part back
+         inside the region the mask keeps. */
+      radial-gradient(70% 80% at 50% 92%, var(--glow-soft) 0%, transparent 76%);
   }
 
   /* A planet's limb, mostly below the fold of the section: one enormous circle with a
@@ -246,13 +706,39 @@ const rules = curios
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    /* Slow enough that you never catch it moving — you only notice it has moved. The
-       near layers also breathe, on two different periods so they are never in step;
-       one shared period would read as the whole sky blinking. */
-    .sky__layer--far    { animation: sky-drift 280s linear infinite; }
-    .sky__layer--mid    { animation: sky-drift 190s linear infinite; }
+    /* Slow enough that you never catch it moving — you only notice it has moved.
+       ── On the periods ──
+       Every one of these is a different number and none is a multiple of another. That is
+       the whole trick: five layers breathing on periods that never line up read as a sky
+       with depth in it, where any two in step read as the page blinking. If you retune
+       them, keep them mutually awkward — 7 and 14 would be a mistake, 7 and 9.5 are not.
+
+       EACH ELEMENT GETS EXACTLY ONE `animation` DECLARATION, with its effects separated
+       by commas. DESIGN.md § Motion: a second `animation` shorthand on the same element
+       wins outright and silently deletes the first, which has already cost this codebase
+       one bug. */
+    .sky__layer--far    { animation: sky-drift 280s linear infinite, sky-twinkle 23s ease-in-out -5s infinite; }
+    .sky__layer--mid    { animation: sky-drift 190s linear infinite, sky-twinkle 17s ease-in-out -11s infinite; }
     .sky__layer--near-a { animation: sky-drift 130s linear infinite, sky-twinkle 7s ease-in-out infinite; }
     .sky__layer--near-b { animation: sky-drift 104s linear infinite, sky-twinkle 9.5s ease-in-out -3.2s infinite; }
+    /* The spark layer drifts slowest and blinks hardest — it is the only place in the
+       sky where a single star visibly winks. Deeper than the rest on purpose; at the
+       others' amplitude it would not read as a star at all. */
+    .sky__layer--spark  { animation: sky-drift 340s linear infinite, sky-spark 5.5s ease-in-out -1.7s infinite; }
+
+    /* ── The nebula drifts, and this is a rule that was reversed ──
+       DESIGN.md § The cosmos said "the nebula does not move", and § Motion called a
+       drifting glow the one change that would make this design look cheap. The owner
+       asked for it on 2026-09-21; both notes now record that, and this is the
+       implementation they describe.
+       The restraint is in the numbers. 240 seconds for one circuit of about 1.5% of the
+       section's width — a full loop takes four minutes and the peak speed is under a
+       pixel a second. You cannot catch it moving; leave the tab a while and the cloud is
+       somewhere else. The one thing that would earn the original objection is speed.
+       It is a CLOSED LOOP, not an alternate. An alternating drift has to stop and turn
+       around, and the turnaround is the moment the eye catches — which is exactly the
+       tell that made a moving glow look cheap in the first place. */
+    .neb__drift { animation: neb-drift 240s linear infinite; }
 
     @keyframes sky-drift {
       from { transform: translate3d(0, 0, 0); }
@@ -262,11 +748,27 @@ const rules = curios
       0%, 100% { opacity: 1; }
       50%      { opacity: .55; }
     }
+    @keyframes sky-spark {
+      0%, 100% { opacity: 1; }
+      50%      { opacity: .18; }
+    }
+    /* Four corners of a slow ellipse, returning exactly to the start so the loop has no
+       seam. Percentages are of this element's own box, which is the oversized one. */
+    @keyframes neb-drift {
+      0%   { transform: translate3d(-0.9%, -0.5%, 0) scale(1.015); }
+      25%  { transform: translate3d(0.5%, -0.9%, 0)  scale(1.03); }
+      50%  { transform: translate3d(0.9%, 0.5%, 0)   scale(1.02); }
+      75%  { transform: translate3d(-0.5%, 0.9%, 0)  scale(1.005); }
+      100% { transform: translate3d(-0.9%, -0.5%, 0) scale(1.015); }
+    }
   }
 
   /* Everything real sits above the sky. */
   .curio > header,
-  .curio__deck { position: relative; z-index: 1; }
+  /* A grid so the auto-advance can stack every chapter in one cell — see the note by
+     #curio-auto in the generated rules. In manual mode exactly one card is display:block,
+     so this is a one-item grid and lays out exactly as the old block did. */
+  .curio__deck { position: relative; z-index: 1; display: grid; }
 
   /* Capped to a reading measure rather than stretched across the page: a card running
      twice as wide as the sentence introducing it reads as an accident.
@@ -302,12 +804,69 @@ const rules = curios
      surface is just a grey box, and it only reads as glass when there is something
      behind it. There is now, so the starfield and the nebula come through the card and
      the panel stops looking like a rectangle sitting on a picture. */
+  /* ── The hover glow ──
+     data-glow is the site's own mouse-follow edge, already built and already served:
+     /motion.js writes --gx/--gy for any [data-glow] element it finds, so this costs no
+     new script at all. global.css draws the ring and the spill; everything below only
+     rescales them, because that implementation is sized for a bento tile and this card
+     is up to 1660px wide — a 240px circle on it reads as a torch, not as an edge
+     catching light.
+
+     With JavaScript off, on a phone, or under reduced motion, --gx/--gy stay at their
+     50%/50% default and the card still lights up on hover, just evenly. Nothing here is
+     hidden behind the script.
+
+     ── It is also the pause indicator, and that is the real reason it earns its place ──
+     Hovering the deck stops the 10-second timer. Without a visual answer, a reader who
+     rests the pointer on a card has no way to know the thing has stopped waiting to move
+     — so the glow is what says "this is yours now, read it". Hover state and timer state
+     are the same state, which is why one signal can honestly stand for both.
+
+     ── Do not reach for transform here ──
+     The obvious extra polish is a lift on hover. It cannot work: in auto mode this
+     element is running curio-cycle, which sets transform in its keyframes, and an
+     animation beats a normal declaration no matter the specificity. The hover would be
+     silently ignored for the showing card and apply only in manual mode, which is worse
+     than not having it. box-shadow and border-color are untouched by the keyframes,
+     which is why the lift here is made of light instead of movement. */
   .curio__card {
     display: none;
     background: var(--surface);
     border: 1px solid var(--hairline);
     border-radius: var(--r-xl);
     padding: clamp(22px, 3vw, 34px);
+    transition:
+      box-shadow 320ms var(--ease),
+      border-color 320ms var(--ease);
+  }
+  /* Scaled for the card. The radii are the only numbers changed from global.css. */
+  .curio__card::before {
+    background: radial-gradient(
+      460px circle at var(--gx) var(--gy),
+      var(--accent) 0%,
+      color-mix(in oklab, var(--accent) 35%, transparent) 40%,
+      transparent 74%
+    );
+  }
+  .curio__card::after {
+    background: radial-gradient(
+      620px circle at var(--gx) var(--gy),
+      var(--glow-soft) 0%,
+      transparent 72%
+    );
+  }
+  /* The bloom the ring sits in. Three shadows rather than one: a hairline that tightens
+     the edge, a wide cast that lifts the card off the sky, and a very soft halo that is
+     mostly there to stop the second one ending in a visible line. All of them are mint
+     at low alpha, so the card looks lit by the section it is sitting in rather than by a
+     spotlight that arrived from nowhere. */
+  .curio__card:hover,
+  .curio__card:focus-within {
+    border-color: color-mix(in oklab, var(--accent) 26%, var(--hairline));
+    box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--accent) 10%, transparent),
+      0 20px 64px -26px color-mix(in oklab, var(--accent) 38%, transparent),
+      0 0 110px -34px color-mix(in oklab, var(--accent) 30%, transparent);
   }
   @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
     .curio__card {
@@ -334,6 +893,18 @@ const rules = curios
     }
   }
 
+  .curio__primer {
+    margin-top: 18px;
+    max-width: 68ch;
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+  }
+  .curio__primer p { margin: 0 0 9px; }
+  .curio__primer p:last-child { margin-bottom: 0; }
+  .curio__primer em { font-style: italic; }
+  .curio__primer-src { margin-top: 10px !important; font-size: 13px; opacity: .85; }
+
   .curio__kind {
     margin: 0 0 16px;
     font-family: var(--font);
@@ -341,8 +912,7 @@ const rules = curios
     color: var(--ink-soft);
   }
 
-  .curio__ask,
-  .curio__quote p {
+  .curio__ask {
     margin: 0;
     max-width: 44ch;
     font-family: var(--font-display);
@@ -350,47 +920,11 @@ const rules = curios
     font-weight: 400; letter-spacing: var(--track-tight); line-height: 1.2;
     text-wrap: pretty;
   }
-  .curio__quote { margin: 0; border: 0; padding: 0; }
-  .curio__quote footer {
-    margin-top: 12px;
-    font-size: 15px; font-weight: 500; color: var(--ink-soft);
-  }
-
-  .curio__reveal { margin-top: 18px; }
-  /* `display: inline-block` drops the native disclosure triangle, so the control loses the
-     one cue that says it opens. This puts a marker back and turns it when open. */
-  .curio__reveal summary {
-    display: inline-flex; align-items: center; gap: 8px;
-    cursor: pointer;
-    font-size: 15px; font-weight: 700;
-    color: var(--accent);
-    padding: 4px 0;
-    list-style: none;
-  }
-  /* "Show me" measured 32px on a phone, under the 44px floor. This has to come AFTER
-     the rule above: the first attempt was written before it and lost to that rule's
-     `padding: 4px 0` — equal specificity, so source order decided it and the fix
-     silently did nothing. Padding rather than min-height, because a <summary> lays out
-     around its disclosure marker and a min-height would strand the marker at the top
-     of the taller box. */
-  @media (pointer: coarse) {
-    .curio__reveal summary { padding-block: 11px; }
-  }
-  .curio__reveal summary::-webkit-details-marker { display: none; }
-  .curio__reveal summary::before {
-    content: '';
-    width: 0; height: 0;
-    border-left: 6px solid currentColor;
-    border-top: 4px solid transparent;
-    border-bottom: 4px solid transparent;
-  }
-  .curio__reveal[open] summary::before { transform: rotate(90deg); }
-  @media (prefers-reduced-motion: no-preference) {
-    .curio__reveal summary::before { transition: transform 150ms cubic-bezier(.2,.7,.3,1); }
-  }
-  .curio__reveal summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-  .curio__reveal p {
-    margin: 10px 0 0;
+  /* The chapter itself. This replaced a <details> and about thirty lines of disclosure
+     styling — a custom marker, a rotate on open, and a @media (pointer: coarse) bump to
+     get "Show me" over the 44px touch floor. None of it is needed by a paragraph. */
+  .curio__text {
+    margin: 18px 0 0;
     max-width: 66ch;
     color: var(--ink-soft);
     line-height: 1.6;
@@ -435,4 +969,8 @@ const rules = curios
     border-radius: var(--r-md);
   }
   .curio__back:hover { color: var(--ink); border-color: var(--hairline); }
+  /* Third in a row of three, and the one you want least often — so it is the quietest.
+     Same shape as Back, a step further back in the hierarchy. */
+  .curio__restart { font-weight: 500; opacity: .78; }
+  .curio__restart:hover { opacity: 1; }
 </style>
