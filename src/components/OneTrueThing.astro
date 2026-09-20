@@ -24,35 +24,55 @@ import { curios } from '../curios';
  * caller to pass. See DESIGN.md § The kicker. */
 
 /* ── The starfield ──
- * Each layer is ONE element carrying a pile of radial-gradients as its background, tiled.
- * The alternative — an element per star — is a hundred boxes for the compositor to keep
- * track of; this is four, each painted once and then only ever transformed.
+ * Each layer is ONE element carrying a small SVG tile as its background, repeated.
  *
- * The positions are generated rather than hand-typed, and generated from a FIXED SEED so
- * the same sky comes out of every build. A random field would re-roll on each deploy and
- * fill the diff with noise nobody could review.
+ * ── It was radial-gradients, and that froze the page on a real phone ──
+ * The first version built each layer's background out of 8–26 stacked CSS
+ * radial-gradients. It looked identical to this and it was unusable: measured on a
+ * Galaxy S24 Ultra over USB, scrolling the homepage produced frames of **974–1481ms** —
+ * second-long freezes, which is exactly what "it gets stuck when scrolling" felt like.
  *
- * `count` stays low per layer because a radial-gradient is not free to paint: the cost is
- * paid once at first paint and never again, but it is still a cost, and a sky reads as a
- * sky at twenty stars per tile. Do not push these into the hundreds.
+ * The cost is rasterising a stack of gradients at that device's 3.75x pixel ratio, and
+ * nothing tuned it away. Measured on the device, every one of these still stalled:
+ * smaller tiles, two layers instead of four, `will-change: auto`, no animation at all.
+ * Only removing the star layers entirely was clean.
+ *
+ * One SVG tile per layer is clean. Chrome rasterises the tile once and repeats the
+ * bitmap, where a gradient stack is re-rasterised across the whole layer:
+ *
+ *     radial-gradient stars  frames= 97   max= 974ms   stalls=1
+ *     SVG tile stars         frames=174   max=  25ms   stalls=0
+ *     no stars at all        frames=177   max=  33ms   stalls=0
+ *
+ * So: if you change how these layers are drawn, measure it on a phone, not in a desktop
+ * browser. A desktop at 1x never showed this at all.
+ *
+ * The positions are still generated from a FIXED SEED so the same sky comes out of every
+ * build — a random field would re-roll on each deploy and fill the diff with noise.
  */
-function field(seed: number, count: number, radius: string, alpha: number) {
+function field(seed: number, count: number, w: number, h: number, r: number, alpha: number) {
   let s = seed >>> 0;
   const next = () => ((s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296);
-  return Array.from({ length: count }, () => {
-    const x = (next() * 100).toFixed(2);
-    const y = (next() * 100).toFixed(2);
-    // Vary each star's brightness, or the field reads as a regular pattern of identical dots.
-    const a = (alpha * (0.4 + next() * 0.6)).toFixed(3);
-    return `radial-gradient(${radius} ${radius} at ${x}% ${y}%, rgba(228,255,244,${a}) 0%, rgba(228,255,244,0) 100%)`;
-  }).join(', ');
+  let dots = '';
+  for (let i = 0; i < count; i++) {
+    const x = (next() * w).toFixed(1);
+    const y = (next() * h).toFixed(1);
+    // Vary each star's brightness, or the field reads as a regular grid of identical dots.
+    const o = (alpha * (0.4 + next() * 0.6)).toFixed(2);
+    dots += `<circle cx='${x}' cy='${y}' r='${r}' fill='%23e4fff4' opacity='${o}'/>`;
+  }
+  // %23 rather than # — a literal hash ends the URL. Single quotes inside so the whole
+  // thing can sit in a double-quoted url().
+  return `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}'>${dots}</svg>")`;
 }
 
+/* Tile sizes are the loop distance as well as the texture size: each layer is one tile
+ * larger than the section and drifts by exactly one tile, so the loop is seamless. */
 const sky = {
-  far:  field(20260920, 26, '1px',   0.55),
-  mid:  field(70112358, 17, '1.3px', 0.75),
-  nearA: field(31415927, 8,  '1.9px', 0.95),
-  nearB: field(27182818, 7,  '1.7px', 0.9),
+  far:   { f: field(20260920, 10, 190, 150, 0.7, 0.55), w: 190, h: 150 },
+  mid:   { f: field(70112358, 7,  150, 120, 0.9, 0.75), w: 150, h: 120 },
+  nearA: { f: field(31415927, 5,  230, 180, 1.2, 0.95), w: 230, h: 180 },
+  nearB: { f: field(27182818, 4,  200, 160, 1.1, 0.90), w: 200, h: 160 },
 };
 
 const rules = curios
@@ -79,10 +99,12 @@ const rules = curios
   <div class="sky" aria-hidden="true">
     <div class="sky__neb"></div>
     <div class="sky__limb"></div>
-    <div class="sky__layer sky__layer--far"   style={`--f: ${sky.far}`}></div>
-    <div class="sky__layer sky__layer--mid"   style={`--f: ${sky.mid}`}></div>
-    <div class="sky__layer sky__layer--near-a" style={`--f: ${sky.nearA}`}></div>
-    <div class="sky__layer sky__layer--near-b" style={`--f: ${sky.nearB}`}></div>
+    {(['far','mid','nearA','nearB'] as const).map((k, i) => (
+      <div
+        class={`sky__layer sky__layer--${['far','mid','near-a','near-b'][i]}`}
+        style={`--f: ${sky[k].f}; --tw: ${sky[k].w}px; --th: ${sky[k].h}px`}
+      ></div>
+    ))}
   </div>
 
   <header>
@@ -217,12 +239,11 @@ const rules = curios
     background-image: var(--f);
     background-size: var(--tw) var(--th);
     background-repeat: repeat;
-    will-change: transform;
+    /* No `will-change: transform`. It was here, and measured on the device it bought
+       nothing — 174 frames with it, 173 without, the same 25ms worst frame — while
+       permanently promoting four full-section layers into GPU memory. An animated
+       transform is promoted by the compositor anyway. */
   }
-  .sky__layer--far    { --tw: 680px; --th: 520px; }
-  .sky__layer--mid    { --tw: 520px; --th: 410px; }
-  .sky__layer--near-a { --tw: 900px; --th: 660px; }
-  .sky__layer--near-b { --tw: 760px; --th: 580px; }
 
   @media (prefers-reduced-motion: no-preference) {
     /* Slow enough that you never catch it moving — you only notice it has moved. The
