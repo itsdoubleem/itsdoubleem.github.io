@@ -53,21 +53,21 @@ const heroScreens = apps
     statusColor: themeColor(a.data.slug),
   }));
 
-// ── The pill above the headline ──
-// It says one true, checkable thing about what is on this site today, and it is built
-// from the content rather than typed, so it cannot go stale. Every platform every piece
-// of work runs on, de-duplicated.
+// ── There is no pill above the headline, and there used to be ──
+// It read "Runs on Android and the browser", built from every platform in `apps/` rather
+// than typed, so it could not go stale. The owner removed it on 2026-09-21. It was not
+// wrong — it was a true, checkable line — it was just a caption the headline did not
+// need, on a page whose whole argument is one sentence.
 //
-// Do NOT turn this into a figure. CLAUDE.md hard rule 1, and DESIGN.md names the
-// reference's `>90% system performance` pill row as the specific thing not to copy.
-const PLATFORM_WORDS: Record<string, string> = {
-  android: 'Android', ios: 'iPhone', web: 'the browser', macos: 'macOS', windows: 'Windows',
-};
-const platforms = [...new Set(apps.flatMap((a) => a.data.platforms))].map((p) => PLATFORM_WORDS[p] ?? p);
-const platformLine =
-  platforms.length > 1
-    ? `${platforms.slice(0, -1).join(', ')} and ${platforms.at(-1)}`
-    : platforms[0];
+// The platform facts are not lost: every app page still carries them in its own rail and
+// its platform notes, which is where a reader deciding whether to install something
+// actually looks. If a pill ever comes back here, it is built from the content the way
+// this one was, and it holds a fact you can check — never a figure. CLAUDE.md hard rule
+// 1, and DESIGN.md names the reference's `>90% system performance` pill row as the
+// specific thing not to copy.
+//
+// The `.pill` styles stay in global.css. They are not orphaned: apps/[slug].astro uses
+// the same component for each app's status line.
 
 ---
 <Base
@@ -90,11 +90,6 @@ const platformLine =
   <section class="hero" data-tilt-area>
     <div class="hero__inner wrap">
       <div class="hero__copy">
-        <p class="pill enter enter--1">
-          <span class="pill__dot" aria-hidden="true"></span>
-          Runs on {platformLine}
-        </p>
-
         {/* Split into lines by hand, in the markup, so nothing has to re-lay out on
             load. Each line rises out from behind the one above it — see .split in
             global.css. Keep the break where it is: "Everything I make" is the claim and
