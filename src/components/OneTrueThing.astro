@@ -317,9 +317,22 @@ e
      deck holds the current chapter, and pressing any control stops the timer for the rest
      of the visit. The specificity has to match the rules above or the animation shorthand
      wins and resets play-state to running — hence repeating the #curio-auto prefix. */
-  .curio__deck:hover #curio-auto:checked ~ .curio__card,
   .curio__deck:focus-within #curio-auto:checked ~ .curio__card {
     animation-play-state: paused;
+  }
+  /* Hover pauses only where hover is a real state. Android reports :hover for a tap, and
+     it arrives 5ms AFTER the finger lifts and stays for 3.5 seconds — measured on the
+     device. So a tap paused the deck for three and a half seconds and lit the pause
+     indicator over a card nobody was touching. It did recover on its own; this was not a
+     permanent freeze. global.css has the full note by [data-glow], including
+     why this is "pointer: fine" and not the obvious "hover: hover" — the phone the bug
+     came from has an S-Pen and answers that query truthfully. The touch answer to
+     WCAG 2.2.2 is the other one this comment names and it is unaffected: pressing any
+     control stops the timer outright. */
+  @media (pointer: fine) {
+    .curio__deck:hover #curio-auto:checked ~ .curio__card {
+      animation-play-state: paused;
+    }
   }
 
   /* The per-card delay is POSITIVE, and it is the one number here that is easy to get
@@ -740,6 +753,44 @@ e
        tell that made a moving glow look cheap in the first place. */
     .neb__drift { animation: neb-drift 240s linear infinite; }
 
+    /* ── The drift stops on a phone, and the measurement that decided it ──
+       .sky and .neb each wear the three-layer mask above, with `mask-composite:
+       intersect`. That makes the whole starfield ONE render pass rather than five layers
+       the compositor can shuffle past each other — which is free while nothing inside it
+       moves, and is not free while something does. Every frame of a drift redraws the
+       entire masked surface.
+
+       How big that surface is depends on the shape of the section, and the shape of the
+       section is exactly what changes on a phone. On a 1660x629 desktop it is a wide
+       band. On a 384px screen the same content becomes a 384x1363 column, which at that
+       device's 3.75 dpr is 1440x5111 device pixels, five layers deep — redrawn every
+       frame, for a drift of 190px that takes 280 seconds to complete.
+
+       Measured over a scripted 5000px scroll of this page on an SM-S928N in Samsung
+       Internet, driven through the remote debugger:
+
+           as shipped                        40-51 fps, 14-20 frames over 33ms, worst 134ms
+           .sky__layer { animation: none }    58.6 fps,  4 frames over 33ms, worst  34ms
+           drift removed, twinkle kept        59.6 fps,  2 frames over 33ms, worst  33ms
+
+       So the twinkle is not the cost — changing the opacity of a render pass that is
+       already drawn is cheap — and the parallax is all of it. Below 900px the layers
+       keep breathing and stop travelling, which is the half of the effect a phone was
+       never going to collect: at this speed the drift is under a pixel a second, and the
+       stars leave the screen long before they have gone anywhere.
+
+       This is the same 900px line that flattens the hero's tilt in PhoneDevice.astro, for
+       the same reason — an effect whose cost every device pays and whose payoff only a
+       big one collects. The one-shorthand-per-element rule above still holds here. */
+    @media (max-width: 899px) {
+      .sky__layer--far    { animation: sky-twinkle 23s ease-in-out -5s infinite; }
+      .sky__layer--mid    { animation: sky-twinkle 17s ease-in-out -11s infinite; }
+      .sky__layer--near-a { animation: sky-twinkle 7s ease-in-out infinite; }
+      .sky__layer--near-b { animation: sky-twinkle 9.5s ease-in-out -3.2s infinite; }
+      .sky__layer--spark  { animation: sky-spark 5.5s ease-in-out -1.7s infinite; }
+      .neb__drift         { animation: none; }
+    }
+
     @keyframes sky-drift {
       from { transform: translate3d(0, 0, 0); }
       to   { transform: translate3d(calc(var(--tw) * -1), calc(var(--th) * -1), 0); }
@@ -860,13 +911,25 @@ e
      mostly there to stop the second one ending in a visible line. All of them are mint
      at low alpha, so the card looks lit by the section it is sitting in rather than by a
      spotlight that arrived from nowhere. */
-  .curio__card:hover,
+  /* Same split, same reason, as the glow this sits under — see global.css by
+     [data-glow]. The bloom is the other half of the pause signal, so it has to appear and
+     disappear on exactly the states the pause does, or the card is lit while the timer
+     runs. */
   .curio__card:focus-within {
     border-color: color-mix(in oklab, var(--accent) 26%, var(--hairline));
     box-shadow:
       0 0 0 1px color-mix(in oklab, var(--accent) 10%, transparent),
       0 20px 64px -26px color-mix(in oklab, var(--accent) 38%, transparent),
       0 0 110px -34px color-mix(in oklab, var(--accent) 30%, transparent);
+  }
+  @media (pointer: fine) {
+    .curio__card:hover {
+      border-color: color-mix(in oklab, var(--accent) 26%, var(--hairline));
+      box-shadow:
+        0 0 0 1px color-mix(in oklab, var(--accent) 10%, transparent),
+        0 20px 64px -26px color-mix(in oklab, var(--accent) 38%, transparent),
+        0 0 110px -34px color-mix(in oklab, var(--accent) 30%, transparent);
+    }
   }
   @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
     .curio__card {

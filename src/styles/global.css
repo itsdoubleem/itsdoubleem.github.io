@@ -531,10 +531,66 @@ main,
     transparent 70%
   );
 }
-[data-glow]:hover::before,
-[data-glow]:focus-within::before { opacity: 1; }
-[data-glow]:hover::after,
+/* ── :hover is behind (pointer: fine), and that is a bug fix, not tidying ──
+   Android reports `:hover` for a TAP, and the timing is the whole story. Measured on the
+   device, against a 1500ms hold:
+
+       touch down ........ 0ms      :hover false, :active false
+       finger lifts ...... 1619ms
+       :hover ON ......... 1624ms   five milliseconds AFTER the lift
+       :hover OFF ........ 5177ms   3.5s later, on its own
+
+   Nothing happens while you hold. The hover arrives when you let go and then sits there
+   for three and a half seconds. Two faults came out of that on a phone, both reported
+   from the deck's card, which is the one [data-glow] panel that also carries a
+   backdrop-filter:
+
+   1. A one-frame FLICKER. At `opacity: 0` these two pseudo-elements are not composited.
+      The moment the transition starts they are promoted, the backdrop-filter behind them
+      has to re-resolve, and for one frame the card painted as nothing at all — no
+      background, no border, no text, just the blurred sky. Captured at 3.75 dpr through
+      the remote debugger: contrast inside the card's text block fell from 35.5 to 13.3
+      for two frames, ~300ms after the finger lifted, then came back.
+   2. The glow ARRIVED ON RELEASE AND OVERSTAYED — lit 3.5 seconds after a finger that
+      is no longer on the card, with both pseudo-elements at opacity 1.
+
+   The second matters because on the deck this glow is load-bearing: it is the signal that
+   the chapter timer has stopped (OneTrueThing.astro says so at .curio__card). So a tap
+   lit "paused" after you had already let go, and held the chapter for 3.5s. It does
+   recover by itself — this was never a permanent freeze, and an earlier version of this
+   comment said it was.
+
+   `:active` is not the fix, and it was measured before it was ruled out: it never goes
+   true on this element at all, because the card is an <article> with no interactive role.
+   Press feedback here would need a touchstart/touchend listener, which is /motion.js
+   growing past "moves things" — see DESIGN.md § Motion for what that costs.
+
+   So the rule is the one /motion.js already follows: an effect that answers a pointer is
+   not served to a device that has no pointer. `:focus-within` is NOT behind the query —
+   it is a real state on every device, it is how a keyboard reaches this, and it is the
+   half of the pause that WCAG 2.2.2 actually needs.
+
+   ── THE QUERY IS `pointer: fine`, AND `hover: hover` IS THE WRONG ONE ──
+   `(hover: hover)` was the obvious spelling and it was tried first. It does not work,
+   and the phone the bug was reported from is exactly why: an S24 Ultra has an S-Pen, so
+   the browser truthfully answers that its pointer CAN hover. Measured on that device:
+
+       hover: hover  true      any-hover: hover  true
+       pointer: fine FALSE     pointer: coarse   true      any-pointer: fine true
+
+   The glow stayed latched with the `hover` query in place, because nothing about it was
+   false. `pointer: fine` asks the question that actually matters — is the PRIMARY input
+   a fine one — and on a phone with a stylus in it the answer is still no.
+
+   This is the same query /motion.js gates itself on, and the two now agree by
+   construction: the script that aims the glow and the rule that reveals it are served to
+   the same devices. Do not split them. */
+[data-glow]:focus-within::before,
 [data-glow]:focus-within::after { opacity: 1; }
+@media (pointer: fine) {
+  [data-glow]:hover::before,
+  [data-glow]:hover::after { opacity: 1; }
+}
 
 /* ── The pill ───────────────────────────────────────────────────────────────
    One per page, above the headline, and it says something true about what is on the
