@@ -32,9 +32,14 @@ Three, and they are not style preferences.
    applies doubly to privacy claims: if a page says data never leaves the device, someone
    checked that recently.
 
-The site collects nothing, so it needs no cookie banner. It loads one script, `/motion.js`,
-which moves things and nothing else — no third-party scripts, no analytics, no cookies.
-Keep both true.
+The site collects nothing, so it needs no cookie banner. It loads two scripts on every
+page — `/motion.js` and `/globe.js` — which move things and nothing else. On a wide screen
+`/globe.js` fetches two more, `/three.min.js` and `/globe-scene.js`, to draw the globe
+behind the story on the front page; on a phone it loads, finds it has nothing to do and
+stops. three.js is vendored into `/public` under its MIT licence rather than loaded from a
+CDN, so there are still no third-party requests, no analytics and no cookies. Keep both
+true. All four are named in the about page's prose and in LOGGER's claim table; a fifth
+one means editing those in the same commit.
 
 ## Adding a piece of work
 

@@ -38,7 +38,7 @@ verify:
   - claim: The browser version is the same app as the download.
     how: Both are built from one source in the same step, and the copy inside the APK is byte-for-byte the file this site serves at /logger/ — the two hash identically.
   - claim: This page is not watching you either.
-    how: It loads one script — /motion.js, from this domain — which tilts the phone on the front page and does nothing else. No third-party scripts, no cookies, no analytics. Open your browser's network panel and count the requests, then read the file — it is short, and it is the whole of what runs here.
+    how: It loads two scripts from this domain — /motion.js, which tilts the phone on the front page, and /globe.js, which checks whether your screen can draw the globe on the front page and fetches /three.min.js and /globe-scene.js only if it can. A phone loads the first two and stops. Nothing is fetched from another domain — three.js is vendored here under its MIT licence. No cookies, no analytics. Open your browser's network panel and count the requests, then read the files — that is the whole of what runs here.
   - claim: The APK you download is the file I built.
     how: Hash it before you install it — shasum -a 256 logger.apk on macOS or Linux, certutil -hashfile logger.apk SHA256 on Windows. It must print c180c7398240e4a1b0f1ef572418238253d373ce8d967ab314f3a32f37698dc7. One character out and it is not my build, so delete it. The same hash is on the repo's front page on GitHub, and that is the copy worth trusting — anyone able to swap the file on this site could swap the hash beside it just as easily.
 wrong:

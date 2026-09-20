@@ -55,14 +55,36 @@ const hasAnyRoute = Boolean(contact.formUrl || contact.issuesUrl || contact.emai
       you were never shown a consent banner: there is nothing to consent to.
     </p>
     <p>
-      There is one script, and I would rather name it than let you find it. It
-      is <a href="/motion.js">/motion.js</a>, served from this domain, and all it does
-      is tilt the phone on the front page towards your cursor and light the edge of a
-      card as you pass it. It reads nothing about you and stores nothing. It
-      also <em>could</em> not send anything anywhere if it tried: these pages set a
+      There are two scripts on every page, and I would rather name them than let you
+      find them. Both are served from this domain, both only move things, and both read
+      nothing about you and store nothing.
+    </p>
+    <p>
+      <a href="/motion.js">/motion.js</a> tilts the phone on the front page towards your
+      cursor and lights the edge of a card as you pass it. Thirty-six lines of code, and
+      about fifty more explaining why it is there.
+    </p>
+    <p>
+      <a href="/globe.js">/globe.js</a> paints nothing at all. It checks whether you are
+      on a wide screen with a mouse and a browser that can draw 3D, and only then does it
+      fetch two more files — <a href="/three.min.js">/three.min.js</a>, the rendering
+      library that does the drawing, and <a href="/globe-scene.js">/globe-scene.js</a>,
+      the globe itself — to put a planet in the sky behind the story below. On a phone it
+      loads, finds it has nothing to do and stops, so a handset never downloads the
+      589&nbsp;KB library. If you are counting requests: two scripts on a phone, four on a
+      wide screen, and the sky is still there either way — it is a picture and a stack of
+      CSS underneath, and that is what you get if any of this fails to arrive.
+    </p>
+    <p>
+      three.js is somebody else's work, used under the MIT licence, and its copyright
+      notice is at the top of the file. It is vendored into this site rather than loaded
+      from a CDN, which is what keeps "no third-party scripts" a fact about the network
+      and not just about intent: nothing on these pages is fetched from another domain.
+    </p>
+    <p>
+      None of them <em>could</em> send anything anywhere if they tried: these pages set a
       Content-Security-Policy that grants no permission to contact a server, so the
-      browser would refuse. Read it if you like — thirty-six lines of code, and about
-      fifty more explaining why it is there.
+      browser would refuse. Read them if you like.
     </p>
     <p>
       What each <em>app</em> collects is a separate question with a separate answer, and it
