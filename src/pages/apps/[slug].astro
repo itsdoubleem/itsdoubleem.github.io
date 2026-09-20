@@ -1,7 +1,35 @@
 ---
+/* One piece of work, its own page, laid out the way publik lays out an app.
+ *
+ * ── The shape, and what it is answering ──
+ * publik's app page opens on the app's own screenshot blurred into the background, a
+ * very large name, one line of what it does, a status pill, then the screenshot beside
+ * a sticky rail of every way to get it. Everything after that narrows to a reading
+ * column. That order is right for this site too: CLAUDE.md § What this is says a
+ * stranger asks what it is, then whether they can have it, then whether to trust it —
+ * and this page now answers them in that order without being told to scroll.
+ *
+ * ── What publik puts here that this page must not ──
+ *  · `by @mann` with an avatar. CLAUDE.md § The traps: the developer's name does not go
+ *    on app pages. Logger deliberately keeps it off the documents it produces too.
+ *    Contact belongs on the about page, once.
+ *  · `✓ PUBLIK VERIFIED`. There is no verifier here. A badge implying a third party
+ *    checked this would be the most damaging thing on the page. The pill carries
+ *    `status` instead, which is a field, not a claim about who audited it.
+ *  · `Vote on Ghost ▲ 51 ▼` and `Compared with GhostMe $12.95/mo`. A score and a rival's
+ *    price. No accounts, nothing to count, nothing to compare against — hard rule 1.
+ *  · A LIGHT README card on a dark page. publik's is white and it looks good, but
+ *    DESIGN.md § The atmosphere records that the last light/dark inversion was spent on
+ *    purpose. The detail card is glass, like every other panel on the site.
+ *
+ * What fills the space those leave is the thing publik has no equivalent for: the
+ * verify list. A marketplace prints a number you have to believe; this prints a claim
+ * and the way to check it.
+ */
 import { getCollection, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
-import Preview from '../../components/Preview.astro';
+import PhoneDevice from '../../components/PhoneDevice.astro';
+import { themeColor } from '../../theme-color';
 import { contact } from '../../site';
 
 export async function getStaticPaths() {
@@ -36,322 +64,392 @@ const privacyLine =
 // span. Two lists, no spans, and each shape gets the treatment it needs.
 const phoneShots = d.screenshots.filter((s: any) => s.shape !== 'page');
 const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
+
+// The hero device shows this app's own capture, in the real handset — see the note on
+// the hero below for why the page now uses the device rather than a flat mount.
+const heroScreen = d.card
+  ? [{ src: d.card, alt: `${d.name} running on a phone`, statusColor: themeColor(d.slug) }]
+  : [];
 ---
 <Base title={`${d.name} — doubleem`} description={d.audience ? `${d.tagline} ${d.audience}` : d.tagline}>
   <article>
-    <header class="top wrap">
-      <div class="top__copy">
-        <p class="top__crumb"><a href="/">Apps</a> <span aria-hidden="true">/</span> {d.name}</p>
+    {/* ── The head ──
+        The backdrop is this app's OWN capture, blurred past legibility and dimmed — the
+        one trick of publik's app page that is worth the most. It is decoration and
+        carries no meaning, like the glow and the grid: it holds no text, it takes no
+        pointer, and the page is complete without it.
 
-        <div class="top__badges">
-          <span class="badge">{d.category}</span>
-          {d.status === 'beta' && <span class="badge">Beta</span>}
-          <span class="badge badge--free">Free</span>
-        </div>
+        It is deliberately faint. Both apps here are LIGHT on screen, so their captures
+        blur into a pale wash rather than publik's dark one; at any real opacity the top
+        of the page turns milky and the headline loses contrast. Measured on the built
+        page, not guessed — if you raise --shot-a, measure it again. */}
+    {/* ── The hero ──
+        The device is the real one: the same CSS Galaxy the homepage uses, with the
+        tilt, the idle float and the ambient bloom, showing this app's own capture. It
+        used to be a flat bordered mount, which was a strange thing to put on the page
+        that is actually ABOUT the app while the front page got the good treatment.
+        Reusing the component costs no new motion vocabulary and no new markup — the
+        tilt is the same `data-tilt-area` region /motion.js already watches for.
 
-        <h1 class="top__name">
-          {d.name}
-          {d.nativeName && <span class="top__native">{d.nativeName}</span>}
-        </h1>
-        <p class="top__tagline">{d.tagline}</p>
-        {d.audience && <p class="top__audience">{d.audience}</p>}
+        The backdrop under it is this app's capture blurred past reading and dimmed. It
+        is decoration and carries no meaning, like the glow and the grid: no text, no
+        pointer, and the page is complete without it. Deliberately faint — both apps
+        here are LIGHT on screen, so their captures blur to a pale wash rather than a
+        dark one and turn the top of the page milky at any real opacity.
 
-        {hasGuide && (
-          <p class="top__guide">
-            First time? <a href={`/apps/${d.slug}/guide/`}>See how it works, screen by{'\u00A0'}screen{'\u00A0'}→</a>
+        ── What publik puts here that this page must not ──
+         · `by @mann` with an avatar. CLAUDE.md § The traps: the developer's name does
+           not go on app pages. Logger keeps it off the documents it produces too.
+         · `✓ PUBLIK VERIFIED`. There is no verifier here, and a badge implying one
+           audited this would be the most damaging thing on the page. The pill carries
+           `status`, which is a field rather than a claim about who checked it.
+         · `Vote on Ghost ▲ 51 ▼` and `Compared with GhostMe $12.95/mo` — a score and a
+           rival's price. Hard rule 1, twice. */}
+    <div class="apphead" data-tilt-area>
+      {d.card && (
+        <div class="apphead__bg" aria-hidden="true" style={`--shot: url('${d.card}')`}></div>
+      )}
+      <div class="wrap apphead__inner">
+        <div class="apphead__copy">
+          <p class="crumb"><a href="/apps/"><span aria-hidden="true">←</span> All work</a></p>
+
+          <p class="pill">
+            <span class="pill__dot" aria-hidden="true"></span>
+            {d.category}<i>·</i>{d.status === 'beta' ? 'Beta' : 'Live'}<i>·</i>Free
           </p>
-        )}
-      </div>
 
-      <div class="top__preview reveal--wipe">
-        <Preview name={d.name} icon={d.icon} card={d.card} />
-      </div>
-    </header>
+          <h1 class="apphead__name">
+            {d.name}
+            {d.nativeName && <span class="apphead__native">{d.nativeName}</span>}
+          </h1>
+          <p class="apphead__tagline">{d.tagline}</p>
+          {d.audience && <p class="apphead__audience">{d.audience}</p>}
 
-    {/* The rail comes first in the source so that a phone, which has no room for a second
-        column, meets the ways of getting the app immediately after the name — the site's
-        second question — and reads the detail underneath. On a wide screen it moves to
-        the right and stays put while the detail scrolls past it. */}
-    <div class="layout wrap">
-      <aside class="rail" aria-label={`Get ${d.name}`}>
-        <div class="rail__card reveal">
-          <h2 class="rail__head">Get it</h2>
-          <div class="rail__actions">
+          {/* The ways to get it sit beside the name now rather than in a sidebar. It is
+              the site's second question — can I have it, and what does it cost — and it
+              should not need a scroll. */}
+          <div class="apphead__actions">
             {d.downloads.map((dl: any, i: number) => (
               <a class={`btn ${i === 0 ? 'btn--primary' : 'btn--ghost'}`} href={dl.href}>
-                {dl.label}
-                {dl.note && <span class="btn__note">{dl.note}</span>}
+                <span class="btn__label">
+                  {dl.label}
+                  {dl.note && <span class="btn__note">{dl.note}</span>}
+                </span>
               </a>
             ))}
           </div>
 
-          <dl class="rail__facts">
-            <dt>Price</dt>
-            {/* The price today, not a promise about every version after this one.
-                This used to read "Free — and it stays free". */}
-            <dd class="rail__free">Free</dd>
-
-            <dt>Your data</dt>
-            <dd>{privacyLine}</dd>
-
-            <dt>Runs on</dt>
-            <dd>{d.platforms.map((p: string) => platformNames[p] ?? p).join(', ')}</dd>
-
-            {d.languages && (
-              <>
-                <dt>Languages</dt>
-                <dd>{d.languages.map((l: string) => langNames[l] ?? l).join(' · ')}</dd>
-              </>
-            )}
-
-            {d.sourceUrl && (
-              <>
-                <dt>Source</dt>
-                <dd><a href={d.sourceUrl}>View the code</a></dd>
-              </>
-            )}
-          </dl>
-        </div>
-      </aside>
-
-      <div class="main">
-        {d.screenshots.length > 0 && (
-          <section class="screens" aria-label={`What ${d.name} looks like`}>
-            <h2 class="sec__head reveal">What it looks like</h2>
-            {phoneShots.length > 0 && (
-              <ol class="screens__strip">
-                {phoneShots.map((s: any) => (
-                  <li class="screens__item reveal--wipe">
-                    <img src={s.src} alt={s.alt} loading="lazy" decoding="async" />
-                    {s.caption && <p class="screens__cap">{s.caption}</p>}
-                  </li>
-                ))}
-              </ol>
-            )}
-
-            {pageShots.map((s: any) => (
-              <figure class="sheet reveal--wipe">
-                <img src={s.src} alt={s.alt} loading="lazy" decoding="async" />
-                {s.caption && <figcaption class="screens__cap">{s.caption}</figcaption>}
-              </figure>
-            ))}
-          </section>
-        )}
-
-        <div class="prose">
-          <Content />
+          {(hasGuide || d.sourceUrl) && (
+            <p class="apphead__links">
+              {hasGuide && (
+                <a href={`/apps/${d.slug}/guide/`}>See how it works <span aria-hidden="true">→</span></a>
+              )}
+              {d.sourceUrl && (
+                <a href={d.sourceUrl}>Read the source <span aria-hidden="true">↗</span></a>
+              )}
+            </p>
+          )}
         </div>
 
-        {d.platformNotes.length > 0 && (
-          <section class="where">
-            <h2 class="sec__head reveal">Where it runs, and what changes</h2>
-            <p class="sec__lead">The same app either way.</p>
-            <dl class="where__list">
-              {d.platformNotes.map((p: any) => (
-                <div class="where__row reveal">
-                  <dt>{platformNames[p.platform] ?? p.platform}</dt>
-                  <dd>{p.note}</dd>
-                </div>
-              ))}
-            </dl>
-          </section>
-        )}
-
-        {/* Where a marketplace would put an install counter or a star rating, this site
-            puts the claim and the way to check it. Counters and ratings are numbers a
-            visitor has to believe; these are things they can confirm. Never add an entry
-            here that has not been checked on the shipping build. */}
-        {d.verify.length > 0 && (
-          <section class="verify">
-            <h2 class="sec__head reveal">Don't take my word for it</h2>
-            <p class="sec__lead">
-              What this page claims, and how to check each one yourself.
-            </p>
-            <ul class="verify__list">
-              {d.verify.map((v: any) => (
-                <li class="verify__item reveal">
-                  <p class="verify__claim">{v.claim}</p>
-                  <p class="verify__how">{v.how}</p>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-
-        {(contact.formUrl || contact.issuesUrl) && (
-          <aside class="wrong reveal">
-            <h2>If a number here looks wrong</h2>
-            <p>
-              Tell me. You do not need to be sure it is a bug — "this does not match my
-              payslip" is enough. A wage figure that is quietly wrong is worse than no
-              figure, so this is the most useful thing you can send me.
-            </p>
-            <p class="wrong__links">
-              {contact.formUrl && <a href={contact.formUrl}>Report a problem</a>}
-              {contact.formUrl && contact.issuesUrl && <span aria-hidden="true"> · </span>}
-              {contact.issuesUrl && <a href={contact.issuesUrl}>Open an issue</a>}
-            </p>
-          </aside>
+        {heroScreen.length > 0 && (
+          <div class="apphead__device">
+            <PhoneDevice screens={heroScreen} />
+          </div>
         )}
       </div>
+    </div>
+
+    {/* The facts, as a band across the full measure rather than a column in a sidebar.
+        Every one is a field or the length of a list — nothing here is counted that
+        cannot be counted. */}
+    <div class="wrap">
+      <dl class="facts">
+        <div><dt>Price</dt><dd class="facts__free">Free</dd></div>
+        <div><dt>Your data</dt><dd>{privacyLine}</dd></div>
+        <div><dt>Runs on</dt><dd>{d.platforms.map((p: string) => platformNames[p] ?? p).join(', ')}</dd></div>
+        {d.languages && (
+          <div>
+            <dt>Languages<span class="facts__n data">{d.languages.length}</span></dt>
+            <dd>{d.languages.map((l: string) => langNames[l] ?? l).join(' · ')}</dd>
+          </div>
+        )}
+      </dl>
+    </div>
+
+    {/* Everything from here narrows to a reading column. publik does the same and it is
+        the reason its app pages stay readable after a full-width hero: a 1140px measure
+        is right for a grid of cards and much too wide for prose. */}
+    <div class="wrap">
+     <div class="read">
+      {hasGuide && (
+        <a class="bigrow" href={`/apps/${d.slug}/guide/`}>
+          <span>How to use {d.name}, screen by screen</span>
+          <span aria-hidden="true">→</span>
+        </a>
+      )}
+
+      {d.screenshots.length > 0 && (
+        <section class="block" aria-label={`What ${d.name} looks like`}>
+          <h2 class="sec__head reveal">What it looks like</h2>
+          {phoneShots.length > 0 && (
+            <ol class="screens__strip">
+              {phoneShots.map((s: any) => (
+                <li class="screens__item reveal--wipe">
+                  <img src={s.src} alt={s.alt} loading="lazy" decoding="async" />
+                  {s.caption && <p class="screens__cap">{s.caption}</p>}
+                </li>
+              ))}
+            </ol>
+          )}
+
+          {pageShots.map((s: any) => (
+            <figure class="sheet reveal--wipe">
+              <img src={s.src} alt={s.alt} loading="lazy" decoding="async" />
+              {s.caption && <figcaption class="screens__cap">{s.caption}</figcaption>}
+            </figure>
+          ))}
+        </section>
+      )}
+
+      {/* publik's README card, in this site's one theme rather than in white. The
+          header bar is the part worth copying: it says what you are about to read and
+          offers the source of it in the same line. */}
+      <section class="block">
+        <div class="detail glass">
+          <div class="detail__bar">
+            <span class="detail__label">In detail</span>
+            {d.sourceUrl && (
+              <a class="detail__src" href={d.sourceUrl}>Read the source <span aria-hidden="true">↗</span></a>
+            )}
+          </div>
+          <div class="detail__body prose">
+            <Content />
+          </div>
+        </div>
+      </section>
+
+      {d.platformNotes.length > 0 && (
+        <section class="block">
+          <h2 class="sec__head reveal">Where it runs, and what changes</h2>
+          <p class="sec__lead">The same app either way.</p>
+          <dl class="where__list">
+            {d.platformNotes.map((p: any) => (
+              <div class="where__row reveal">
+                <dt>{platformNames[p.platform] ?? p.platform}</dt>
+                <dd>{p.note}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )}
+
+      {/* Where a marketplace would put an install counter or a star rating, this site
+          puts the claim and the way to check it. Counters and ratings are numbers a
+          visitor has to believe; these are things they can confirm. Never add an entry
+          here that has not been checked on the shipping build. */}
+      {d.verify.length > 0 && (
+        <section class="block">
+          <h2 class="sec__head reveal">Don't take my word for it</h2>
+          <p class="sec__lead">
+            What this page claims, and how to check each one yourself.
+          </p>
+          <ul class="verify__list">
+            {d.verify.map((v: any) => (
+              <li class="verify__item reveal">
+                <p class="verify__claim">{v.claim}</p>
+                <p class="verify__how">{v.how}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {(contact.formUrl || contact.issuesUrl) && (
+        <aside class="wrong reveal">
+          <h2>If a number here looks wrong</h2>
+          <p>
+            Tell me. You do not need to be sure it is a bug — "this does not match my
+            payslip" is enough. A wage figure that is quietly wrong is worse than no
+            figure, so this is the most useful thing you can send me.
+          </p>
+          <p class="wrong__links">
+            {contact.formUrl && <a href={contact.formUrl}>Report a problem</a>}
+            {contact.formUrl && contact.issuesUrl && <span aria-hidden="true"> · </span>}
+            {contact.issuesUrl && <a href={contact.issuesUrl}>Open an issue</a>}
+          </p>
+        </aside>
+      )}
+     </div>
     </div>
   </article>
 </Base>
 
 <style>
-  /* The width of the right-hand column, used by both grids on this page. */
-  article { --col-side: 304px; }
+  article { --col-side: 300px; --read: 760px; }
 
-  /* The hero and the body below it are two separate grids, so their right-hand columns
-     have to be defined identically or the app picture and the Get it card sit on different
-     lines — they were out by 70px at each edge, because the hero split 1.1fr/0.9fr and
-     centred a 300px image inside its column while the body used a fixed 304px track.
-     One width, one breakpoint, one edge down the page. Change these together. */
-  .top {
-    padding-top: 32px;
-    display: grid;
-    gap: clamp(24px, 4vw, 44px);
-    align-items: center;
+  /* ---------- the head ---------- */
+  .apphead {
+    position: relative;
+    padding-block: calc(var(--head-h) + clamp(16px, 3vw, 40px)) clamp(26px, 4vw, 44px);
+    /* The backdrop is wider and taller than the text it sits behind; without this it
+       adds a horizontal scrollbar exactly the way the device's bloom did on the
+       homepage. Same fix, same reason — see the note on .hero in index.astro. */
+    overflow-x: clip;
   }
-  @media (min-width: 900px) {
-    .top { grid-template-columns: minmax(0, 1fr) var(--col-side); }
+  /* The app's own capture, blurred past reading and dimmed to a suggestion. The mask
+     fades it out downward so it belongs to the head rather than to the whole page. */
+  .apphead__bg {
+    --shot-a: 0.16;
+    position: absolute;
+    inset: -20% -10% 0;
+    background-image: var(--shot);
+    background-size: cover;
+    background-position: top center;
+    filter: blur(72px) saturate(1.3);
+    opacity: var(--shot-a);
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 42%, transparent 92%);
+    mask-image: linear-gradient(to bottom, #000 0%, #000 42%, transparent 92%);
   }
+  .apphead__inner { position: relative; }
 
-  .top__crumb { margin: 0 0 18px; font-size: 14px; color: var(--ink-soft); }
-  .top__crumb a { color: inherit; text-decoration-color: var(--hairline); }
-  .top__crumb span { margin: 0 6px; }
-
-  .top__badges { display: flex; flex-wrap: wrap; gap: 6px; }
-
-  .top__name {
-    margin: 16px 0 0;
-    font-family: var(--font-display);
-    font-size: clamp(36px, 6.4vw, 62px);
-    font-weight: 400; letter-spacing: var(--track-display); line-height: 0.98;
-    display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
-  }
-  .top__native {
-    font-family: var(--font);
-    font-size: clamp(15px, 1.8vw, 19px); font-weight: 500; color: var(--ink-soft);
-  }
-  .top__tagline {
-    margin: 16px 0 0;
-    max-width: 46ch;
-    font-size: clamp(17px, 1.8vw, 20px);
+  .crumb { margin: 0 0 20px; font-size: 14px; }
+  .crumb a {
     color: var(--ink-soft);
+    text-decoration: none;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 2px;
+    transition: color 160ms var(--ease), border-color 160ms var(--ease);
   }
-  /* Who it is for, in the hero. A stranger asks "is this for me?" before "what does it
-     do?", so the answer sits directly under the tagline rather than three screens down in
-     the prose. A quiet rule and full-strength ink stop it reading as a second tagline —
-     it is a different kind of sentence, so it gets a different weight. That rule used to
-     be 2px of accent, which spent the page's one colour on something nobody can click. */
-  .top__audience {
+  .crumb a:hover { color: var(--ink); border-bottom-color: var(--accent); }
+
+  .apphead .pill { margin: 0 0 18px; }
+  .apphead .pill i { font-style: normal; opacity: .5; margin-inline: 7px; }
+
+  .apphead__name {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(40px, 7.4vw, 76px);
+    font-weight: 400; letter-spacing: var(--track-display); line-height: 0.98;
+    display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap;
+  }
+  .apphead__native {
+    font-family: var(--font);
+    font-size: clamp(15px, 1.6vw, 20px); font-weight: 500; color: var(--ink-soft);
+  }
+  .apphead__tagline {
+    margin: 18px 0 0;
+    max-width: 44ch;
+    font-size: clamp(17px, 2vw, 22px);
+    line-height: 1.45;
+    color: var(--ink-soft);
+    text-wrap: pretty;
+  }
+  .apphead__audience {
     margin: 16px 0 0;
-    max-width: 46ch;
+    max-width: 48ch;
     padding-left: 15px;
     border-left: 1px solid var(--rule);
-    font-size: clamp(15px, 1.5vw, 17px);
+    font-size: clamp(15px, 1.5vw, 16.5px);
     line-height: 1.5;
-    color: var(--ink);
-    /* Two lines ending in a single orphaned word looks like a mistake next to the rule. */
     text-wrap: pretty;
   }
 
-  .top__guide { margin: 22px 0 0; font-size: 16px; color: var(--ink-soft); }
-  .top__guide a {
-    color: var(--ink); font-weight: 600;
-    text-decoration-color: var(--accent); text-underline-offset: 4px;
-  }
-
-  /* The screenshot is mounted rather than floated: the same surface, border and radius as
-     the Get it card below it, so the two read as one column of cards instead of a picture
-     that happens to be near a box. The 6px of padding is a mat — it is also exactly the
-     difference between this radius and the image's, which is what keeps the two curves
-     concentric instead of subtly fighting each other. */
-  .top__preview {
-    width: 100%;
-    max-width: 320px;
-    margin-inline: auto;
-    padding: 6px;
-    background: var(--surface);
-    border: 1px solid var(--hairline);
-    border-radius: var(--r-lg);
-  }
+  /* The head is two columns above 900px: the words and the ways to get it on the left,
+     the device on the right. It mirrors the homepage hero deliberately — a visitor who
+     arrives here from the front page should recognise the shape. 900 is the same number
+     PhoneDevice flattens its tilt at; move one and move the other. */
+  .apphead__inner { display: grid; gap: clamp(30px, 4vw, 48px); align-items: center; }
   @media (min-width: 900px) {
-    .top__preview { max-width: none; margin-inline: 0; }
+    .apphead__inner { grid-template-columns: minmax(0, 1fr) auto; column-gap: clamp(36px, 4.5vw, 72px); }
   }
+  .apphead__copy { min-width: 0; }
+  /* Smaller than the homepage's, because here it shares the row with a headline at
+     76px rather than 68px and must not out-shout the name of the thing. */
+  .apphead__device { justify-self: center; --phone-size: clamp(210px, 18vw, 262px); }
 
-  /* One grid holds the whole page below the hero. The rail is first in the source; on a
-     wide screen it is placed into the second column of the first row, which lets the main
-     column start at the top beside it instead of below it. */
-  .layout {
-    margin-top: clamp(40px, 6vw, 64px);
-    display: grid;
-    gap: clamp(32px, 5vw, 56px);
-    align-items: start;
+  .apphead__actions {
+    margin-top: 30px;
+    display: flex; flex-wrap: wrap; gap: 12px;
   }
-  /* Grid and flex children default to min-width:auto, which lets a wide child push the
-     whole column past the viewport instead of being contained. */
-  .rail, .main { min-width: 0; }
-  @media (min-width: 900px) {
-    .layout { grid-template-columns: minmax(0, 1fr) var(--col-side); }
-    /* `align-self: stretch` is what makes the sticky card work. The grid sets
-       align-items: start, which sizes this column to its own content — and a sticky child
-       can only travel inside its parent, so without the stretch the rail scrolled away
-       with the top of the page instead of staying put. */
-    .rail { grid-column: 2; grid-row: 1; align-self: stretch; }
-    .main { grid-column: 1; grid-row: 1; }
-  }
+  .apphead__actions .btn { min-height: 54px; }
+  .apphead__actions .btn__label { display: grid; gap: 2px; text-align: left; }
 
-  .rail__card {
-    background: var(--surface);
-    border: 1px solid var(--hairline);
-    border-radius: var(--r-lg);
-    padding: 22px;
-  }
-  @media (min-width: 900px) { .rail__card { position: sticky; top: 82px; } }
-
-  .rail__head {
-    margin: 0 0 14px;
-    font-family: var(--font);
-    font-size: 13px; font-weight: 600; letter-spacing: 0.005em;
-    color: var(--ink-soft);
-  }
-  .rail__actions { display: grid; gap: 10px; }
-  .rail__actions .btn {
-    flex-direction: column; gap: 0; padding-block: 10px;
-    align-items: flex-start; width: 100%;
-  }
-
-  .rail__facts {
+  .apphead__links {
     margin: 20px 0 0;
-    padding-top: 18px;
-    border-top: 1px solid var(--hairline);
+    display: flex; flex-wrap: wrap; gap: 10px 26px;
+    font-size: 14.5px; font-weight: 600;
   }
-  .rail__facts dt {
-    font-family: var(--font);
-    font-size: 12.5px; font-weight: 500; letter-spacing: 0.005em;
-    color: var(--ink-soft); margin-top: 18px;
+  .apphead__links a {
+    text-decoration: none;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 2px;
+    transition: color 160ms var(--ease), border-color 160ms var(--ease);
   }
-  .rail__facts dt:first-of-type { margin-top: 0; }
-  .rail__facts dd { margin: 3px 0 0; font-size: 15px; line-height: 1.45; }
-  .rail__free { font-weight: 700; }
-  .rail__facts a { text-decoration-color: var(--accent); text-underline-offset: 3px; }
+  .apphead__links a:hover { color: var(--accent); border-bottom-color: var(--accent); }
 
-  /* Section furniture, shared by the three new blocks. */
+  /* ---------- the facts band ---------- */
+  /* Across the measure rather than stacked in a sidebar. Rules above and below make it
+     a band, which gives the page a beat between the hero and the prose and stops the
+     reading column starting cold. Set as rows divided by hairlines, never as tiles —
+     tiles here would be the stat row this site refuses to carry, in a different shape. */
+  .facts {
+    margin: clamp(34px, 4.5vw, 56px) 0 0;
+    padding-block: 22px;
+    border-block: 1px solid var(--hairline);
+    display: grid;
+    gap: 22px 40px;
+    grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+  }
+  .facts dt {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 12.5px; color: var(--ink-soft);
+  }
+  .facts dd { margin: 5px 0 0; font-size: 15px; line-height: 1.45; text-wrap: pretty; }
+  .facts__free { font-weight: 700; }
+  /* The count beside the label, in mono because it is a fact the reader could check:
+     it is the length of the list printed underneath it. */
+  .facts__n {
+    font-size: 11.5px;
+    padding: 1px 6px;
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-sm);
+    color: var(--ink);
+  }
+
+  /* ---------- the reading column ---------- */
+  /* A plain block inside .wrap, NOT `class="read wrap"`. On one element those two
+     fight: .wrap sets the page measure with auto margins, .read then narrows it — and
+     the auto margins centre the narrowed box while .wrap's 91px of side padding is
+     applied a second time inside it. Measured before the fix: an 808px box at x=316
+     holding 626px of content at x=407. The about page had the identical bug. */
+  .read { max-width: var(--read); margin-top: clamp(38px, 5vw, 58px); }
+  .block { margin-top: clamp(38px, 5vw, 56px); }
+  .block:first-child { margin-top: 0; }
+
+  /* publik's full-width row link, with the arrow pinned to the far edge. It is the
+     shape it uses for "How to install Ghost on Mac", and it is a better answer than a
+     third button for a route that is important but not the primary one. */
+  .bigrow {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 18px 22px;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-xl);
+    font-size: clamp(15px, 1.7vw, 17px); font-weight: 600;
+    text-decoration: none;
+    transition: border-color 200ms var(--ease), color 200ms var(--ease);
+  }
+  .bigrow:hover { border-color: var(--accent); color: var(--accent); }
+
   .sec__head {
     margin: 0;
     font-family: var(--font-display);
     font-size: clamp(24px, 3vw, 32px);
     font-weight: 400; letter-spacing: var(--track-display); line-height: 1.08;
   }
-  .sec__lead {
-    margin: 10px 0 0;
-    max-width: 62ch;
-    color: var(--ink-soft);
-  }
+  .sec__lead { margin: 10px 0 0; max-width: 62ch; color: var(--ink-soft); }
 
-  .screens { margin-bottom: clamp(40px, 6vw, 60px); }
   /* A strip that scrolls sideways on a phone and becomes a grid when there is room.
      Scroll snapping keeps a screenshot aligned rather than stranded half off-screen. */
   .screens__strip {
@@ -400,12 +498,27 @@ const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
     border-radius: var(--r-md);
     background: var(--ground);
   }
-  .screens__cap {
-    margin: 10px 0 0;
-    font-size: 14px; line-height: 1.45; color: var(--ink-soft);
-  }
+  .screens__cap { margin: 10px 0 0; font-size: 14px; line-height: 1.45; color: var(--ink-soft); }
 
-  .where { margin-top: clamp(40px, 6vw, 60px); }
+  /* ---------- the detail card ---------- */
+  .detail { overflow: hidden; }
+  .detail__bar {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 13px 20px;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .detail__label {
+    font-size: 12.5px; font-weight: 600; letter-spacing: 0.02em;
+    color: var(--ink-soft);
+  }
+  .detail__src {
+    font-size: 13.5px; font-weight: 600; text-decoration: none; color: var(--ink);
+    transition: color 160ms var(--ease);
+  }
+  .detail__src:hover { color: var(--accent); }
+  .detail__body { padding: clamp(20px, 3vw, 30px); max-width: none; }
+
+  /* ---------- where it runs ---------- */
   .where__list { margin: 22px 0 0; }
   .where__row {
     padding: 16px 0;
@@ -420,7 +533,7 @@ const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
   .where__row dt { font-weight: 700; }
   .where__row dd { margin: 0; color: var(--ink-soft); line-height: 1.55; }
 
-  .verify { margin-top: clamp(40px, 6vw, 60px); }
+  /* ---------- verify ---------- */
   /* minmax(0, 1fr), not the default `auto`: an auto column sizes itself to the widest
      unbreakable thing inside it, and one of these entries prints a 64-character SHA-256
      with nowhere to break. The column grew to 600px, the page scrolled sideways on a
@@ -449,16 +562,24 @@ const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
     overflow-wrap: anywhere;
   }
 
+  /* There is no closing "Get it" panel. One was added on the theory that a 6,600px
+     page should not make a reader scroll back to act — and it was removed the same day,
+     because the hero already carries both controls and a second copy of them is the
+     kind of duplication that makes a page feel padded rather than generous. If the page
+     ever gets long enough that this genuinely bites, a sticky bar is the answer, not a
+     second set of the same two buttons. */
   .wrong {
-    margin-top: clamp(40px, 6vw, 60px);
+    margin-top: clamp(38px, 5vw, 56px);
     padding: 22px;
     background: var(--surface);
     border: 1px solid var(--hairline);
     border-left: 3px solid var(--accent);
     border-radius: var(--r-md);
   }
-  .wrong h2 { margin: 0 0 10px; font-family: var(--font-display); font-weight: 400; font-size: 22px;
-    letter-spacing: var(--track-tight); }
+  .wrong h2 {
+    margin: 0 0 10px; font-family: var(--font-display); font-weight: 400; font-size: 22px;
+    letter-spacing: var(--track-tight);
+  }
   .wrong p { margin: 0 0 10px; }
   .wrong__links { margin: 14px 0 0; font-weight: 600; }
   .wrong__links a { text-decoration-color: var(--accent); text-underline-offset: 3px; }

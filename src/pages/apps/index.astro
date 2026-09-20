@@ -1,0 +1,210 @@
+---
+/* The catalogue. Everything that has been made, on one page.
+ *
+ * ── Why this page exists ──
+ * All of this used to sit underneath the hero on the homepage, and the homepage was five
+ * sections long. publik's arrangement is the one this site wanted: the front page says
+ * what the place is and offers one door, and everything made lives behind that door. So
+ * the front page is now a hero and three facts, and this is where the work is.
+ *
+ * The route is /apps/ because the detail pages are already /apps/<slug>/ and an index
+ * that does not share their prefix is a broken mental model. Note that the collection
+ * holds every KIND of work — an entry's `type` may be writing or a novel, not only an
+ * app — so the folder name is historical. CLAUDE.md § How the homepage groups things
+ * records that renaming the lot to /works/ would be tidier and has not been asked for;
+ * if it ever is, this file moves with the rest.
+ *
+ * Nothing here is hardcoded to an app. Adding one is still adding one file in /apps.
+ */
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import AppCard from '../../components/AppCard.astro';
+import Showcase from '../../components/Showcase.astro';
+
+const allApps = await getCollection('apps');
+const apps = allApps.sort((a, b) => a.data.order - b.data.order);
+
+/* ── Every piece of work is the same object ──
+ * The lowest-ordered work used to be pulled out into a full-width glass panel with its
+ * own facts rail, and everything else fell into a grid underneath. The argument was
+ * that a three-column grid holding one card looks like a template nobody looked at.
+ *
+ * It was the wrong fix and it made the page messy in a way that is easy to see once
+ * named: with two works, LOGGER became a 1092px panel and HANGIL became one 418px card
+ * alone in an empty row. Add the showcase strip and the curio deck and the page had
+ * five blocks all starting at the same left edge and ending at five different right
+ * edges. publik does not have that problem because every app on it is drawn as the
+ * same card in a row that fills.
+ *
+ * So: one grid, one card shape, no feature. Nothing is lost — the panel's facts rail
+ * and links were a copy of the app's own page, which is one click away from the card.
+ */
+
+const GROUPS: Array<[string, string]> = [
+  ['app', 'Apps'],
+  ['tool', 'Tools'],
+  ['writing', 'Writing'],
+  ['novel', 'Novels'],
+  ['bot', 'Bots'],
+  ['other', 'Other'],
+];
+// A group is rendered only when something is in it — an empty "Novels" heading would
+// advertise work that does not exist, which is hard rule 1 wearing a different hat.
+const grouped = GROUPS
+  .map(([key, label]) => [label, apps.filter((a) => a.data.type === key)] as const)
+  .filter(([, items]) => items.length > 0);
+---
+<Base
+  title="The work — doubleem"
+  description="Everything made so far: apps and tools mostly, each free, each with a page saying plainly what it does and what it doesn't."
+>
+  <section class="work wrap" id="work">
+    <header>
+      <div class="sec reveal">
+        <h2 class="display display--sec sec__title">The work</h2>
+        <p class="sec__note">
+          {apps.length === 1
+            ? 'One so far. Things get listed here when they work, not when they are announced.'
+            : 'Everything here is finished enough to use. Things get listed when they work, not when they are announced.'}
+        </p>
+      </div>
+    </header>
+
+    {/* ── Grid or shelf, decided by how much is in it ──
+        publik's defining structure is the horizontal shelf: a heading, a row of cards
+        that scrolls sideways, arrows at the edges. It is the right shape for a catalogue
+        of hundreds and the wrong one for a catalogue of two — a shelf holding two cards
+        with a dead pair of arrows advertises a scale the site does not have, which is
+        the same failure DESIGN.md records from the first time this site borrowed from
+        publik.
+
+        So the shelf is built, and it turns itself on. Under four items a group is a
+        plain grid; at four it becomes a shelf. Nothing here has four yet, so today every
+        group renders as a grid — and the day a fourth app lands this page becomes
+        publik's layout with no code change and nobody having to remember.
+
+        Four is where a row stops fitting comfortably at the common desktop width and a
+        sideways scroll starts being a service rather than a gimmick. */}
+    {grouped.map(([label, items]) => (
+      <section class="group">
+        {/* No count beside the heading. A heading that names the kind of work is
+            doing its whole job; the reader can see how many cards are under it. */}
+        <p class="label reveal">{label}</p>
+        {items.length >= 4 ? (
+          <div class="shelf">
+            {items.map((app) => <AppCard app={app} />)}
+          </div>
+        ) : (
+          <div class="grid">
+            {items.map((app) => <AppCard app={app} />)}
+          </div>
+        )}
+      </section>
+    ))}
+  </section>
+
+  <Showcase apps={apps} />
+
+</Base>
+
+<style>
+  /* The page opens directly on a section head, with no hero above it, so it has to
+     clear the floating bar itself the way the homepage hero does. See --head-h in
+     global.css — the header no longer pushes anything down. */
+  .work { padding-top: calc(var(--head-h) + clamp(18px, 3vw, 40px)); }
+
+  /* ---------- the grid ---------- */
+  .group { margin-top: clamp(30px, 4vw, 52px); }
+  /* ── The row fills the measure, and that is the point ──
+     This was `repeat(auto-fill, minmax(260px, 418px))` with `justify-content: start`,
+     which capped each card at 418px and left the remainder as empty space. With one
+     card in a group that meant 418px of card and 674px of nothing, and it was the
+     single biggest reason this page looked untidy next to publik's: every block began
+     at the same left edge and ended at a different right one.
+
+     `auto-fit` with a `1fr` maximum fixed that by collapsing the empty tracks and
+     sharing the whole width between the cards that exist — but it sized the card to the
+     number of works, which at two gave a pair of 532px cards. Those were too big: a
+     253px-wide phone screenshot blown up inside a card twice its natural width.
+
+     So it is `auto-FILL` now, at half the track size. The tracks are decided by the
+     container rather than by how many works there are, which means a card is the same
+     size whether there are two of them or twelve — at the 1092px measure, four tracks
+     of 252px. With two works that leaves the last two tracks empty, and that is the
+     honest consequence of a two-item catalogue rather than something to design around:
+     publik's rows are full because publik has four hundred apps, not because its grid
+     stretches.
+
+     The 418px ceiling that used to be on the column has not been thrown away, it has
+     MOVED. It existed to stop the screenshot being magnified past the 390px it was
+     captured at, and it now lives on the picture itself in Preview.astro, where it
+     belongs. The card may be any width; the picture may not. */
+  /* 200px tracks and a 20px gutter, both read off publik: at the 1258px measure this
+     resolves to five 235px cards, against publik's measured 224. The gutter is its 20
+     rather than this site's usual 28 — a denser grid wants a tighter one, and the cards
+     are their own boxes so the space between them is doing less work than it does
+     between two bare blocks. */
+  .grid {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr));
+  }
+
+  /* ---------- the shelf, for a group of four or more ---------- */
+  /* A horizontal scroll-snap track. The cards keep the same width they have in the
+     grid, so a group crossing the four-item threshold does not also change size.
+
+     ── The arrows are ::scroll-button(), and that is the whole trick ──
+     publik's shelves have ‹ › buttons at the edges. Scrolling a container by a step
+     needs to know where the scroll position currently is, which has always meant
+     JavaScript — and /motion.js is budgeted at "moves things" and nothing else.
+     `::scroll-button()` is the CSS that does it: the browser generates the buttons,
+     wires them to the scroller and disables them at the ends, with no script.
+
+     It is new and only Chromium has it today, which is exactly the right shape of
+     dependency for this site: where it is missing there are simply no buttons and the
+     track still scrolls by wheel, trackpad, touch and keyboard. Nothing is hidden
+     behind it. Same rule as the scroll-driven reveals — see DESIGN.md § Motion. */
+  .shelf {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(260px, 340px);
+    gap: var(--gap);
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scroll-behavior: smooth;
+    /* Room for the cards' hover lift and glow spill, which would otherwise be clipped
+       by the scroll container. */
+    padding-block: 4px 10px;
+    scrollbar-width: thin;
+  }
+  .shelf > * { scroll-snap-align: start; }
+
+  @supports selector(::scroll-button(*)) {
+    .shelf { anchor-name: --shelf; scrollbar-width: none; }
+    .shelf::-webkit-scrollbar { display: none; }
+    .shelf::scroll-button(left),
+    .shelf::scroll-button(right) {
+      position: fixed;
+      position-anchor: --shelf;
+      position-area: center;
+      width: 36px; height: 36px;
+      border: 1px solid var(--rule);
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--ink);
+      font-size: 15px;
+      cursor: pointer;
+      transition: opacity 200ms var(--ease), border-color 200ms var(--ease);
+    }
+    .shelf::scroll-button(left)  { content: '\2039'; justify-self: start; margin-left: -18px; }
+    .shelf::scroll-button(right) { content: '\203A'; justify-self: end;   margin-right: -18px; }
+    .shelf::scroll-button(*):hover { border-color: var(--accent); }
+    /* At either end the button is spent. Hiding it outright makes the row jump; going
+       quiet and untargetable says the same thing without moving anything. */
+    .shelf::scroll-button(*):disabled { opacity: 0; pointer-events: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .shelf { scroll-behavior: auto; }
+  }
+</style>

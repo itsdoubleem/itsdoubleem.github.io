@@ -8,8 +8,15 @@ const hasAnyRoute = Boolean(contact.formUrl || contact.issuesUrl || contact.emai
   title="About — doubleem"
   description="Why the software here is free, what it collects, and who makes it."
 >
+  {/* publik's content page: a small eyebrow, a two-line display headline with a full
+      stop, then prose at a comfortable measure, and one filled control at the end. The
+      one thing not copied is the colour — publik's eyebrow is in its accent, and
+      DESIGN.md § The kicker is explicit that an accent-coloured kicker is the single
+      most recognisable tell of a generated page. It is --ink-soft here, like every
+      other label on the site. */}
   <section class="wrap intro">
-    <h1>About this place.</h1>
+    <p class="label">About</p>
+    <h1>Good software should not cost you your data.</h1>
     <p class="intro__lead">
       doubleem is one person putting their work somewhere people can find it. Software
       mostly, for now. What each thing does, and what it costs you, is written on its own
@@ -18,13 +25,20 @@ const hasAnyRoute = Boolean(contact.formUrl || contact.issuesUrl || contact.emai
     </p>
   </section>
 
-  <section class="wrap prose about">
+  {/* `wrap` and `prose` on one element fought each other: .wrap sets max-width 1140
+      and margin-inline auto, .prose then narrows max-width to 66ch — and the auto
+      margins centred THAT, so the body text sat 90px to the right of the headline
+      above it. Two elements, one job each: .wrap holds the page measure, .prose sits
+      at its left edge. publik keeps its whole content page on one left edge and this
+      is why that reads as deliberate. */}
+  <section class="wrap">
+   <div class="prose about">
     <h2>Who makes this</h2>
     <p>
       One person. The work tends to start the same way — someone I know has a problem,
       and the thing that would solve it either does not exist or costs money they should
-      not have to spend. The first app here,
-      <a href="/apps/logger/">LOGGER</a>, was built with a factory worker in Korea who
+      not have to spend. The first app here, <a href="/apps/logger/">LOGGER</a>, was
+      built with a factory worker in Korea who
       needed to check whether his payslip was right and could not find anything that would
       do it in a language he reads.
     </p>
@@ -39,6 +53,15 @@ const hasAnyRoute = Boolean(contact.formUrl || contact.issuesUrl || contact.emai
       email address required to download anything. The pages load no third-party scripts
       at all — even the typeface is served from here rather than from Google. That is why
       you were never shown a consent banner: there is nothing to consent to.
+    </p>
+    <p>
+      There is one script, and I would rather name it than let you find it. It
+      is <a href="/motion.js">/motion.js</a>, served from this domain, and all it does
+      is tilt the phone on the front page towards your cursor and light the edge of a
+      card as you pass it. It reads nothing about you and stores nothing. It
+      also <em>could</em> not send anything anywhere if it tried: these pages set a
+      Content-Security-Policy that grants no permission to contact a server, so the
+      browser would refuse. Read the file — it is shorter than this page.
     </p>
     <p>
       What each <em>app</em> collects is a separate question with a separate answer, and it
@@ -98,14 +121,24 @@ const hasAnyRoute = Boolean(contact.formUrl || contact.issuesUrl || contact.emai
       If praise ever appears on this site it will be something a real person said, quoted
       with their permission. Not a widget, and not a number I cannot show you the source of.
     </p>
+
+    {/* One way out, at the end, the way publik ends its content pages. A page that
+        explains the place should hand the reader the place. */}
+    <p class="about__out">
+      <a class="btn btn--primary" href="/apps/">See the work <span aria-hidden="true">→</span></a>
+    </p>
+   </div>
   </section>
 </Base>
 
 <style>
-  .intro { padding-top: clamp(40px, 7vw, 72px); }
+  /* The header floats and no longer pushes anything down; this page has to clear it
+     itself, the same way the hero and the app pages do. See --head-h in global.css. */
+  .intro { padding-top: calc(var(--head-h) + clamp(16px, 3vw, 40px)); }
+  .intro .label { margin-bottom: 18px; }
   .intro h1 {
     margin: 0;
-    max-width: 15ch;
+    max-width: 17ch;
     font-family: var(--font-display);
     font-size: clamp(36px, 6vw, 64px);
     font-weight: 400; letter-spacing: var(--track-display); line-height: 1.02;
@@ -117,7 +150,8 @@ const hasAnyRoute = Boolean(contact.formUrl || contact.issuesUrl || contact.emai
     font-size: clamp(17px, 2vw, 21px);
     color: var(--ink-soft);
   }
-  .about { margin-top: clamp(40px, 6vw, 64px); }
+  .about { margin-top: clamp(34px, 5vw, 56px); }
+  .about__out { margin-top: clamp(30px, 4vw, 44px); }
 
   .routes { margin: 0 0 1em; padding-left: 1.2em; }
   .routes li { margin-bottom: 10px; }

@@ -18,8 +18,42 @@
  */
 import { curios } from '../curios';
 
-interface Props { num?: string; }
-const { num = '02' } = Astro.props;
+/* This took a `num` prop so the page could number its section heads — "02 — Deck",
+ * "03 — Deck" depending on what sat above it. The ordinals were removed from the
+ * section heads on 2026-09-20 and the prop went with them; there is nothing left for a
+ * caller to pass. See DESIGN.md § The kicker. */
+
+/* ── The starfield ──
+ * Each layer is ONE element carrying a pile of radial-gradients as its background, tiled.
+ * The alternative — an element per star — is a hundred boxes for the compositor to keep
+ * track of; this is four, each painted once and then only ever transformed.
+ *
+ * The positions are generated rather than hand-typed, and generated from a FIXED SEED so
+ * the same sky comes out of every build. A random field would re-roll on each deploy and
+ * fill the diff with noise nobody could review.
+ *
+ * `count` stays low per layer because a radial-gradient is not free to paint: the cost is
+ * paid once at first paint and never again, but it is still a cost, and a sky reads as a
+ * sky at twenty stars per tile. Do not push these into the hundreds.
+ */
+function field(seed: number, count: number, radius: string, alpha: number) {
+  let s = seed >>> 0;
+  const next = () => ((s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296);
+  return Array.from({ length: count }, () => {
+    const x = (next() * 100).toFixed(2);
+    const y = (next() * 100).toFixed(2);
+    // Vary each star's brightness, or the field reads as a regular pattern of identical dots.
+    const a = (alpha * (0.4 + next() * 0.6)).toFixed(3);
+    return `radial-gradient(${radius} ${radius} at ${x}% ${y}%, rgba(228,255,244,${a}) 0%, rgba(228,255,244,0) 100%)`;
+  }).join(', ');
+}
+
+const sky = {
+  far:  field(20260920, 26, '1px',   0.55),
+  mid:  field(70112358, 17, '1.3px', 0.75),
+  nearA: field(31415927, 8,  '1.9px', 0.95),
+  nearB: field(27182818, 7,  '1.7px', 0.9),
+};
 
 const rules = curios
   .map(
@@ -33,9 +67,26 @@ const rules = curios
 ---
 
 <section class="curio wrap" aria-labelledby="curio-head">
+  {/* ── The sky ──
+      Decoration, and it obeys the same rules as the page's own glow and grid: it holds
+      no text, it takes no pointer, and the section is complete without it. It is masked
+      to fade out at every edge, so it belongs to this section rather than ending in a
+      rectangle — the same treatment the page grid gets in global.css.
+
+      Scoped to the section's own box rather than bled to 100vw. A full-bleed layer is
+      the more dramatic version and it is how this page has twice grown a horizontal
+      scrollbar; the mask does most of the same work with none of that risk. */}
+  <div class="sky" aria-hidden="true">
+    <div class="sky__neb"></div>
+    <div class="sky__limb"></div>
+    <div class="sky__layer sky__layer--far"   style={`--f: ${sky.far}`}></div>
+    <div class="sky__layer sky__layer--mid"   style={`--f: ${sky.mid}`}></div>
+    <div class="sky__layer sky__layer--near-a" style={`--f: ${sky.nearA}`}></div>
+    <div class="sky__layer sky__layer--near-b" style={`--f: ${sky.nearB}`}></div>
+  </div>
+
   <header>
     <div class="sec">
-      <p class="label">{num} — Deck</p>
       <h2 class="display display--sec sec__title" id="curio-head">One true thing</h2>
       <p class="sec__note">
         Every one of the {curios.length} says where you can check it.
@@ -102,7 +153,99 @@ const rules = curios
 <style is:inline set:html={rules}></style>
 
 <style>
-  .curio { margin-top: clamp(56px, 9vw, 96px); }
+  .curio {
+    margin-top: clamp(44px, 6vw, 78px);
+    position: relative;
+    /* Nothing inside .sky may reach the page. The layers are deliberately larger than
+       this box so their drift never exposes an edge, and without this they would widen
+       the document — the same bug the hero's bloom and the app head's backdrop both
+       caused before they were clipped. `clip`, not `hidden`: hidden makes this a scroll
+       container, which would break the focus ring the deck relies on. */
+    overflow: clip;
+    padding-block: clamp(30px, 4vw, 54px);
+  }
+
+  /* ---------- the cosmos ---------- */
+  .sky {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    /* Fades to nothing at every edge so the field has no border. Same idea as the
+       page grid's mask in global.css — a texture the section stands in, not a
+       rectangle drawn on it. */
+    -webkit-mask-image: radial-gradient(118% 104% at 50% 42%, #000 28%, transparent 100%);
+    mask-image: radial-gradient(118% 104% at 50% 42%, #000 28%, transparent 100%);
+  }
+
+  /* The nebula does NOT move, and that is deliberate. DESIGN.md § Motion: a pulsing or
+     drifting glow is the one change to this design that would make it look cheap. The
+     stars drift; the light they are in holds still. */
+  .sky__neb {
+    position: absolute;
+    inset: -30% -10%;
+    background:
+      radial-gradient(38% 52% at 22% 18%, color-mix(in oklab, var(--accent) 16%, transparent) 0%, transparent 70%),
+      radial-gradient(46% 60% at 82% 72%, rgba(90, 150, 200, 0.10) 0%, transparent 72%),
+      radial-gradient(70% 80% at 50% 100%, var(--glow-soft) 0%, transparent 76%);
+  }
+
+  /* A planet's limb, mostly below the fold of the section: one enormous circle with a
+     hairline edge. It is the cheapest cue there is that this is space rather than a
+     dark panel with dots on it, and it costs one element and no motion. */
+  .sky__limb {
+    position: absolute;
+    left: 50%;
+    top: 62%;
+    width: 178%;
+    aspect-ratio: 1;
+    translate: -50% 0;
+    border-radius: 50%;
+    border: 1px solid color-mix(in oklab, var(--accent) 13%, transparent);
+    background: radial-gradient(closest-side, color-mix(in oklab, var(--accent) 4%, transparent) 0%, transparent 72%);
+  }
+
+  /* One element per depth, each tiled and each drifting at its own speed — which is the
+     whole of the parallax. The element is a full tile larger than the section in both
+     axes, and the animation translates it by exactly one tile, so the loop is seamless
+     and no edge is ever exposed. Change --tw/--th and the keyframe follows automatically. */
+  .sky__layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: calc(100% + var(--tw));
+    height: calc(100% + var(--th));
+    background-image: var(--f);
+    background-size: var(--tw) var(--th);
+    background-repeat: repeat;
+    will-change: transform;
+  }
+  .sky__layer--far    { --tw: 680px; --th: 520px; }
+  .sky__layer--mid    { --tw: 520px; --th: 410px; }
+  .sky__layer--near-a { --tw: 900px; --th: 660px; }
+  .sky__layer--near-b { --tw: 760px; --th: 580px; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* Slow enough that you never catch it moving — you only notice it has moved. The
+       near layers also breathe, on two different periods so they are never in step;
+       one shared period would read as the whole sky blinking. */
+    .sky__layer--far    { animation: sky-drift 280s linear infinite; }
+    .sky__layer--mid    { animation: sky-drift 190s linear infinite; }
+    .sky__layer--near-a { animation: sky-drift 130s linear infinite, sky-twinkle 7s ease-in-out infinite; }
+    .sky__layer--near-b { animation: sky-drift 104s linear infinite, sky-twinkle 9.5s ease-in-out -3.2s infinite; }
+
+    @keyframes sky-drift {
+      from { transform: translate3d(0, 0, 0); }
+      to   { transform: translate3d(calc(var(--tw) * -1), calc(var(--th) * -1), 0); }
+    }
+    @keyframes sky-twinkle {
+      0%, 100% { opacity: 1; }
+      50%      { opacity: .55; }
+    }
+  }
+
+  /* Everything real sits above the sky. */
+  .curio > header,
+  .curio__deck { position: relative; z-index: 1; }
 
   /* Capped to a reading measure rather than stretched across the page: a card running
      twice as wide as the sentence introducing it reads as an accident.
@@ -111,7 +254,12 @@ const rules = curios
      so that the deck lined up with the section title rather than with the page edge. The
      rail is gone and the title is flush left now, so the indent that once aligned them
      would be the one thing on the page that is not. */
-  .curio__deck { margin-top: clamp(28px, 4vw, 44px); max-width: 760px; }
+  /* Full measure, not 760px. The card was the last block on the catalogue page that
+     stopped short of the right edge while everything above it reached it — see the
+     note in apps/index.astro about why that raggedness read as mess. The measure that
+     matters is the one on the TEXT inside, which is capped separately below; the card
+     around it may be as wide as the page. */
+  .curio__deck { margin-top: clamp(28px, 4vw, 44px); }
 
   /* Focusable but invisible: the Back and Another one labels are the visible controls, and
      the card itself takes the focus ring when its radio is focused. Never display:none
@@ -128,12 +276,41 @@ const rules = curios
   /* The 3px accent left border is gone. A white rounded card with a coloured stripe
      down one side is the alert component every utility framework ships, and it was
      spending the page's one accent on something that is not clickable. */
+  /* Frosted, not solid — and here that is not a style choice, it is the reason the sky
+     was worth drawing. DESIGN.md § The atmosphere: a glass panel over a flat opaque
+     surface is just a grey box, and it only reads as glass when there is something
+     behind it. There is now, so the starfield and the nebula come through the card and
+     the panel stops looking like a rectangle sitting on a picture. */
   .curio__card {
     display: none;
     background: var(--surface);
     border: 1px solid var(--hairline);
-    border-radius: var(--r-md);
+    border-radius: var(--r-xl);
     padding: clamp(22px, 3vw, 34px);
+  }
+  @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .curio__card {
+      background:
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0) 34%),
+        color-mix(in oklab, var(--surface) 62%, transparent);
+      -webkit-backdrop-filter: var(--glass-blur);
+      backdrop-filter: var(--glass-blur);
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* The card animates in every time it is shown, and the mechanism is free: going
+       from `display: none` to `display: block` makes an element newly rendered, and a
+       newly rendered element starts its animations from the beginning. So pressing
+       "Another one" replays this with no script and no state to track.
+
+       One `animation` shorthand only — DESIGN.md § Motion records a section head that
+       silently stopped moving because a second shorthand overwrote the first. */
+    .curio__card { animation: curio-in 640ms var(--ease-out) both; }
+    @keyframes curio-in {
+      from { opacity: 0; transform: translate3d(0, 12px, 0) scale(0.988); }
+      to   { opacity: 1; transform: none; }
+    }
   }
 
   .curio__kind {

@@ -101,13 +101,36 @@
    touch a hex, and no second theme to hide in either. Every value below is measured
    against --ground once, here, and that number is the only one there is. */
 :root {
-  --ground:   #0A0C0B;   /* near-black, a touch green so the mint sits in it, not on it */
-  --surface:  #121614;   /* a card, one step off the ground */
-  --panel:    #161B18;   /* the band and the footer, one step above that */
-  --ink:      #ECF1EE;   /* 17.2:1 on the ground */
-  --ink-soft: #94A09A;   /*  7.2:1 — metadata, still AA well below body size */
-  --hairline: #2A3330;   /* a border you are not meant to notice, only to obey: 1.5:1 */
-  --rule:     #46514C;   /* a border you are: 2.4:1 */
+  /* ── The ground went deeper ──
+     Was #0A0C0B / #121614 / #161B18. The three surfaces are now a touch blacker and a
+     touch greener, which is what separates a "dark theme" from a lit room: at this
+     depth the mint glow behind the page has somewhere to fall off to, and the glass
+     panels have something to be brighter *than*. Every ratio below was measured, not
+     estimated — see § Accessibility floor in DESIGN.md. */
+  --ground:   #010704;   /* near-black, tinted green so the mint sits in it, not on it */
+  --surface:  #0B1410;   /* a card, one step off the ground */
+  --panel:    #111C17;   /* the band and the footer, one step above that */
+  --ink:      #ECF1EE;   /* 17.8:1 on the ground */
+  --ink-soft: #94A09A;   /*  7.5:1 — metadata, still AA well below body size */
+  /* The borders are white at low alpha rather than fixed greens. On a ground this dark
+     a fixed hex border is a visible grey line; a translucent white one takes its colour
+     from whatever is under it, so the same token reads correctly on the ground, on a
+     card and on the raised footer without three values.
+
+     ── The two alphas are not the same kind of number ──
+     --hairline is 0.08 because that is the value the design was drawn to, and it is a
+     border nobody is meant to see: it composites to 1.16:1 on the ground, quieter than
+     the 1.5:1 the old #2A3330 gave. That is fine for what it does — separate one dark
+     panel from another — and it is not carrying any information on its own.
+
+     --rule is different and 0.16 was wrong for it. It is the border you ARE meant to
+     see: the underline on a .textlink, the edge of a ghost button, the line under a
+     section head. At 0.16 that composites to 1.49:1, and a link whose only affordance is
+     its underline cannot be that faint. 0.30 puts it at 2.52:1 on the ground and 2.69:1
+     on a card — which is where the old #46514C was (2.4:1) and where DESIGN.md records
+     this border should sit. Measured, not guessed; re-measure if --ground moves. */
+  --hairline: rgba(255, 255, 255, 0.08);   /* 1.16:1 — a border you are not meant to notice */
+  --rule:     rgba(255, 255, 255, 0.30);   /* 2.52:1 — a border you are */
 
   /* ── The accent ──
      Mint, and it does both accent jobs with one hex. As text on the ground it is
@@ -120,16 +143,48 @@
      --glow is the same mint at low alpha, and it is the single reason the page reads
      as lit rather than merely dark. It is not decoration you can swap independently:
      change --accent and you must redraw --glow, --glow-soft and --grid with it, or the
-     light in the page stops matching the thing that is supposed to be emitting it. */
-  --accent:     #3DE0B5;   /* 11.7:1 as text on --ground */
-  --accent-ink: #06120E;   /* 11.4:1 as a label on --accent */
-  --glow:       rgba(61, 224, 181, 0.30);
-  --glow-soft:  rgba(61, 224, 181, 0.08);
-  --grid:       rgba(157, 205, 186, 0.055);
+     light in the page stops matching the thing that is supposed to be emitting it.
 
-  --r-sm: 3px; --r-md: 5px; --r-lg: 8px;
+     --accent-2 is a second mint, greener and a shade darker, and it has exactly one
+     job: it is the far end of a gradient. It is never used as text on its own and never
+     as a border on its own, because two accents used as accents is no accent at all. */
+  --accent:     #08DF9C;   /* 11.7:1 as text on --ground */
+  --accent-2:   #18D770;   /* 10.6:1 — gradient partner only, never text by itself */
+  --accent-ink: #010704;   /* 11.7:1 as a label on --accent */
+  --glow:       rgba(8, 223, 156, 0.30);
+  --glow-soft:  rgba(8, 223, 156, 0.08);
+  --grid:       rgba(150, 214, 190, 0.055);
+
+  /* ── Glass ──
+     A frosted panel is the one piece of 2020s furniture this design does take, and it
+     only works because the ground behind it is lit: blurring a flat black gives you
+     flat black. --glass is the surface at 72%, so the glow and the grid read through
+     it; --glass-blur is what turns them into light rather than into shapes.
+
+     backdrop-filter is not free. It forces the element onto its own compositor layer
+     and re-reads the backdrop every frame something over it moves, so it goes on the
+     handful of panels that are meant to feel like objects — never on a repeated row. */
+  --glass:      color-mix(in oklab, var(--surface) 72%, transparent);
+  --glass-blur: blur(16px);
+
+  /* Radii stay small — a 16px radius on everything is the look of a component library.
+     One exception, --r-xl for the bento tiles, because a tile is drawing an object
+     rather than a box.
+
+     There is no --r-phone here. The handset's corner radius is a *proportion* of its
+     width (0.105, which is what makes it read as a Galaxy rather than an iPhone), so it
+     has to be computed where --phone-w is known. It lives in PhoneDevice.astro. A fixed
+     44px lived here for a while and was wrong at both ends of the device's clamp. */
+  --r-sm: 3px; --r-md: 5px; --r-lg: 8px; --r-xl: 14px;
   --gap: 28px;
   --measure: 66ch;
+
+  /* The header floats over the page instead of pushing it down, so nothing below it
+     knows how tall it is any more. These two are how the hero clears it. Change the
+     bar's min-height in Base.astro and change --head-h with it, or the headline slides
+     under the nav — there is no layout relationship left to catch that for you. */
+  --head-gap: 14px;   /* the inset between the top of the window and the bar */
+  --head-h:   72px;   /* --head-gap + the bar's own height */
 
   --font:         'Albert Sans', system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-display: 'Bricolage Grotesque', 'Albert Sans', system-ui, sans-serif;
@@ -152,6 +207,20 @@
      slide all decay at the same rate and the page feels like one object. */
   --ease:      cubic-bezier(0.22, 1, 0.36, 1);
   --ease-wipe: cubic-bezier(0.33, 0, 0.2, 1);   /* for the image wipes: eases in as well */
+  /* A slower, longer decelerate for entries that travel further than a reveal does —
+     the split headline lines and the device. Same family as --ease, more patient. */
+  --ease-out:  cubic-bezier(0.16, 1, 0.3, 1);
+  /* A real spring, sampled into linear(). Overshoots by about 4.5% and settles once —
+     enough that the device arrives rather than stops, not so much that it bounces.
+     Keep it modest: on a 24px travel a 16% spring throws the phone four pixels past
+     its resting place, which on a static hero reads as a glitch rather than as physics. */
+  --spring: linear(
+    0, 0.007, 0.029 2.2%, 0.118 5.1%, 0.625 14.6%, 0.826 18.7%, 0.902, 0.962,
+    1.008 27.4%, 1.024, 1.036, 1.043, 1.045 34.5%, 1.04 37%, 1.023 41.1%,
+    0.996 46.3%, 0.991, 0.988, 0.988 55.5%, 0.997 66%, 1.002 77.6%, 1
+  );
+  --stagger: 70ms;   /* one step of the split-line headline */
+  --float:   7s;     /* the device's idle oscillation, a full cycle */
 
   /* One theme means one value here too. Left as `dark` rather than `light dark` so the
      browser paints form controls, scrollbars and the pre-paint canvas dark from the
@@ -241,16 +310,24 @@ main,
    slide on hover. Almost all of that is reproduced below. One thing is not, and the
    reason matters more than the effect.
 
-   ── Why there is no scrambling text ──
-   The decode effect has to rewrite an element's text content on a timer, which is
-   JavaScript, and this site ships none. That is not a stylistic preference: the CSP in
-   Base.astro is `default-src 'none'` with nothing granting script-src, and
-   `apps/logger.md` publishes the claim "It loads no scripts at all — not one tag, none
-   third-party — and sets no cookies. Open your browser's network panel and count the
-   requests." A visitor can check that in about fifteen seconds. Adding a script for a
-   text effect would make a checkable claim on this site false, which costs more than the
-   effect is worth. If you ever do want it, the claim in apps/logger.md and the two
-   sentences on the about page have to change in the same commit.
+   ── Why there is still no scrambling text, now that there IS a script ──
+   This site shipped zero JavaScript until /motion.js arrived, and the argument for that
+   was never "scripts are bad" — it was that `apps/logger.md` publishes a claim a visitor
+   can check in fifteen seconds, so the page has to be worth whatever the claim costs.
+   The script exists because two effects genuinely cannot be done without a pointer
+   position: the device's tilt, and the mouse-follow edge on a panel. It writes CSS
+   custom properties and nothing else.
+
+   The decode effect is different in kind. It rewrites an element's *text content* on a
+   timer, which means the words on the page are, for a second, not the words in the
+   markup — and on this site the words are the product. It is also the single most
+   recognisable thing the reference does, which is the other reason not to.
+
+   The budget is the discipline now that the number is not zero: /motion.js is under
+   2 KB, it is first-party, it sets no cookies and it reads nothing about the visitor.
+   Anything that would grow it past "moves things" needs the claims in apps/logger.md,
+   apps/hangil.md, the about page and the homepage band changed in the same commit —
+   which is exactly what was done to add it.
 
    ── How the scroll reveals work, and the trap in them ──
    `animation-timeline: view()` drives the reveals from scroll position with no script at
@@ -328,6 +405,165 @@ main,
   .btn:hover span { transform: translateX(4px); }
 }
 
+/* ── Split-line headlines ───────────────────────────────────────────────────
+   The headline arrives one line at a time. Each line is its own <span class="split__l">
+   in the markup — there is no JavaScript splitting text here, because a reader with a
+   slow connection would see the unsplit string first and then watch it re-lay out.
+
+   The line is a block inside a clipping wrapper, so it rises out from behind the line
+   above rather than fading in place. That clip is the whole effect; without it this is
+   just four staggered fades.
+
+   Stagger is `animation-delay` and not `:nth-child` ranges, because this one is
+   time-based — the hero is in view on load and there is no scroll position to drive it
+   from. The scroll reveals further down the page still use ranges; see § Motion. */
+.split { display: block; }
+.split__c { display: block; overflow: hidden; padding-bottom: 0.08em; margin-bottom: -0.08em; }
+.split__l { display: block; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .split__c:nth-child(1) .split__l { animation: line-rise 900ms var(--ease-out) both; animation-delay: calc(var(--stagger) * 0); }
+  .split__c:nth-child(2) .split__l { animation: line-rise 900ms var(--ease-out) both; animation-delay: calc(var(--stagger) * 1); }
+  .split__c:nth-child(3) .split__l { animation: line-rise 900ms var(--ease-out) both; animation-delay: calc(var(--stagger) * 2); }
+  .split__c:nth-child(n+4) .split__l { animation: line-rise 900ms var(--ease-out) both; animation-delay: calc(var(--stagger) * 3); }
+
+  @keyframes line-rise {
+    from { opacity: 0; transform: translateY(105%); }
+    to   { opacity: 1; transform: none; }
+  }
+}
+
+/* ── Glass ──────────────────────────────────────────────────────────────────
+   A frosted panel. It reads as glass only because the glow and the grid are behind it
+   — blur a flat black backdrop and you get flat black — so a .glass panel placed on the
+   footer or the band, which cover both layers, will look like a plain card. That is not
+   a bug to fix with a stronger blur; it is a reason to put it somewhere else.
+
+   The `@supports` is not decoration either: without backdrop-filter the panel must be
+   opaque, or the text on it sits directly on the grid lines and loses contrast. */
+.glass {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-xl);
+}
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass {
+    /* Two layers, and the order matters: a short white wash down from the top edge, then
+       the frosted surface under it. The wash is what makes the panel read as lit from
+       above rather than as a hole cut in the page — a blurred backdrop alone gives a
+       panel no top edge at all on a ground this dark, and it disappears into it.
+
+       It is deliberately not an inset box-shadow, which is what this normally is. A card
+       that also sets box-shadow on hover would overwrite it, and the highlight would
+       vanish exactly when the pointer arrived. A background layer cannot be clobbered
+       that way. Keep the stop under 35%: past that it stops being an edge and starts
+       being a gradient panel, which is a different and much cheaper-looking thing. */
+    background:
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0) 32%),
+      var(--glass);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+  }
+}
+
+/* ── The mouse-follow edge ──────────────────────────────────────────────────
+   What reads as depth on a ground this dark is the edge catching light — a shadow is
+   nothing, black on black. So a hovered panel lights its border at the point nearest
+   the pointer, and spills a little of that light inside.
+
+   `--gx`/`--gy` are written by /motion.js as percentages. They default to the centre
+   here, which is what a visitor gets with JavaScript off or on a touch screen: the
+   panel still lights up on hover, it just lights up evenly. Nothing is hidden behind
+   the script — the same rule the scroll reveals follow.
+
+   The border itself is drawn with the two-layer mask trick rather than with
+   `border-image`, because border-image cannot follow a border-radius. The outer
+   gradient fills the padding box, the inner one punches the content box out of it, and
+   what survives is a 1px ring. */
+[data-glow] { position: relative; --gx: 50%; --gy: 50%; }
+[data-glow] > * { position: relative; z-index: 1; }
+[data-glow]::before,
+[data-glow]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 260ms var(--ease);
+}
+/* The ring. It sits ABOVE the panel's content, not below it — z-index 2 against the
+   1 that content gets. Without that, any child with a background of its own paints over
+   the ring and the effect simply does not appear; the showcase's screenshot frame, where
+   the child is an <img> filling the box edge to edge, is where that was found. At 1px
+   against the border it obscures nothing. */
+[data-glow]::before {
+  z-index: 2;
+  padding: 1px;
+  background: radial-gradient(
+    240px circle at var(--gx) var(--gy),
+    var(--accent) 0%,
+    color-mix(in oklab, var(--accent) 35%, transparent) 38%,
+    transparent 72%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+/* The spill. Keep this low — at a higher alpha every card in a row looks selected at
+   once as the pointer crosses them. */
+[data-glow]::after {
+  background: radial-gradient(
+    300px circle at var(--gx) var(--gy),
+    var(--glow-soft) 0%,
+    transparent 70%
+  );
+}
+[data-glow]:hover::before,
+[data-glow]:focus-within::before { opacity: 1; }
+[data-glow]:hover::after,
+[data-glow]:focus-within::after { opacity: 1; }
+
+/* ── The pill ───────────────────────────────────────────────────────────────
+   One per page, above the headline, and it says something true about what is on the
+   page under it. This is the one round shape on the site and the one place the accent
+   appears on something you cannot click, so it has to earn both: it does by being the
+   only one.
+
+   Do NOT turn this into a row of them carrying figures. The reference's pill row reads
+   `>90% system performance`, and CLAUDE.md hard rule 1 exists to keep that off this
+   site. A pill holds a fact you can check, or it holds nothing. */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 14px 6px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--hairline);
+  background: color-mix(in oklab, var(--surface) 80%, transparent);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+.pill__dot {
+  width: 7px; height: 7px;
+  border-radius: 999px;
+  background: var(--accent);
+  flex: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  /* The pulse is on the dot's shadow, not on the pill's own opacity or size: a pill
+     that breathes drags the eye off the headline it is introducing. A ring expanding
+     out of a 7px dot is peripheral, which is the right amount of alive. */
+  .pill__dot { animation: dot-pulse 2.6s var(--ease) infinite; }
+  @keyframes dot-pulse {
+    0%        { box-shadow: 0 0 0 0 var(--glow); }
+    70%, 100% { box-shadow: 0 0 0 7px transparent; }
+  }
+}
+
 /* ── Layout ─────────────────────────────────────────────────────────────────
    `.wrap` is the page measure — 1140px, 24px of side padding — and it is now the only
    horizontal structure the site has.
@@ -349,11 +585,26 @@ main,
    and the phone layout is no longer a special case, because a stacked arrangement is what
    the rail collapsed into at 860px anyway. If you are tempted to bring the rail back,
    note that it needed 40 lines of CSS and a documented bug about how it collapsed. */
+/* ── The measure is publik's, and it is fluid ──
+   This was `max-width: 1140px; padding-inline: 24px`, which at a 1440px window put the
+   content between x=174 and x=1266 — a 1092px column with 174px of dead margin either
+   side. Measured against the real publik at the same window, its container is
+   `max-width: none` the whole way up with `margin: 0 51px` and `padding: 0 40px`, so its
+   content runs 91 → 1349. That is 1258px of usable width against our 1092, and it is
+   most of why this site read as cramped beside it: the same cards in a narrower column.
+
+   So the measure is fluid now, with the inset expressed in vw so it tracks the window,
+   and a cap so it does not run away on a very wide monitor. At 1440 the padding
+   resolves to 91px and the content to 1258 — publik's numbers exactly. Above about
+   1650 the cap takes over and the block centres.
+
+   Prose is unaffected: `.prose` and the app page's `.read` carry their own narrower
+   reading measures and simply start at the new left edge. */
 .wrap {
   width: 100%;
-  max-width: 1140px;
+  max-width: 1660px;
   margin-inline: auto;
-  padding-inline: 24px;
+  padding-inline: clamp(20px, 6.32vw, 100px);
 }
 
 /* ── The kicker ─────────────────────────────────────────────────────────────

@@ -32,7 +32,8 @@ Three, and they are not style preferences.
    applies doubly to privacy claims: if a page says data never leaves the device, someone
    checked that recently.
 
-The site collects nothing, so it needs no cookie banner — and it loads no scripts at all.
+The site collects nothing, so it needs no cookie banner. It loads one script, `/motion.js`,
+which moves things and nothing else — no third-party scripts, no analytics, no cookies.
 Keep both true.
 
 ## Adding a piece of work

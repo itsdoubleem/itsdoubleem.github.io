@@ -7,10 +7,12 @@ interface Props {
 }
 const { title, description } = Astro.props;
 const year = new Date().getFullYear();
-// "/#work" rather than "/" — from the homepage a bare "/" reloads the page and appears
-// to do nothing, which is exactly what it looked like.
+// "Work" is a real page now, not an anchor. It was "/#work" back when the catalogue
+// sat under the hero on the homepage — a link that, pressed from the homepage, scrolled
+// a little and appeared to do nothing. The work moved to /apps/ and the link moved with
+// it; there is nothing at /#work to scroll to any more.
 const nav = [
-  { href: '/#work', label: 'Work' },
+  { href: '/apps/', label: 'Work' },
   { href: '/about/', label: 'About' },
 ];
 ---
@@ -19,28 +21,49 @@ const nav = [
   <head>
     <meta charset="utf-8" />
     {/*
-      The site ships zero script tags, so the policy that matches it is "no scripts at
-      all" — default-src 'none' with nothing granting script-src. That is not belt and
-      braces: markdown in /apps is rendered with <Content />, and Astro passes raw HTML
-      in a markdown body straight through to the page. A <script> in an app file would
-      run. Built and checked: it does. With this header it does not, and the claim on
-      the about page stays true even if a bad file lands.
-
       Keep it first in <head>: a meta CSP governs only what the parser sees after it.
 
+      ── What changed, and what did not ──
+      This used to be `default-src 'none'` with NOTHING granting script-src, because the
+      site shipped no script at all. It now ships exactly one — /motion.js — so the
+      policy is 'self' instead of nothing.
+
+      The thing that grant was protecting against is unchanged. Markdown in /apps is
+      rendered with <Content />, and Astro passes raw HTML in a markdown body straight
+      through to the page: a <script> tag written into an app file WOULD run. Built and
+      checked, back when this was 'none', that it does. `script-src 'self'` still blocks
+      the two shapes that matter — an inline <script> and anything loaded from another
+      origin — so a bad app file can no more execute today than it could before. What it
+      can now do is load a first-party path, which is the one hole 'self' opens; there is
+      no upload path into this repo that does not go through a commit, so the cost was
+      judged worth the two effects the script buys. If that ever stops being true, the
+      tighter policy is a hash: 'sha256-…' for the one file.
+
       What each grant is for, so nothing gets widened by guesswork:
+        script-src 'self'           /motion.js, and nothing else. It is deliberately a
+                                    real file in /public rather than a bundled /_astro
+                                    hash, because the about page and apps/logger.md
+                                    invite the reader to open their network panel and
+                                    count the requests — so the one script has to be
+                                    findable and named.
         img-src   'self' data:      favicon, screenshots, and inline SVG data URIs
         style-src 'self' 'unsafe-inline'
                                     build.inlineStylesheets is 'always', and the curio
-                                    deck injects rules with is:inline — both are inline
-                                    styles, so this cannot be tightened without changing
-                                    how the site is built
+                                    deck, the device's crossfade keyframes and the
+                                    showcase's tab rules all inject with is:inline — all
+                                    inline styles, so this cannot be tightened without
+                                    changing how the site is built
         font-src  'self'            the Bricolage Grotesque and Albert Sans woff2
                                     files, self-hosted
         base-uri / form-action 'none'
                                     there is no <base> and no <form> on the site; these
                                     stop an injected one from retargeting a link or
                                     posting somewhere
+
+      There is still no connect-src. That is the grant that would let a script talk to a
+      server, and its absence is what makes "this page is not watching you" enforced
+      rather than promised: /motion.js could not phone home if it wanted to, and neither
+      could anything that replaced it.
 
       Links out (tally.so, github.com, the curio sources) are navigations, which CSP does
       not govern — they keep working.
@@ -50,7 +73,7 @@ const nav = [
     */}
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self'; base-uri 'none'; form-action 'none'"
+      content="default-src 'none'; script-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self'; base-uri 'none'; form-action 'none'"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
@@ -71,10 +94,23 @@ const nav = [
         uses whatever the OS already has, so it costs nothing either way. */}
     <link rel="preload" href="/fonts/bricolage-grotesque-latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/albert-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
+
+    {/* The only script on the site. `is:inline` keeps Astro's hands off it: left to
+        itself Astro would bundle it into /_astro/<hash>.js, and the copy on the about
+        page and in apps/logger.md tells the reader to count the requests in their
+        network panel — a named file at a stable path is what makes that check easy
+        rather than a puzzle.
+
+        `defer` and not `async`: nothing here is urgent, and it must not compete with
+        the fonts, which are what the reader is actually waiting for. Everything it does
+        has a correct CSS resting state, so it arriving late — or never — costs nothing.
+        See public/motion.js for the rules it has to keep. */}
+    <script is:inline src="/motion.js" defer></script>
   </head>
   <body>
     <header class="site-head">
-      <div class="wrap site-head__inner">
+      <div class="wrap wrap--bar">
+       <div class="site-head__bar glass">
         {/* A mark and a wordmark, locked up.
 
             The mark is the supplied artwork: a cube with a torn-open face, an outlined
@@ -103,6 +139,7 @@ const nav = [
         <nav aria-label="Main">
           {nav.map((item) => <a href={item.href}>{item.label}</a>)}
         </nav>
+       </div>
       </div>
     </header>
 
@@ -127,25 +164,51 @@ const nav = [
 </html>
 
 <style>
-  /* The bar stays opaque. The reference's nav floats over its hero as a translucent
-     pill, which works in a still image of one screen and stops working the moment a
-     paragraph scrolls underneath it — and the fix for that is backdrop-filter, which
-     this site dropped on purpose. What carried over instead is the shape of the thing:
-     the links are chips with their own border and surface, which is what makes the row
-     read as a control rather than as three words in a corner. */
+  /* ── The bar floats now, and the old note here was overtaken by events ──
+     It used to be an opaque full-width strip, and the comment in this spot argued
+     against a floating translucent pill on the grounds that it needs backdrop-filter to
+     stay readable with a paragraph scrolling under it, "which this site dropped on
+     purpose". That reasoning was sound at the time and is simply out of date: the design
+     now has `--glass` and `--glass-blur` as first-class tokens, used by the feature
+     panel and the bento, so the thing that made a floating bar unaffordable is standard
+     equipment. Taking publik's floating bar costs nothing that is not already spent.
+
+     What the float buys: content runs under the bar rather than stopping dead at a
+     border, which is most of why publik's pages read as denser than this one did. The
+     header is transparent and only the inner bar is a surface.
+
+     The radius is the one place the small-radii rule bends, and it bends by the rule's
+     own logic. "A 16px radius on everything is the look of a component library" is about
+     putting a big curve on a small object — a 999px pill on a 12px label. This is a 58px
+     bar; 18px on it is proportionally what --r-md is on a chip. It is not a licence to
+     round anything else up. */
   .site-head {
     position: sticky;
     top: 0;
     z-index: 10;
-    background: var(--ground);
-    border-bottom: 1px solid var(--hairline);
+    padding-block: var(--head-gap) 0;
+    /* The bar is WIDER than the content under it. publik insets its bar 30px from the
+       window and its content 91px, so the nav spans almost the full width while the
+       page beneath sits in from it — which is what makes the bar read as chrome
+       belonging to the window rather than as the first row of the page. Overriding
+       .wrap's padding here is the whole of that effect. */
+    --bar-inset: clamp(12px, 2.1vw, 34px);
+    /* No background and no border. A sticky element with neither still captures pointer
+       events across its full width, which would swallow clicks on whatever scrolls
+       under it — so the header itself is inert and only the bar inside it is not. */
+    pointer-events: none;
   }
-  .site-head__inner {
+  .site-head .wrap--bar { max-width: none; padding-inline: var(--bar-inset); }
+  .site-head__bar {
+    pointer-events: auto;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    min-height: 66px;
+    min-height: 58px;
+    padding-inline: 14px 12px;
+    border-radius: 18px;
+    box-shadow: 0 10px 34px -18px rgba(0, 0, 0, 0.9);
   }
   /* The wordmark sits quietly beside the nav rather than announcing itself. Its full
      stop used to be accent-coloured — one of five accent things on the old homepage, and
@@ -227,6 +290,7 @@ const nav = [
     .wordmark { gap: 8px; }
     .wordmark__mark { width: 36px; }
     .wordmark__type { font-size: 20px; }
+    .site-head__bar { padding-inline: 10px 8px; min-height: 52px; }
     .site-head nav { gap: 6px; }
     .site-head nav a { padding: 0 11px; font-size: 13.5px; }
   }
@@ -241,7 +305,7 @@ const nav = [
      when the footer was guaranteed to be the darkest thing on the page; they now sit on
      --panel, which is the lightest, and white-at-45%-opacity on it measured 2.9:1. */
   .site-foot {
-    margin-top: 96px;
+    margin-top: 64px;
     background: var(--panel);
     border-top: 1px solid var(--rule);
     color: var(--ink);

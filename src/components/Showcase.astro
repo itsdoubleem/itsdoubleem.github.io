@@ -1,0 +1,389 @@
+---
+/* "Up close" — one tab per piece of work, each holding that work's real screenshots
+ * with the captions written for them in its /apps file.
+ *
+ * ── It switches tabs with no JavaScript, and here is the trick ──
+ * Each panel is an anchor target. The tab strip is a row of ordinary links to those
+ * targets, so clicking one is a navigation and the browser scrolls the panel into view
+ * itself — smoothly, because the track sets scroll-behavior. Which tab looks active is
+ * then read back off the document with :has():
+ *
+ *     .showcase:has(#panel-logger:target) [href="#panel-logger"] { ...active... }
+ *
+ * and the first tab is active when nothing in this section is targeted at all. Both
+ * :target and :has() degrade to nothing rather than to broken: without :has() the tabs
+ * simply never highlight, and the panels still scroll and snap.
+ *
+ * The one thing to know if you change this: the panels live in a horizontal scroller, so
+ * the anchor jump scrolls that scroller. If the section ever grows taller than the
+ * viewport, the browser will scroll the PAGE to reach the panel as well, and the tab
+ * click will feel like it jumped. Keep the panels short.
+ *
+ * ── The screenshots are real ──
+ * They come straight from each app's frontmatter, captured from the shipping build by
+ * tools/capture-guide.mjs. Nothing here is drawn — see DESIGN.md § The app card.
+ * `shape: page` captures are excluded: those are pictures of a sheet of paper, and this
+ * strip is sized for phone screens. They still appear on the app's own page.
+ */
+import type { CollectionEntry } from 'astro:content';
+
+interface Props { apps: CollectionEntry<'apps'>[] }
+const { apps } = Astro.props;
+
+const panels = apps
+  .map((app) => ({
+    slug: app.data.slug,
+    name: app.data.name,
+    tagline: app.data.tagline,
+    shots: app.data.screenshots.filter((s) => s.shape !== 'page'),
+  }))
+  .filter((p) => p.shots.length > 0);
+
+/* The active-tab rules, one per panel, generated because the panels are. There is no
+ * way to write "the tab whose href matches the targeted panel" as a single selector —
+ * :has() can ask whether a panel is targeted, but it cannot then carry that panel's id
+ * across to the link. So the pairing is spelled out, and it cannot go stale because it
+ * is built from the same list the markup is.
+ *
+ * This is emitted as `is:inline` so it is passed through untouched; Astro's scoped
+ * styles would rewrite the selector with a hash the generated half does not carry. The
+ * class names here exist nowhere else on the site, so leaving it unscoped is safe.
+ */
+const SWIPE = 56;   // px a panel is parked either side of the stage
+
+const activeCss = panels
+  .map((p) => `.showcase:has(#panel-${p.slug}:target) .showcase__tab[href="#panel-${p.slug}"]`)
+  .join(',\n') + ` {
+  color: var(--accent-ink);
+  background: var(--accent);
+  border-color: var(--accent);
+}`;
+
+/* ── The swipe ──
+ * A real swipe needs the outgoing panel to leave to the LEFT while the incoming arrives
+ * from the RIGHT, and that means a panel's parked position depends on which side of the
+ * shown one it is: earlier panels wait off to the left, later panels off to the right.
+ * There is no "was showing" state in CSS, so the pairing is spelled out — for every
+ * panel, where it sits while each OTHER panel is the one on stage.
+ *
+ * That is N² rules, which is nothing at two panels and still nothing at six. If this
+ * ever holds twenty, revisit it.
+ *
+ * ── Specificity, which broke this once already ──
+ * `:has()` takes the weight of its argument, so these are heavier than they look. The
+ * "parked" rule and the "on stage" rule are written so the second always outweighs the
+ * first — an id plus :target against an id alone:
+ *   parked    .showcase:has(#a:target) #b          (0,1,0)+(1,0,0)+(1,0,0) = (2,1,0)
+ *   on stage  .showcase:has(#a:target) #a:target   (0,1,0)+(1,0,0)+(1,1,0) = (2,2,0)
+ * Get that backwards and the panel you selected parks itself off-screen with the rest.
+ */
+const swipeCss = panels
+  .map((p, i) => {
+    const onStage = `.showcase:has(#panel-${p.slug}:target) #panel-${p.slug}:target {
+  opacity: 1; visibility: visible; translate: 0 0;
+  transition-delay: 0s, 0s, 0s;
+}`;
+    const parked = panels
+      .filter((_, j) => j !== i)
+      .map((other, jj) => {
+        const j = jj >= i ? jj + 1 : jj;
+        const x = j < i ? -SWIPE : SWIPE;   // earlier panels wait left, later ones right
+        return `.showcase:has(#panel-${p.slug}:target) #panel-${other.slug} { translate: ${x}px 0; }`;
+      })
+      .join('\n');
+    return onStage + '\n' + parked;
+  })
+  .join('\n') + `
+.showcase:not(:has(.showcase__panel:target)) #panel-${panels[0].slug} {
+  opacity: 1; visibility: visible; translate: 0 0;
+  transition-delay: 0s, 0s, 0s;
+}`;
+---
+{panels.length > 0 && (
+  <section class="showcase wrap" id="up-close">
+    <header class="sec reveal">
+      <h2 class="display display--sec sec__title">What the screens actually look like</h2>
+      <p class="sec__note">
+        Captures of the builds you can download on this page, not mock-ups. The caption
+        under each one says what you are looking at.
+      </p>
+    </header>
+
+    {/* role="tablist" is deliberately NOT used. The ARIA tab pattern promises arrow-key
+        navigation and roving tabindex, which is JavaScript this section does not have.
+        A row of links to sections of the page is exactly what this is, so it is labelled
+        as that and works the way a reader already expects links to work. */}
+    <nav class="showcase__tabs" aria-label="Choose a piece of work">
+      {panels.map((p) => (
+        <a class="showcase__tab" href={`#panel-${p.slug}`}>{p.name}</a>
+      ))}
+    </nav>
+
+    <div class="showcase__track">
+      {panels.map((p) => (
+        <article class="showcase__panel" id={`panel-${p.slug}`}>
+          <p class="showcase__lead">
+            <strong>{p.name}</strong><i> · </i>{p.tagline}
+          </p>
+          <ul class="showcase__shots">
+            {p.shots.map((s) => (
+              <li>
+                <figure>
+                  <div class="showcase__frame" data-glow>
+                    <img src={s.src} alt={s.alt} width="390" height="844"
+                         loading="lazy" decoding="async" />
+                  </div>
+                  {s.caption && <figcaption>{s.caption}</figcaption>}
+                </figure>
+              </li>
+            ))}
+          </ul>
+        </article>
+      ))}
+    </div>
+  </section>
+)}
+
+{panels.length > 0 && <style is:inline set:html={activeCss + '\n' + swipeCss}></style>}
+
+<style>
+  .showcase { margin-top: clamp(44px, 6vw, 78px); }
+
+  /* ---------- the tabs ---------- */
+  .showcase__tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: clamp(24px, 3vw, 34px);
+  }
+  .showcase__tab {
+    display: inline-flex;
+    align-items: center;
+    min-height: 38px;
+    padding: 0 16px;
+    border-radius: var(--r-lg);
+    border: 1px solid var(--hairline);
+    background: color-mix(in oklab, var(--surface) 70%, transparent);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--ink-soft);
+    transition: color 200ms var(--ease), border-color 200ms var(--ease),
+                background-color 200ms var(--ease);
+  }
+  .showcase__tab:hover { color: var(--ink); border-color: var(--rule); }
+
+  /* Which tab is active when nothing has been clicked yet. The matching "and this one
+     when that panel is targeted" rules are generated in the frontmatter above — they
+     have to be, because a selector cannot carry an id from a :has() across to a link.
+
+     `:has()` is doing real work in both, and there is no fallback beyond "no tab is
+     highlighted": a page that looks plain rather than one that looks broken. */
+  .showcase:not(:has(.showcase__panel:target)) .showcase__tab:first-child {
+    color: var(--accent-ink);
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  /* ---------- the track ---------- */
+  /* ── Panels are shown and hidden, not scrolled past ──
+     This was a horizontal scroll-snap track with both panels side by side in one grid
+     row. It worked, and it had a defect that only became obvious once the page got
+     wider: **a grid row is as tall as its tallest item**, so the section always
+     reserved the height of HANGIL's five captions. With LOGGER showing — two
+     screenshots — that left about 300px of empty page under it. No amount of tuning
+     the track fixes that; it is what a shared row does.
+
+     So only one panel is in flow at a time. The container is then exactly as tall as
+     whatever is being shown, and the dead space cannot happen.
+
+     ── The fallback, which matters more than the effect ──
+     Everything here is inside `@supports selector(:has(*))`, and the UNSTYLED state is
+     all panels visible, stacked. A browser without `:has()` gets every screenshot on
+     the page in one column — longer, complete, and obviously deliberate. Get this
+     backwards and such a browser gets an empty section, because `:not(:has(…))` never
+     matches when `:has()` is unknown. Same rule as the scroll reveals: nothing is
+     hidden unless the thing that will reveal it is known to exist. */
+  .showcase__track {
+    margin-top: clamp(20px, 2.6vw, 30px);
+    display: grid;
+    gap: 40px;
+    /* The entering panel starts 48px to the right of where it lands. Without this that
+       overhang widens the document for the length of the animation — the same way the
+       hero's bloom and the app head's backdrop did. `clip`, not `hidden`: hidden would
+       make this a scroll container and swallow the inner shots scroller on a phone. */
+    overflow-x: clip;
+  }
+  .showcase__panel {
+    min-width: 0;
+    /* The browser scrolls the page to bring a freshly targeted panel into view. Without
+       this it lands flush against the window edge and the tabs scroll out of sight,
+       which makes the control you just pressed disappear. */
+    scroll-margin-block-start: 120px;
+  }
+
+  /* ── Read the specificity here before editing it ──
+     `:has()` and `:not()` take the specificity of their most specific ARGUMENT, which
+     makes these selectors weigh more than they look. The first draft paired
+     `.showcase:has(… :target) .showcase__panel { display: none }` at (0,4,0) with
+     `.showcase .showcase__panel:target { display: block }` at (0,3,0) — so the hiding
+     rule beat the showing rule, and clicking a tab hid BOTH panels and collapsed the
+     section to nothing. It looked like a targeting bug and it was an arithmetic one.
+
+     Each "show" rule below is therefore written to outweigh the "hide" rule above it:
+       hide  .showcase:has(.p:target) .p            (0,1,0)+(0,2,0)+(0,1,0) = (0,4,0)
+       show  .showcase:has(.p:target) .p:target     (0,1,0)+(0,2,0)+(0,2,0) = (0,5,0)
+     If you add a state, do the sum. */
+  /* ── Panels swipe, which means they have to overlap ──
+     They were swapped with `display`, which gave an adaptive container height and only
+     an entry animation — the outgoing panel vanished instantly. A swipe needs both on
+     screen at once during the handover, so every panel is stacked in the same grid cell
+     and they cross: the one leaving translates off to the left as the one arriving
+     comes in from the right, both fading.
+
+     The cost is that a shared cell is as tall as its tallest child, so the stage is
+     always HANGIL's height and LOGGER shows with about 80px of slack under it. That is
+     the trade this buys — measured at 638 against 721 — and it is the right way round:
+     80px of quiet space costs less than the outgoing panel disappearing mid-gesture.
+
+     `visibility` rather than `display`, because display cannot be transitioned here
+     without pulling the panel out of flow and collapsing the stage mid-swipe. It is
+     switched with a zero-length transition delayed to the end of the move, so a hidden
+     panel is properly gone — off the keyboard, out of the accessibility tree — the
+     instant it finishes leaving, and back the moment it starts arriving.
+
+     ── The fallback is the whole reason this is inside @supports ──
+     Stacking is what makes the swipe possible and it is also what would make this
+     unreadable without `:has()`: every panel in one cell, all visible, on top of each
+     other. So the UNSTYLED state is the safe one — panels flow normally, all visible,
+     fully opaque — and the stacking only exists where the rules that sort it out are
+     known to exist. Same rule as the scroll reveals: nothing is hidden, or stacked,
+     unless the thing that resolves it is known to be there. */
+  @supports selector(:has(*)) {
+    .showcase__track { gap: 0; }
+    .showcase__panel {
+      grid-area: 1 / 1;
+      opacity: 0;
+      visibility: hidden;
+      translate: 56px 0;
+      transition:
+        opacity 520ms var(--ease-out),
+        translate 520ms var(--ease-out),
+        visibility 0s linear 520ms;
+    }
+  }
+
+  /* Someone who asked their OS to stop moving things gets the swap with no travel and
+     no fade — the panel is simply there.
+
+     Zeroing the duration AND the delay is the whole of it. The delay matters as much as
+     the duration: it is what holds `visibility` back until the end of the move, and
+     left at 520ms the outgoing panel would linger, invisible but still in the
+     accessibility tree, for half a second after it went.
+
+     The parked `translate` offsets are deliberately NOT reset here. An earlier version
+     of this rule tried, and could not — the generated `#panel-…` rules carry an id and
+     outweigh it — but the attempt was pointless anyway: with the duration at zero
+     nothing travels, and a parked panel is `visibility: hidden`, so where it is parked
+     is not observable. Checked: 0 travel, panel hidden within one frame. */
+  @media (prefers-reduced-motion: reduce) {
+    @supports selector(:has(*)) {
+      .showcase__panel { transition-duration: 0s; transition-delay: 0s; }
+    }
+  }
+
+  .showcase__lead {
+    margin: 0 0 18px;
+    font-size: 15px;
+    color: var(--ink-soft);
+    text-wrap: pretty;
+  }
+  .showcase__lead strong { color: var(--ink); font-weight: 600; }
+  .showcase__lead i { font-style: normal; opacity: .55; }
+
+  /* ---------- the shots ---------- */
+  /* ── The row fills, like the card grid above it ──
+     This was a flex scroller of fixed 292px items, so two screenshots occupied 612px of
+     a 1092px measure and the block stopped short of the page's right edge while every
+     other block reached it. That ragged edge, repeated down the page, is what made this
+     page look untidy beside publik's — see the long note in apps/index.astro.
+
+     Same fix as the grid: `auto-fit` shares the whole width between however many shots
+     there are, and the cap that stops a capture being magnified moves off the track and
+     onto the frame, which centres in its cell. Two shots give two wide cells with a
+     390px frame centred in each; five give five narrower cells with the frame filling
+     them. Either way the row ends where everything else on the page ends.
+
+     It still scrolls sideways below 560px, where five cells would be 90px each. */
+  .showcase__shots {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 4px;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: min(292px, 66vw);
+    gap: var(--gap);
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+  }
+  @media (min-width: 560px) {
+    .showcase__shots {
+      grid-auto-flow: row;
+      /* auto-FILL, not auto-fit, and the difference is the whole bug it fixes.
+         auto-fit collapses the tracks nothing lands in, so the track width followed the
+         number of screenshots: LOGGER has two and got 532px cells, HANGIL has five and
+         got 196px ones, and the same app's captures changed size when you clicked
+         between the tabs. auto-fill keeps the empty tracks, so the width is decided by
+         the container and every panel shows its captures at exactly the same size.
+
+         200px is chosen so that at the 1258px measure this resolves to five 229px
+         tracks — HANGIL's five fill the row exactly, and a panel with fewer simply
+         leaves the remaining tracks empty rather than growing to fill them. */
+      grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr));
+      grid-auto-columns: auto;
+      overflow-x: visible;
+    }
+  }
+  .showcase__shots > li { min-width: 0; scroll-snap-align: start; }
+  /* The cap is on the FIGURE, not on the frame inside it, so the caption is exactly as
+     wide as the picture it describes. Capping the frame alone left a 390px screenshot
+     with a 532px caption under it, which reads as two unrelated things stacked. */
+  .showcase__shots figure { margin: 0; max-width: 390px; margin-inline: auto; }
+
+  /* The frame. Same treatment as a card — hairline border, dark well — so a screenshot
+     reads as one object in a filed set rather than as a picture lying on the page. The
+     capture is 780px wide for a 390px layout, so at 248px it is well inside its native
+     density; see the note at the top of PhoneDevice.astro. */
+  /* The WHOLE screen, at its captured aspect. This was 390/560 for one draft and it was
+     wrong in a way worth recording: cropping to the head of the capture hid the part the
+     caption was describing. `08-pay.png` is captioned "the month, worked out ... shown
+     line by line", and the top two thirds of that screen is a prompt asking for your
+     기본금 — so the strip showed one thing and said another, which is CLAUDE.md hard rule 3
+     failing quietly. A capture is shown whole here, or it is not shown. */
+  /* The 390px ceiling is on the figure above, not here — a capture is never drawn
+     larger than it was taken at, and the caption travels with it. */
+  .showcase__frame {
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    border: 1px solid var(--hairline);
+    background: var(--ground);
+    aspect-ratio: 390 / 844;
+  }
+  .showcase__frame img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: top;
+  }
+  .showcase__shots figcaption {
+    margin-top: 12px;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    text-wrap: pretty;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .showcase__track { scroll-behavior: auto; }
+  }
+</style>

@@ -120,16 +120,15 @@ nothing.
 
 **It is not the exam, and it cannot tell you whether you will pass.**
 
-The practice questions were written for this app, in the shapes the real paper
-uses, and the drawings in the picture questions are original line art made for
-it. Nothing here is traced, scanned or lifted from a textbook, a past paper or
-another app. They are not a past paper and not a leaked one. The cut score is set by HRD
+The practice questions were written for this app in the shapes the real paper
+uses, and the drawings are original line art made for it — nothing is traced,
+scanned or lifted, and none of it is a past paper. The cut score is set by HRD
 Korea for each round and is not a fixed number, so the app scores you out of 200
-and stops there — a number that claimed to predict a pass would be a number
-invented to sound useful.
+and stops there: a number claiming to predict a pass would be a number invented
+to sound useful.
 
 **It is not affiliated with HRD Korea, the EPS programme, or any exam body.** It
-is one person's study app. No fee it charges, no endorsement it carries, and
+is an independent study app. It charges nothing, carries no endorsement, and
 nothing you do in it is registered anywhere.
 
 **It is not a translator or a legal reader.** The last unit teaches you to read
@@ -138,16 +137,15 @@ advice. If a document affects your pay or your visa, 고용노동부 고객상�
 **1350** is free, has interpreters, and is open on weekdays 09:00–18:00. Any
 외국인노동자지원센터 will read a contract with you.
 
-**It does not ship anyone else's audio.** The official EPS-TOPIK textbook and its
-listening files are published free by HRD Korea; the app has a shelf you can put
-them on, and it comes empty. Everything in the app was written for it.
+**It bundles no HRD Korea material.** Their listening files and pictures are
+published free; the app leaves a shelf for each and ships them empty.
 
 ## Your data
 
 **Nothing leaves the device.** There is no server, no account, no sign-up, no
 analytics and no telemetry. The Android app goes further and ships with no
 internet permission at all, so the guarantee is enforced by Android rather than
-promised by me. Your progress, your review schedule and your exam
+merely stated here. Your progress, your review schedule and your exam
 scores are in your browser's own storage and nowhere else — not because a setting
 is switched on, but because the app has no code that sends anything anywhere.
 Once it has loaded, it makes no network requests at all.

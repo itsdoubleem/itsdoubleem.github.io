@@ -24,7 +24,16 @@ const { name, icon, card } = Astro.props;
      and there is no dimming it — that would be showing the reader something other than
      what they will get. What the frame does instead is give it a dark well to sit in, so
      the brightness reads as the screen being on rather than as a hole in the page. */
+  /* ── The 390px ceiling lives here now ──
+     It used to live on the grid's column width, which meant the only way to stop a
+     screenshot being magnified was to stop the card growing — and that left ragged
+     empty space at the end of every short row. The cap belongs on the picture: the
+     card can be any width it likes, and the capture is never drawn larger than the
+     390 CSS px it was taken at (card.png is 780px for a 390px layout; see DESIGN.md
+     § The app card). In a wider card it simply centres, mounted on the card's surface. */
   .preview {
+    max-width: 390px;
+    margin-inline: auto;
     aspect-ratio: 3 / 4;
     border-radius: var(--r-md);
     overflow: hidden;

@@ -1,74 +1,119 @@
 ---
+/* The card, re-cut to publik's anatomy: the picture first, then the name, then what it
+ * does, then ONE line of everything else.
+ *
+ * The change from what was here before is the order and the count of rows. The metadata
+ * used to sit ABOVE the preview and the platforms came after as a separate row of icons
+ * — four stacked bands of text around one picture. publik puts the image at the top
+ * where it does the work of attracting the eye, and collapses everything factual into a
+ * single line underneath. That is denser and it scans in one pass instead of three.
+ *
+ * ── Two things deliberately kept that publik's card has and does not ──
+ * `audience` stays. publik has nothing like it because a marketplace card cannot know
+ * who an app is for; this site can, it is in the frontmatter, and DESIGN.md argues at
+ * length that "is this for me?" is the question a stranger asks before "what does it
+ * do?". It costs one short line.
+ *
+ * And publik's meta line ends `▲ 89% · 3,887 · Download` — a rating, an install count
+ * and a call to action. None of those exist here and none may be invented: CLAUDE.md
+ * hard rule 1. What fills the same slot is the facts the frontmatter actually holds.
+ */
 import Preview from './Preview.astro';
-import PlatformIcons from './PlatformIcons.astro';
 
 interface Props { app: any; }
 const { app } = Astro.props;
 const d = app.data;
+
+/* One line, assembled from real fields. The platform words are the same ones the hero
+ * pill uses; if that mapping ever moves somewhere shared, move both. */
+const PLATFORM_WORDS: Record<string, string> = {
+  android: 'Android', ios: 'iPhone', web: 'Web', macos: 'macOS', windows: 'Windows',
+};
+const meta = [
+  d.category,
+  d.status === 'beta' ? 'Beta' : 'Live',
+  'Free',
+  d.platforms.map((p: string) => PLATFORM_WORDS[p] ?? p).join(', '),
+];
 ---
-<article class="card reveal">
+<article class="card glass reveal" data-glow>
   <a class="card__link" href={`/apps/${d.slug}/`}>
-    {/* One line of metadata instead of a row of pills. Three rounded badges above every
-        card is component-library furniture; a single written line reads as a catalogue
-        entry, which is what the card is. Set like .label — text face, sentence case —
-        because uppercase mono at 11px is the tell this site had everywhere. */}
-    <span class="card__meta">
-      {d.category} · {d.status === 'beta' ? 'Beta' : 'Live'} · Free
-    </span>
-
-    <Preview name={d.name} icon={d.icon} card={d.card} />
-
+    {/* The name is the first thing in the card, top left, above the picture. It used to
+        sit under it — publik's order, and publik's cards carry a 4:3 landscape thumbnail
+        where the image reads as a banner. These carry a tall phone screen, and a name
+        arriving after 320px of screenshot is a caption rather than a title. */}
     <h3 class="card__name">
       {d.name}
       {d.nativeName && <span class="card__native">{d.nativeName}</span>}
     </h3>
+
+    <Preview name={d.name} icon={d.icon} card={d.card} />
+
     <p class="card__tagline">{d.tagline}</p>
     {d.audience && <p class="card__audience">{d.audience}</p>}
-    <PlatformIcons platforms={d.platforms} />
+
+    {/* Sentence case, not pills. Three rounded badges is component-library furniture;
+        a single written line reads as a catalogue entry, which is what this is. */}
+    <p class="card__meta">
+      {meta.map((m, i) => <>{i > 0 && <i>·</i>}{m}</>)}
+    </p>
   </a>
 </article>
 
 <style>
+  /* Frosted rather than solid now. The glow and the grid read through the panel, which
+     is the whole reason a blur is worth its compositor layer here — see the note on
+     --glass in global.css. The @supports fallback in that file keeps the card opaque
+     where backdrop-filter is missing, so the text never lands on bare grid lines. */
   .card {
-    background: var(--surface);
-    border: 1px solid var(--hairline);
-    border-radius: var(--r-md);
-    transition: border-color 150ms var(--ease), transform 150ms var(--ease);
+    border-radius: var(--r-xl);
+    transition: border-color 200ms var(--ease), transform 200ms var(--ease),
+                box-shadow 200ms var(--ease);
   }
   .card__link {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    padding: 14px;
+    gap: 8px;
+    padding: 10px 10px 12px;
     text-decoration: none;
     color: inherit;
     height: 100%;
   }
+  /* The one factual line, at the foot. `margin-top: auto` pins it to the bottom of the
+     card so the line sits on the same baseline across a row whatever length the
+     taglines above it run to — which is most of why a row of these reads as a set. */
   .card__meta {
+    margin: auto 0 0;
+    padding-top: 9px;
+    border-top: 1px solid var(--hairline);
     font-family: var(--font);
-    font-size: 12.5px;
+    font-size: 11.5px;
     font-weight: 500;
     letter-spacing: 0.005em;
+    line-height: 1.45;
     color: var(--ink-soft);
   }
+  .card__meta i { font-style: normal; opacity: .5; margin-inline: 5px; }
+  /* Every size here came down when the card halved. A 23px title and a 15px tagline
+     were set for a 532px card; in a 252px one the tagline wrapped every four words. */
   .card__name {
-    margin: 2px 0 0;
+    margin: 2px 2px 0;
     font-family: var(--font-display);
-    font-size: 23px; font-weight: 400; letter-spacing: var(--track-tight); line-height: 1.14;
-    display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap;
+    font-size: 19px; font-weight: 400; letter-spacing: var(--track-tight); line-height: 1.14;
+    display: flex; align-items: baseline; gap: 7px; flex-wrap: wrap;
   }
-  .card__native { font-size: 13px; font-weight: 500; color: var(--ink-soft); font-family: var(--font); }
-  .card__tagline { margin: 0; color: var(--ink-soft); font-size: 15px; line-height: 1.45; }
+  .card__native { font-size: 11.5px; font-weight: 500; color: var(--ink-soft); font-family: var(--font); }
+  .card__tagline { margin: 0; color: var(--ink-soft); font-size: 13.5px; line-height: 1.4; }
   /* Who it is for, on the grid. A stranger scanning the homepage has nothing else to go
      on, so the card answers "is this for me?" before they decide whether to click. It is
      set smaller and quieter than the tagline so it reads as a qualifier, not a second
      sentence competing with the first. `margin-top: auto` pushes it and the platform
      icons to the foot, which keeps the cards' baselines aligned across a row. */
   .card__audience {
-    margin: auto 0 0;
-    padding-top: 2px;
+    margin: 0;
     color: var(--ink-soft);
-    font-size: 13px; line-height: 1.4;
+    font-size: 12px; line-height: 1.4;
+    opacity: .82;
   }
 
   /* On a dark ground a card cannot be lifted with a shadow — black on black is nothing.
@@ -76,12 +121,13 @@ const d = app.data;
      accent and spills a little of it outside the box. Keep the spill low: at a higher
      alpha every card in the grid looks selected at once as the pointer crosses them. */
   .card:hover {
-    /* Mixed down rather than full strength. A card is a large object and a whole
-       perimeter of pure --accent around one reads as selected, not as hovered — it also
-       spends the page's one accent colour on something the pointer is merely passing
-       over. Focus keeps the full accent, because that one IS a state. */
-    border-color: color-mix(in srgb, var(--accent) 55%, var(--rule));
-    box-shadow: 0 10px 34px -16px var(--glow);
+    /* Mixed down hard, and lower than it used to be. The card now also carries the
+       mouse-follow ring from [data-glow] in global.css, and that is the object doing
+       the lighting; a full perimeter tint underneath it made the whole card read as
+       selected rather than as hovered. Focus keeps the full accent, because that one
+       IS a state and it has no cursor to follow. */
+    border-color: color-mix(in srgb, var(--accent) 22%, var(--rule));
+    box-shadow: 0 14px 40px -20px var(--glow);
   }
   @media (prefers-reduced-motion: no-preference) {
     .card:hover { transform: translateY(-2px); }

@@ -1,350 +1,184 @@
 ---
+/* The front page. A hero, three facts, and one door.
+ *
+ * ── Why there is no work on it ──
+ * This page used to carry everything: hero, the featured work, the grid, the screenshot
+ * showcase, the facts and the curio deck — five sections and about 4,800px. publik's
+ * arrangement is the one this site wanted and it is the opposite shape: the front page
+ * says what the place is and offers one way in, and everything made lives one click
+ * behind that, at /apps/.
+ *
+ * It is now the hero and the footer, which is publik's front page exactly. It held
+ * three glass tiles under the hero for a while — "No account", "Nothing collected",
+ * "Nothing to install" — and they were removed on 2026-09-20 at the owner's request.
+ *
+ * Nothing was lost with them, which is why they went without a fight: all three were
+ * restatements of the about page, where the same facts are set out at length and in
+ * context ("What this site collects" — nothing, no cookies, no analytics, no
+ * third-party scripts), and the third was a summary of what every app page already
+ * says in its platform notes. A front page that repeats another page's argument in
+ * larger type is not answering a question, it is filling space.
+ *
+ * So the hero answers "what is this" and hands the reader one door. The other two
+ * questions CLAUDE.md says the site exists to answer — what this person makes, and
+ * whether to trust it — are answered by the pages behind that door and by /about,
+ * which is the second link in the nav.
+ *
+ * Nothing on this page names an app. The phone's screens and the platform line are both
+ * derived from the collection, so adding a piece of work is still adding one file.
+ */
 import { getCollection } from 'astro:content';
+import { themeColor } from '../theme-color';
 import Base from '../layouts/Base.astro';
-import AppCard from '../components/AppCard.astro';
-import Preview from '../components/Preview.astro';
-import PlatformIcons from '../components/PlatformIcons.astro';
+import PhoneDevice from '../components/PhoneDevice.astro';
 import OneTrueThing from '../components/OneTrueThing.astro';
 
-const [allApps, guides] = await Promise.all([getCollection('apps'), getCollection('guides')]);
+const allApps = await getCollection('apps');
 const apps = allApps.sort((a, b) => a.data.order - b.data.order);
-const count = apps.length;
 
-// The lowest-ordered work gets a spread of its own, and the rest fall into the grid
-// underneath, grouped by kind. This is not decoration: a three-column grid holding one
-// card is the most obvious tell that a page was laid out by a template and never looked
-// at. A single work now fills the width on purpose, and the grid appears when there is
-// something to put in it.
-const [feature, ...rest] = apps;
-const featureGuide = feature && guides.some((g) => g.data.app === feature.data.slug);
-
-const GROUPS: Array<[string, string]> = [
-  ['app', 'Apps'],
-  ['tool', 'Tools'],
-  ['writing', 'Writing'],
-  ['novel', 'Novels'],
-  ['bot', 'Bots'],
-  ['other', 'Other'],
-];
-// A group is rendered only when something is in it — an empty "Novels" heading would
-// advertise work that does not exist, which is hard rule 1 wearing a different hat.
-const grouped = GROUPS
-  .map(([key, label]) => [label, rest.filter((a) => a.data.type === key)] as const)
-  .filter(([, items]) => items.length > 0);
-
-// Things that are true of everything here. Not slogans — each one is a checkable
-// property of the site, which is why they can sit this large without embarrassing anybody.
+// ── What goes on the phone in the hero ──
+// One screen per piece of work, in the order the catalogue lists them, taken from each
+// app's `card` — which is a capture of the running build, produced by
+// tools/capture-guide.mjs. An app with no capture is skipped rather than represented by
+// a placeholder: a blank slot in a hero device would be the first thing a visitor sees
+// and the last thing they trust.
 //
-// There used to be a third, first in the row: "Free — every app here is free and stays
-// free." It was removed on purpose. The other two describe how the site is built, and
-// they stay true by construction: there is no sign-up form to regret and no script to
-// take back. "Stays free" is different in kind — it is a promise about work that does
-// not exist yet, printed at 27px, and the only way to keep it is to never charge for
-// anything ever. Each app still states its own price on its own page, where it is a
-// fact about that app rather than a pledge about all future ones.
+// The status-bar colour comes from each app's own web manifest — see src/theme-color.ts
+// for why it is read from there rather than typed into frontmatter.
+const heroScreens = apps
+  .filter((a) => a.data.card)
+  .map((a) => ({
+    src: a.data.card as string,
+    alt: `${a.data.name} running on a phone`,
+    statusColor: themeColor(a.data.slug),
+  }));
+
+// ── The pill above the headline ──
+// It says one true, checkable thing about what is on this site today, and it is built
+// from the content rather than typed, so it cannot go stale. Every platform every piece
+// of work runs on, de-duplicated.
 //
-// Do not add one that is a claim rather than a checkable property.
-const stance = [
-  { k: 'No account', v: 'Nothing asks you to sign up, because there is nothing to sign up to.' },
-  { k: 'Nothing collected', v: 'No cookies, no analytics, not one script on the page. That is why you were never shown a banner.' },
-];
+// Do NOT turn this into a figure. CLAUDE.md hard rule 1, and DESIGN.md names the
+// reference's `>90% system performance` pill row as the specific thing not to copy.
+const PLATFORM_WORDS: Record<string, string> = {
+  android: 'Android', ios: 'iPhone', web: 'the browser', macos: 'macOS', windows: 'Windows',
+};
+const platforms = [...new Set(apps.flatMap((a) => a.data.platforms))].map((p) => PLATFORM_WORDS[p] ?? p);
+const platformLine =
+  platforms.length > 1
+    ? `${platforms.slice(0, -1).join(', ')} and ${platforms.at(-1)}`
+    : platforms[0];
+
 ---
 <Base
   title="doubleem — everything I make ends up here"
   description="One person's work: apps and tools mostly, and whatever else turns out to be worth sharing."
 >
-  {/* The hero sits on the paper, not in a dark panel.
+  {/* The hero is two columns: the words on the left, the work on the right.
 
-      It used to be an inverted full-bleed block carrying an uppercase letterspaced
-      kicker in the accent colour, a 104px extra-bold headline with a coloured full
-      stop, and a filled button beside a ghost link. That is the single most
-      reproduced hero on the web, and a reader recognises the shape of it before
-      reading a word of it — which is exactly the problem, because the words are the
-      part of this site worth reading.
+      It used to be one column of text on an empty page. That was a deliberate reaction
+      against the template hero — uppercase accent kicker, 104px extra-bold headline with
+      a coloured full stop, filled button beside a ghost link — and the reaction was
+      right, but it left a studio site that showed none of the studio's work above the
+      fold. What is on the right is not an illustration and not a mock-up: it is the
+      actual screen of the actual app, cycling through everything in the catalogue.
 
-      What replaces it is a catalogue opening: a column of mono metadata on the left, a
-      serif line on the right, and one thing to click. */}
-  <section class="hero">
+      `data-tilt-area` is the region /motion.js tracks the pointer across. It is the
+      whole hero rather than the phone itself, so the device answers the cursor crossing
+      the section instead of only the cursor landing on top of it. With no script, no
+      pointer, or reduced motion, none of this runs and the phone sits square. */}
+  <section class="hero" data-tilt-area>
     <div class="hero__inner wrap">
       <div class="hero__copy">
-        {/* There is deliberately no kicker over this headline.
+        <p class="pill enter enter--1">
+          <span class="pill__dot" aria-hidden="true"></span>
+          Runs on {platformLine}
+        </p>
 
-            It used to read "N entries · One person · Free, always", and every part of
-            that was a hostage. The count went stale the moment the grid below it
-            grouped work differently. "One person" is a promise about who will always
-            be making this, which forecloses ever working with anybody. "Free, always"
-            is a promise about every future thing on the site, made in the one place a
-            first-time visitor is guaranteed to read it — and it costs nothing to keep
-            only until the day something here is not free, at which point the site has
-            lied on its front page.
+        {/* Split into lines by hand, in the markup, so nothing has to re-lay out on
+            load. Each line rises out from behind the one above it — see .split in
+            global.css. Keep the break where it is: "Everything I make" is the claim and
+            "ends up here" is the payoff, and splitting them anywhere else loses that. */}
+        <h1 class="display display--hero split">
+          <span class="split__c"><span class="split__l">Everything I make</span></span>
+          <span class="split__c"><span class="split__l">ends up here.</span></span>
+        </h1>
 
-            None of that was load-bearing. The headline and the line under it already
-            say what this is. If you want a fact above the headline later, make it one
-            that is true of what is on the page today rather than of everything that
-            will ever be on it. */}
-        <h1 class="display display--hero enter enter--1">Everything I make ends up here.</h1>
-        <p class="lead enter enter--2">
+        <p class="lead enter enter--3">
           Apps, tools, and whatever else I end up making — each with a page that says
           plainly what it does and what it doesn't.
         </p>
-        <div class="hero__actions enter enter--3">
-          <a class="btn btn--primary" href="#work">See the work</a>
+        {/* The one door, and the whole job of this page. It is the only filled control
+            on it, and it goes to the catalogue rather than to an anchor further down —
+            because there is nothing further down. */}
+        <div class="hero__actions enter enter--4">
+          <a class="btn btn--primary" href="/apps/">See the work</a>
           <a class="textlink" href="/about/">What this is <span aria-hidden="true">→</span></a>
         </div>
       </div>
+
+      {heroScreens.length > 0 && (
+        <div class="hero__device">
+          <PhoneDevice screens={heroScreens} />
+        </div>
+      )}
     </div>
   </section>
 
-  <section class="work wrap" id="work">
-    <header>
-      <div class="sec reveal">
-        <p class="label">01 — Work</p>
-        <h2 class="display display--sec sec__title">The work</h2>
-        <p class="sec__note">
-          {count === 1
-            ? 'One so far. Things get listed here when they work, not when they are announced.'
-            : 'Everything here is finished enough to use. Things get listed when they work, not when they are announced.'}
-        </p>
-      </div>
-    </header>
+  {/* The curio deck lives here and only here.
 
-    {feature && (
-      <article class="feature">
-        <div class="feature__body">
-          <div class="feature__text reveal">
-          {/* The same line the cards in the grid carry, so the featured work and the
-              grid below it are visibly the same kind of object described the same way.
-              It used to be a three-pair <dl> out in the margin. */}
-          <p class="label">
-            {feature.data.category}<i>·</i>{feature.data.status === 'beta' ? 'Beta' : 'Live'}<i>·</i>Free
-          </p>
-          <h3 class="feature__name">
-            <a href={`/apps/${feature.data.slug}/`}>{feature.data.name}</a>
-            {feature.data.nativeName && (
-              <span class="feature__native">{feature.data.nativeName}</span>
-            )}
-          </h3>
-
-          <p class="feature__tagline">{feature.data.tagline}</p>
-          {feature.data.audience && (
-            <p class="feature__audience">{feature.data.audience}</p>
-          )}
-          <PlatformIcons platforms={feature.data.platforms} />
-
-          <div class="feature__links">
-            <a class="btn btn--primary" href={`/apps/${feature.data.slug}/`}>
-              Open {feature.data.name}
-            </a>
-            {featureGuide && (
-              <a class="textlink" href={`/apps/${feature.data.slug}/guide/`}>
-                See how it works <span aria-hidden="true">→</span>
-              </a>
-            )}
-          </div>
-
-          </div>
-
-          {/* The screenshot sits beside the text, not under it, and it is capped at the
-              width it was captured at. It is a phone screen: card.png is 780px wide for
-              a 390px layout, so anything past ~390 CSS px is upscaling a picture of a
-              phone until it looks like a zoom rather than a screenshot. "Show the
-              artifact big" means give it room and weight, not magnification. */}
-          <a class="feature__shot reveal--wipe" href={`/apps/${feature.data.slug}/`} tabindex="-1" aria-hidden="true">
-            <Preview name={feature.data.name} icon={feature.data.icon} card={feature.data.card} />
-          </a>
-        </div>
-      </article>
-    )}
-
-    {grouped.map(([label, items]) => (
-      <section class="group">
-        {/* No count here. It said "Apps — 1" on a site with two apps, because the
-            lowest-ordered work is pulled out as the feature above and this counts only
-            what is left in the grid. That is defensible and completely illegible: the
-            reader sees an app, then a heading claiming there is one app. A heading that
-            names the kind of work is doing its whole job; the reader can see how many
-            cards are under it. */}
-        <p class="label reveal">{label}</p>
-        <div class="grid" data-count={Math.min(items.length, 3)}>
-          {items.map((app) => <AppCard app={app} />)}
-        </div>
-      </section>
-    ))}
-  </section>
-
-  {/* This was a dark band breaking up a long light page — the one inversion left on the
-      site. There is nothing to invert any more, so it does the same job the other way
-      round: it is the lightest surface on the page rather than the darkest, lifted off
-      the ground by a rule and a thin line of the accent along its top edge.
-
-      Each thing it says is a checkable property of the site, which is why they can sit
-      this large without embarrassing anybody. Do not add one that is a claim rather
-      than a fact — see the note on `stance` for the one that was removed for being
-      exactly that. */}
-  <section class="band">
-    <div class="band__inner wrap">
-      <p class="label band__lead">True of everything here</p>
-      <ul class="band__list" data-count={stance.length}>
-        {stance.map((s) => (
-          <li class="reveal">
-            <p class="band__k">{s.k}</p>
-            <p class="band__v">{s.v}</p>
-          </li>
-        ))}
-      </ul>
-    </div>
-  </section>
-
+      It has moved twice. It was on the homepage, then went to the foot of /apps/ on the
+      reasoning that it is a reward for scrolling and belongs where somebody interested
+      ends up — then came back, because the catalogue is a page about the work and a
+      deck of science facts on the end of it is a non sequitur however well it reads.
+      The front page is where an aside belongs: it is the one page that is not about
+      anything in particular, and the deck is the only thing on this site with no job
+      to do. Do not add it to a third page; an aside that appears everywhere is
+      furniture. */}
   <OneTrueThing />
+
 </Base>
 
 <style>
   /* ---------- hero ---------- */
-  .hero { padding-block: clamp(56px, 9vw, 116px) clamp(40px, 6vw, 72px); }
+  .hero {
+    /* The header floats over the page and no longer pushes anything down, so the hero
+       has to clear it itself. --head-h is the bar plus its inset; the clamp on top of
+       it is the breathing room. Get this wrong and the headline slides under the nav —
+       see the note on --head-h in global.css. */
+    /* The bottom padding is small because the deck follows and brings its own top
+       margin. It was clamp(48px, 7vw, 92px) while the hero WAS the whole page and the
+       footer sat directly under it; leaving it at that stacked the two and opened a
+       170px hole between the phone and the deck. */
+    padding-block: calc(var(--head-h) + clamp(8px, 1.6vw, 22px)) clamp(16px, 2.5vw, 34px);
+    /* The device's ambient bloom is 168% of the phone's width and centred on it, so at
+       any viewport between about 880px and 1400px it reaches past the right edge of the
+       page and adds a horizontal scrollbar to the whole document. Measured: 1092px of
+       scrollWidth in a 1024px window.
+
+       `clip` and not `hidden`: hidden would make this a scroll container, which changes
+       how anything inside it anchors. clip just stops the paint at the hero's own edges,
+       and the hero is full-bleed, so the bloom is still allowed to reach the window edge
+       — it simply cannot push past it. */
+    overflow-x: clip;
+  }
+  .hero__inner { display: grid; gap: clamp(44px, 6vw, 64px); align-items: center; }
+  /* 900px is the same number PhoneDevice.astro flattens its tilt at. If you move one,
+     move the other — a phone tilting inside a stacked, centred column looks broken in a
+     way that is hard to attribute to a breakpoint. */
+  @media (min-width: 900px) {
+    .hero__inner { grid-template-columns: minmax(0, 1fr) auto; column-gap: clamp(40px, 5vw, 76px); }
+  }
   /* The measure belongs on each element, never on the block that holds them. Capping
      .hero__copy capped the paragraph too, and a 46ch lead inside a 17ch parent wraps
      into seven two-word lines that look like a mistake — because they are one. */
   .hero__copy { max-width: none; }
-  .hero__copy .display--hero { max-width: 13ch; }
-  .hero .lead { margin-top: 28px; max-width: 44ch; }
+  .hero__copy .display--hero { max-width: 13ch; margin-top: 22px; }
+  .hero .lead { margin-top: 26px; max-width: 44ch; }
   .hero__actions {
-    margin-top: 34px;
+    margin-top: 32px;
     display: flex; align-items: center; flex-wrap: wrap; gap: 14px 26px;
   }
+  .hero__device { justify-self: center; }
 
-  .work { margin-top: clamp(40px, 6vw, 72px); }
-
-  /* ---------- the featured work ---------- */
-  .feature { margin-top: clamp(30px, 4vw, 52px); }
-
-  .feature__name {
-    margin: 0;
-    font-family: var(--font-display);
-    font-size: clamp(29px, 4.1vw, 46px);
-    font-weight: 400; letter-spacing: var(--track-display); line-height: 1.0;
-    display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
-  }
-  .feature__name a { color: inherit; text-decoration: none; }
-  .feature__name a:hover { color: var(--accent); }
-  .feature__native {
-    font-family: var(--font);
-    font-size: clamp(14px, 1.4vw, 17px); font-weight: 500; color: var(--ink-soft);
-  }
-  .feature__tagline {
-    margin: 16px 0 16px;
-    max-width: 46ch;
-    font-size: clamp(17px, 1.8vw, 20px);
-    line-height: 1.5;
-    color: var(--ink-soft);
-    text-wrap: pretty;
-  }
-  /* Who it is for. The rule beside it used to be 2px of accent — the fourth accent
-     object on a page that is allowed one. A quiet rule says "different kind of
-     sentence" just as clearly without spending the colour. */
-  .feature__audience {
-    margin: 0 0 20px;
-    max-width: 46ch;
-    padding-left: 15px;
-    border-left: 1px solid var(--rule);
-    font-size: clamp(15px, 1.5vw, 16.5px);
-    line-height: 1.5;
-    color: var(--ink);
-    text-wrap: pretty;
-  }
-  .feature__links {
-    margin-top: 26px;
-    display: flex; align-items: center; flex-wrap: wrap; gap: 14px 24px;
-  }
-  .feature__body { display: grid; gap: clamp(30px, 4vw, 44px); align-items: start; }
-  @media (min-width: 1040px) {
-    .feature__body { grid-template-columns: minmax(0, 1fr) 340px; column-gap: 56px; }
-  }
-  /* The screenshot is mounted, not floated: same surface, border and radius as a card,
-     so it reads as one object in a filed set rather than as a picture lying near some
-     text. The screenshot itself is light, which on this ground makes it the brightest
-     thing in the section — which is correct, because it is the actual work. */
-  .feature__shot {
-    display: block;
-    padding: 9px;
-    max-width: 380px;
-    background: var(--surface);
-    border: 1px solid var(--hairline);
-    border-radius: var(--r-lg);
-    transition: border-color 150ms var(--ease);
-  }
-  .feature__shot:hover { border-color: var(--rule); }
-
-  /* ---------- the grid, for everything after the first ---------- */
-  .group { margin-top: clamp(44px, 6vw, 72px); }
-  /* Columns are capped, not divided. When the metadata rail was removed the grid
-     inherited the 196px it used to occupy, and two columns of the full 1092px measure
-     made each card 532px wide — which put a 504px preview inside it. `card.png` is a
-     390px phone screen captured at 780px, so anything past ~390 CSS px is magnifying a
-     picture of a phone until it reads as a zoom rather than a screenshot. That is the
-     trap DESIGN.md § The app card describes, and widening the page walked straight into
-     it without anything looking obviously wrong.
-
-     `minmax(280px, 400px)` with `justify-content: start` fills as many capped columns as
-     fit and leaves the remainder as space rather than stretching the cards into it. At
-     1280px that is three 364px columns, so the preview lands at 336px — comfortably
-     under what it was captured at. Re-check this if --gap or .wrap ever changes. */
-  .grid {
-    display: grid;
-    gap: var(--gap);
-    /* One rule at every width, no breakpoints. The 418px ceiling is what holds the
-       preview at or under the 390px it was captured at once the card's 14px of padding
-       either side is taken off; the 260px floor is the narrowest a card can be before
-       its tagline starts wrapping every two words.
-
-       The single-column case needs the ceiling just as much as the multi-column one:
-       with a plain `1fr` at a 500px viewport the one card took the full 452px and put a
-       422px preview inside it, which is the same magnification bug as before wearing a
-       phone-sized disguise. Measured at 390/500/700/1024/1280/1440. */
-    grid-template-columns: repeat(auto-fill, minmax(260px, 418px));
-    justify-content: start;
-  }
-
-  /* ---------- the band ---------- */
-  .band {
-    position: relative;
-    margin-block: clamp(72px, 10vw, 120px) 0;
-    background: var(--panel);
-    border-block: 1px solid var(--hairline);
-    padding-block: clamp(52px, 7vw, 84px);
-  }
-  /* A single hairline of the accent across the top. It is the only place on the site
-     where the accent appears on something you cannot click, and it earns that by being
-     one pixel tall and by fading out at both ends rather than stopping dead. */
-  .band::before {
-    content: '';
-    position: absolute;
-    inset: -1px 0 auto;
-    height: 1px;
-    background: linear-gradient(to right, transparent 4%, var(--accent) 50%, transparent 96%);
-    opacity: .85;
-  }
-  .band__lead { color: var(--ink-soft); }
-  .band__list {
-    list-style: none; margin: 0; padding: 0;
-    display: grid; gap: clamp(26px, 3vw, 40px);
-  }
-  /* Driven by how many there are, not hardcoded at three. With the "Free" card removed
-     a fixed `repeat(3, 1fr)` left the last third of the row empty, which reads as a
-     card that failed to load rather than as a deliberate pair. */
-  @media (min-width: 760px) {
-    .band__list[data-count="2"] { grid-template-columns: repeat(2, 1fr); }
-    .band__list[data-count="3"] { grid-template-columns: repeat(3, 1fr); }
-  }
-  .band__list li { border-top: 1px solid var(--rule); padding-top: 20px; }
-  .band__k {
-    margin: 0;
-    font-family: var(--font-display);
-    font-size: clamp(21px, 2.3vw, 27px);
-    font-weight: 400; letter-spacing: var(--track-tight);
-  }
-  .band__v {
-    margin: 10px 0 0;
-    font-size: 15px; line-height: 1.6;
-    color: var(--ink-soft);
-  }
 </style>
