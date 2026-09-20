@@ -804,34 +804,33 @@
     /* ---------------------------- Interaction ---------------------------- */
     var centerWorld = new THREE.Vector3(), centerView = new THREE.Vector3();
     var pointer = { x: 0, y: 0 }, smooth = { x: 0, y: 0 };
-    var spin = { x: 0, vy: 0, vx: 0 };
-    var dragging = false, lastX = 0, lastY = 0;
 
+    /* ── Why the listener is on the window and not on the canvas ──
+       The canvas is decoration: it is pointer-events: none, z-index -1 and sits behind
+       every readable thing on the page. It therefore never receives a pointer event of
+       its own, and a listener bound to it fires exactly never — which is why the scene
+       stood still no matter where the cursor went.
+
+       So the window is the source, and the position is expressed relative to the
+       canvas's own box. The pointer is being read, not captured: nothing here calls
+       preventDefault, the listener is passive, and hit-testing on the page is
+       unaffected. Dragging the globe is deliberately gone with it — a background the
+       reader cannot click cannot be dragged either, and pretending otherwise would put
+       a grab cursor on something that never responds. */
     function onMove(e) {
       var r = canvas.getBoundingClientRect();
-      pointer.x = ((e.clientX - r.left) / r.width) * 2 - 1;
-      pointer.y = -(((e.clientY - r.top) / r.height) * 2 - 1);
-      if (dragging) {
-        spin.vy += (e.clientX - lastX) * 0.00040;
-        spin.vx += (e.clientY - lastY) * 0.00026;
-        lastX = e.clientX; lastY = e.clientY;
-      }
+      if (!r.width || !r.height) return;
+      // Clamped: the canvas starts below the fold, so a cursor up in the header is far
+      // outside its box and the raw value would swing the scene past anything it does
+      // when the pointer is actually over it.
+      pointer.x = Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width) * 2 - 1));
+      pointer.y = Math.max(-1, Math.min(1, -(((e.clientY - r.top) / r.height) * 2 - 1)));
     }
-    function onDown(e) {
-      if (e.button !== undefined && e.button !== 0) return;
-      dragging = true; lastX = e.clientX; lastY = e.clientY;
-      canvas.style.cursor = 'grabbing';
-      if (canvas.setPointerCapture && e.pointerId !== undefined) { try { canvas.setPointerCapture(e.pointerId); } catch (err) {} }
-    }
-    function onUp() { dragging = false; canvas.style.cursor = 'grab'; }
-    function onLeave() { dragging = false; pointer.x = 0; pointer.y = 0; canvas.style.cursor = 'grab'; }
+    // Back to rest when the cursor leaves the document, rather than freezing off-centre.
+    function onLeave() { pointer.x = 0; pointer.y = 0; }
 
-    canvas.style.cursor = 'grab';
-    canvas.style.touchAction = 'pan-y';
-    canvas.addEventListener('pointermove', onMove, { passive: true });
-    canvas.addEventListener('pointerdown', onDown);
-    window.addEventListener('pointerup', onUp, { passive: true });
-    canvas.addEventListener('pointerleave', onLeave, { passive: true });
+    window.addEventListener('pointermove', onMove, { passive: true });
+    document.addEventListener('pointerleave', onLeave, { passive: true });
 
     /* ------------------------------- Resize ------------------------------- */
     var dpr = 1, aspect = 1, halfW = 1, halfH = 1;
@@ -914,12 +913,8 @@
       smooth.x += (pointer.x - smooth.x) * Math.min(1, dt * 3.0);
       smooth.y += (pointer.y - smooth.y) * Math.min(1, dt * 3.0);
 
-      spin.x = Math.max(-0.40, Math.min(0.40, spin.x + spin.vx));
-      var decay = Math.pow(0.90, dt * 60);
-      spin.vy *= decay; spin.vx *= decay;
-
-      globe.rotation.y += (reduced ? AUTO * 0.25 : AUTO) * dt + spin.vy * 0.65;
-      globe.rotation.x = spin.x + smooth.y * 0.10;
+      globe.rotation.y += (reduced ? AUTO * 0.25 : AUTO) * dt;
+      globe.rotation.x = smooth.y * 0.10;
 
       for (var rg = 0; rg < ringGroups.length; rg++) ringGroups[rg].rotation.y = clock * ringGroups[rg].userData.spin * MO;
       body.getWorldPosition(centerWorld);
@@ -970,10 +965,8 @@
       alive = false;
       if (raf) cancelAnimationFrame(raf);
       raf = 0;
-      canvas.removeEventListener('pointermove', onMove);
-      canvas.removeEventListener('pointerdown', onDown);
-      canvas.removeEventListener('pointerleave', onLeave);
-      window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerleave', onLeave);
       window.removeEventListener('resize', resize);
       document.removeEventListener('visibilitychange', onVisibility);
       if (ro) ro.disconnect();

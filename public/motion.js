@@ -1,4 +1,5 @@
-/* The only script on this site.
+/* The first script on this site, and the one that moves the page's own furniture.
+ * (/globe.js is the other, and it only decides whether to draw the globe.)
  *
  * It exists because exactly two effects need a pointer position and therefore cannot be
  * done in CSS: the 3D tilt on the hero device, and the edge highlight that follows the
@@ -53,16 +54,28 @@ if (fine.matches && !still.matches) {
      which is what lets the media query at 900px flatten the tilt to zero without this
      file knowing anything about breakpoints.
 
-     The pointer is tracked against a *region* — [data-tilt-area] — rather than against
-     the device itself, so the phone responds to the cursor crossing the hero instead of
-     only to the cursor being on top of it. A tilt you have to be hovering to trigger
-     reads as a hover state; one that answers the whole section reads as parallax. */
+     ── This used to track the whole hero, and the reason it stopped ──
+     The pointer was measured against a *region* — [data-tilt-area] — so the phone
+     answered the cursor crossing anywhere in the hero, on the argument that a tilt you
+     have to hover to trigger reads as a hover state while one that answers the section
+     reads as parallax.
+
+     That argument held while the phone was the only thing in the hero that moved. It
+     stopped holding on 2026-09-21, when the globe arrived: the globe now answers the
+     whole page, so a device answering the whole hero as well meant two objects swinging
+     off one cursor, out of step with each other, for the length of the section. The
+     parallax reading belongs to the background now. The device gets the other job — it
+     responds when you are actually on it, and sits still when you are not.
+
+     So the pointer is measured against the device itself. [data-tilt-area] is still the
+     element the loop walks, because that is the markup contract and the hero may hold
+     more than one tiltable thing later; it is simply no longer the thing measured. */
   for (const area of document.querySelectorAll('[data-tilt-area]')) {
     const target = area.querySelector('[data-tilt]');
     if (!target) continue;
 
-    area.addEventListener('pointermove', (e) => {
-      const r = area.getBoundingClientRect();
+    target.addEventListener('pointermove', (e) => {
+      const r = target.getBoundingClientRect();
       set(target, {
         '--tx': ((e.clientX - r.left) / r.width  * 2 - 1).toFixed(3),
         '--ty': ((e.clientY - r.top)  / r.height * 2 - 1).toFixed(3),
@@ -71,7 +84,7 @@ if (fine.matches && !still.matches) {
 
     // Return to rest rather than freezing mid-tilt. The CSS transition on --tx/--ty is
     // what makes this a glide and not a snap.
-    area.addEventListener('pointerleave', () => set(target, { '--tx': '0', '--ty': '0' }), { passive: true });
+    target.addEventListener('pointerleave', () => set(target, { '--tx': '0', '--ty': '0' }), { passive: true });
   }
 
   /* ── The edge highlight ──
