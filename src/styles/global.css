@@ -1,49 +1,85 @@
 /* ── Type, self-hosted ──────────────────────────────────────────────────────
-   Nothing is fetched from Google. A third-party font request is render-blocking on a
-   slow connection and hands the visitor's IP to a company they did not choose to
-   visit, which the about page says does not happen here. It is also enforced rather
-   than promised: the Content-Security-Policy in Base.astro is `font-src 'self'`, so a
-   remote font would be blocked rather than quietly loaded.
+   Nothing is fetched from Google at runtime. A third-party font request is
+   render-blocking on a slow connection and hands the visitor's IP to a company they
+   did not choose to visit, which the about page says does not happen here. It is also
+   enforced rather than promised: the Content-Security-Policy in Base.astro is
+   `font-src 'self'`, so a remote font would be blocked rather than quietly loaded. The
+   files below were downloaded once from Google Fonts and committed; both families are
+   OFL 1.1 and redistributable.
 
-   Three families, three jobs — and the third is the reason the page stops looking
-   like a template:
+   Three families, three jobs:
 
-     Instrument Serif   headlines only. A display serif over technical content is the
-                        fastest way out of the extra-bold-geometric-sans house style
-                        that every product page has worn since about 2021.
-     Figtree            body text. Already here, still the right tool.
-     system monospace   DATA. Hashes, byte counts, versions, dates, ordinals, statute
-                        numbers. This site is full of things that are evidence, and
-                        setting them in mono says so without a word of copy. It costs
-                        nothing to ship because every OS already has one.
+     Bricolage Grotesque  DISPLAY. Headlines, app names, section heads, the wordmark.
+                          A grotesque with visible quirks — the flat-topped f, the
+                          narrow t, the slightly squared bowls — which is what keeps it
+                          from reading as the default geometric sans it would otherwise
+                          resemble.
+     Albert Sans          TEXT. Body, leads, captions, buttons. Neutral on purpose: it
+                          is the face that has to disappear.
+     system monospace     DATA, and only that: the `.data` class. Hashes, byte counts,
+                          versions, statute numbers — things the reader could go and
+                          check. This site is full of evidence and setting it in mono
+                          says so without a word of copy. It costs nothing to ship
+                          because every OS already has one.
 
-   OFL 1.1, both families. Subset to latin, upright only; 15 KB and 20 KB. */
+                          It used to set the labels too (kickers, badges, card meta,
+                          the footer run) in uppercase at 0.1em. It does not any more —
+                          see the note on .label. A face the visitor's OS picked is the
+                          wrong one for the element that repeats a dozen times a page,
+                          and at 11.5px tracked that far it was texture, not type.
+
+   ── What each file is, and why it is that file ──
+   Bricolage ships as a variable font with three axes (opsz 12–96, wdth 75–100,
+   wght 200–800) and the full latin cut of it is 128 KB. It is used here at exactly one
+   weight, so what is committed is the static 400 instance at 22 KB. The axis worth
+   missing is `opsz`, which would redraw the headline tighter at 78px than at 25px; the
+   opsz-only variable is 39 KB, and the 17 KB was judged not worth it on a site whose
+   audience reads it on a cheap phone. Most of what opsz would have done is recovered by
+   the negative tracking on .display. If you ever want it back, the file is
+   `Bricolage+Grotesque:opsz@12..96` and you would add `font-optical-sizing: auto`.
+
+   Albert Sans is the opposite case: the site uses 400, 500, 600 and 700, and Google
+   serves the same 31 KB variable file whether you ask for one weight or all of them —
+   four statics would be 125 KB. So the variable is strictly the cheaper choice here.
+
+   Total on the critical path: 54 KB of latin, against 35 KB before. The latin-ext files
+   are fetched only if a glyph needs them. */
 @font-face {
-  font-family: 'Instrument Serif';
+  font-family: 'Bricolage Grotesque';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('/fonts/instrument-serif-latin.woff2') format('woff2');
+  src: url('/fonts/bricolage-grotesque-latin.woff2') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
     U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
     U+FEFF, U+FFFD;
 }
 @font-face {
-  font-family: 'Figtree';
+  font-family: 'Bricolage Grotesque';
   font-style: normal;
-  font-weight: 400 800;
+  font-weight: 400;
   font-display: swap;
-  src: url('/fonts/figtree-latin.woff2') format('woff2');
+  src: url('/fonts/bricolage-grotesque-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304,
+    U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB,
+    U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Albert Sans';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/albert-sans-latin.woff2') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
     U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
     U+FEFF, U+FFFD;
 }
 @font-face {
-  font-family: 'Figtree';
+  font-family: 'Albert Sans';
   font-style: normal;
-  font-weight: 400 800;
+  font-weight: 100 900;
   font-display: swap;
-  src: url('/fonts/figtree-latin-ext.woff2') format('woff2');
+  src: url('/fonts/albert-sans-latin-ext.woff2') format('woff2');
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304,
     U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB,
     U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
@@ -53,58 +89,74 @@
    Defined once. Never hardcode a hex anywhere else: a colour that only exists at its
    use site is the one the next theme change misses.
 
-   The ground is warm. It used to be #F6F7F9, a cold blue-grey — the default tint of
-   every utility-class starter, and it makes near-black look like slate. Paper makes
-   the same ink look like ink, and it matches the app's own #f3f2f2 rather than
-   fighting it. */
-:root {
-  --ground:     #F7F5F1;   /* paper */
-  --surface:    #FDFCFA;   /* raised card, barely above the paper */
-  --panel:      #16130F;   /* footer, and any inverted block */
-  --ink:        #1A1714;   /* 16.4:1 on the ground */
-  --ink-soft:   #6B6259;   /* 5.5:1 — metadata, still AA at body size */
-  --hairline:   #E4DED4;
-  --rule:       #CFC6B8;   /* a rule you are meant to notice, unlike a hairline */
+   ── One theme, and it is dark ──
+   This site used to be paper with a dark footer, flipping to a dark palette when the
+   OS asked for one. It is dark at all times now, because the atmosphere the design
+   depends on — a mint glow bleeding up from behind the work, a faint technical grid
+   over the whole page — does not exist on a light ground. Carrying both would mean
+   drawing that twice and measuring it twice, and the light one would always have been
+   the worse of the two.
 
-  /* Two accent jobs, not three. #C2410C carries both because it measured well enough
-     to: white on it is 5.18:1 (AA for a button label) and it is 4.76:1 as text on the
-     paper. The old palette needed a third hex because #FF4D2E could do neither.
-     --accent-bright exists only for the dark footer, where #C2410C falls to 3.6:1.
-     Re-measure all of these if any one of them changes; the audience for this site
-     reads it on a cheap phone in daylight. */
-  --accent:        #C2410C;
-  --accent-bright: #FF6A3D;   /* 6.5:1 on --panel */
-  --accent-ink:    #FFFFFF;
+   What that buys and what it costs: there is no second theme to re-measure when you
+   touch a hex, and no second theme to hide in either. Every value below is measured
+   against --ground once, here, and that number is the only one there is. */
+:root {
+  --ground:   #0A0C0B;   /* near-black, a touch green so the mint sits in it, not on it */
+  --surface:  #121614;   /* a card, one step off the ground */
+  --panel:    #161B18;   /* the band and the footer, one step above that */
+  --ink:      #ECF1EE;   /* 17.2:1 on the ground */
+  --ink-soft: #94A09A;   /*  7.2:1 — metadata, still AA well below body size */
+  --hairline: #2A3330;   /* a border you are not meant to notice, only to obey: 1.5:1 */
+  --rule:     #46514C;   /* a border you are: 2.4:1 */
+
+  /* ── The accent ──
+     Mint, and it does both accent jobs with one hex. As text on the ground it is
+     11.7:1; carrying --accent-ink as a button label it is 11.4:1. That is the one
+     luxury of a dark ground — a colour bright enough to read on it is also bright
+     enough to take dark type on top. The old orange needed a second --accent-bright
+     precisely because it could do neither job properly; that token is gone, and
+     nothing in src/ referenced it.
+
+     --glow is the same mint at low alpha, and it is the single reason the page reads
+     as lit rather than merely dark. It is not decoration you can swap independently:
+     change --accent and you must redraw --glow, --glow-soft and --grid with it, or the
+     light in the page stops matching the thing that is supposed to be emitting it. */
+  --accent:     #3DE0B5;   /* 11.7:1 as text on --ground */
+  --accent-ink: #06120E;   /* 11.4:1 as a label on --accent */
+  --glow:       rgba(61, 224, 181, 0.30);
+  --glow-soft:  rgba(61, 224, 181, 0.08);
+  --grid:       rgba(157, 205, 186, 0.055);
 
   --r-sm: 3px; --r-md: 5px; --r-lg: 8px;
   --gap: 28px;
   --measure: 66ch;
 
-  --font:         Figtree, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --font:         'Albert Sans', system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: 'Bricolage Grotesque', 'Albert Sans', system-ui, sans-serif;
   --font-mono:    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-  --ease: cubic-bezier(.2, .7, .3, 1);
+  /* ── Tracking for the display face ──
+     Instrument Serif was set at -0.012em, which is all a serif at 78px wants. Bricolage
+     Grotesque is a grotesque with a large x-height and it sets noticeably looser at the
+     same nominal size, so it needs real negative tracking to stop a headline reading as
+     a row of separate words. These are the two values; do not invent a third at a use
+     site, because the whole point of having them here is that the face can be retuned
+     in one place.
 
-  color-scheme: light dark;
-}
+     --track-display is also doing the job the `opsz` axis would have done if the
+     variable font were shipped — see the note at the top of this file. */
+  --track-display: -0.032em;   /* 30px and up */
+  --track-tight:   -0.022em;   /* 18–30px */
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --ground:   #12100D;
-    --surface:  #1B1815;
-    --panel:    #1B1815;   /* must sit ABOVE the ground, never below, or it vanishes */
-    --ink:      #F2EEE8;
-    --ink-soft: #A79C90;
-    --hairline: #2A2622;
-    --rule:     #3A342E;
-    --accent:        #FF7A55;   /* 7.4:1 as text on the dark ground */
-    --accent-bright: #FF7A55;
-    /* The label on a filled button flips to ink in dark mode. The accent has to be
-       light enough to read as text against a dark ground, which makes it far too light
-       to carry white: white on #FF7A55 measures 2.57:1, and it looked fine in a
-       screenshot right up until it was measured. Dark ink on it is 7.39:1. */
-    --accent-ink:    #12100D;
-  }
+  /* The reference's own curve, read off its computed styles: a hard decelerate with no
+     overshoot. Everything on this site now shares it, so hovers, reveals and the arrow
+     slide all decay at the same rate and the page feels like one object. */
+  --ease:      cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-wipe: cubic-bezier(0.33, 0, 0.2, 1);   /* for the image wipes: eases in as well */
+
+  /* One theme means one value here too. Left as `dark` rather than `light dark` so the
+     browser paints form controls, scrollbars and the pre-paint canvas dark from the
+     first frame — otherwise the page flashes white before the stylesheet lands. */
+  color-scheme: dark;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -127,21 +179,176 @@ body {
 img, svg { max-width: 100%; display: block; }
 a { color: inherit; }
 
+/* ── The atmosphere ─────────────────────────────────────────────────────────
+   Two fixed layers sit behind every page: a wide mint glow, and a faint technical
+   grid drawn over the top of it. Together they are what makes the ground read as lit
+   rather than simply black, and between them they are most of what this design took
+   from its reference.
+
+   They are fixed rather than placed per section on purpose. A glow positioned inside
+   a section has to be positioned again on every page, and drifts out of register the
+   moment a page grows a section; a fixed one is a single rule, is composited by the
+   GPU, never repaints on scroll, and reads as a light the page is standing in front
+   of instead of a smudge attached to one block.
+
+   Paint order matters and is easy to get backwards: ::before is the glow, ::after is
+   the grid, because within one stacking context ::after paints last and the grid has
+   to sit over the light. Swap them and the glow washes across the lines rather than
+   shining through them — the difference between "lit" and "out of focus".
+
+   Both are decoration and neither may ever carry meaning. They hold no text, they are
+   pointer-events: none, and the page is complete without them — which is exactly what
+   a reader gets with CSS off, and what they should get if these are ever removed. */
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+body::before {
+  background:
+    radial-gradient(64% 46% at 50% 94%, var(--glow) 0%, transparent 68%),
+    radial-gradient(112% 74% at 50% 112%, var(--glow-soft) 0%, transparent 72%);
+}
+body::after {
+  background-image:
+    linear-gradient(to right, var(--grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+  background-size: 92px 92px;
+  /* Fade the lines off towards the corners so the grid reads as a texture the page
+     stands in, rather than as a table somebody drew over it. */
+  -webkit-mask-image: radial-gradient(128% 118% at 50% 36%, #000 26%, transparent 100%);
+  mask-image: radial-gradient(128% 118% at 50% 36%, #000 26%, transparent 100%);
+}
+/* Everything real sits above both layers. This is not optional: a fixed element with
+   z-index 0 paints over static in-flow content, so without it the decoration covers
+   the page and every link on it stops being clickable. */
+.site-head,
+main,
+.site-foot { position: relative; z-index: 1; }
+
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: var(--r-sm);
 }
 
-/* ── Layout ─────────────────────────────────────────────────────────────────
-   .wrap is the page measure. .spread is the reason the page looks composed rather than
-   stacked: a narrow left column carrying metadata — the ordinal, the count, the
-   status, the date — against a wide right column carrying the thing itself. It is how
-   a catalogue is set, and it uses the width of a desktop window instead of leaving
-   40% of it empty, which is what a single centred column does.
+/* ── Motion ─────────────────────────────────────────────────────────────────
+   The reference animates constantly: labels decode out of scrambled characters, blocks
+   rise and fade as they enter the viewport, images wipe open behind a clip-path, arrows
+   slide on hover. Almost all of that is reproduced below. One thing is not, and the
+   reason matters more than the effect.
 
-   Below 860px the rail collapses and the metadata sits above its content, which is
-   the same information in the order a phone can read it. */
+   ── Why there is no scrambling text ──
+   The decode effect has to rewrite an element's text content on a timer, which is
+   JavaScript, and this site ships none. That is not a stylistic preference: the CSP in
+   Base.astro is `default-src 'none'` with nothing granting script-src, and
+   `apps/logger.md` publishes the claim "It loads no scripts at all — not one tag, none
+   third-party — and sets no cookies. Open your browser's network panel and count the
+   requests." A visitor can check that in about fifteen seconds. Adding a script for a
+   text effect would make a checkable claim on this site false, which costs more than the
+   effect is worth. If you ever do want it, the claim in apps/logger.md and the two
+   sentences on the about page have to change in the same commit.
+
+   ── How the scroll reveals work, and the trap in them ──
+   `animation-timeline: view()` drives the reveals from scroll position with no script at
+   all. It is a young feature, so **every reveal lives inside `@supports (animation-
+   timeline: view())`** and the un-animated state is the visible one. Get that backwards —
+   put `opacity: 0` on .reveal at the top level and the animation inside @supports — and
+   a browser without support renders a blank page. The rule is: nothing is hidden unless
+   the thing that will reveal it is known to exist.
+
+   Everything is also inside `prefers-reduced-motion: no-preference`, so a reader who
+   asked their OS to stop moving things gets a static, complete page. */
+@media (prefers-reduced-motion: no-preference) {
+
+  /* The hero, on load. Time-based rather than scroll-based, because it is already in
+     view — there is no scroll position to drive it from. */
+  .enter { animation: enter-rise 700ms var(--ease) both; }
+  .enter--1 { animation-delay:  40ms; }
+  .enter--2 { animation-delay: 130ms; }
+  .enter--3 { animation-delay: 220ms; }
+  .enter--4 { animation-delay: 310ms; }
+
+  @keyframes enter-rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  @supports (animation-timeline: view()) {
+    /* The workhorse: everything below the fold rises a little as it comes in. 14px, not
+       40px — a big travel distance reads as a slide deck, and on a long page it makes
+       the whole document feel like it is lagging behind the scrollbar. */
+    .reveal {
+      animation: enter-rise both;
+      animation-timeline: view();
+      animation-range: entry 4% entry 62%;
+    }
+
+    /* Images open behind a wipe instead of fading. Fading a screenshot makes it look
+       like it is loading; a wipe makes it look like it is being shown to you. The scale
+       is tiny on purpose — at 1.04 the picture visibly resizes and the text beside it
+       appears to shift, which it does not. */
+    .reveal--wipe {
+      animation: wipe-open both;
+      animation-timeline: view();
+      animation-range: entry 2% entry 58%;
+    }
+    /* No `round` here on purpose. Each of these elements already has its own radius, and
+       the browser shows the intersection of that and the clip rectangle — so the corners
+       stay rounded without this having to know whether it is sitting on an --r-md
+       screenshot or an --r-lg mount. Naming a radius here got one of the two wrong. */
+    @keyframes wipe-open {
+      from { clip-path: inset(14% 0 0 0); opacity: 0; transform: scale(1.012); }
+      to   { clip-path: inset(0 0 0 0);  opacity: 1; transform: none; }
+    }
+
+    /* Stagger, for any run of siblings that reveal together — a row of cards, the three
+       band items, a list of verify claims. Scroll-driven animations ignore
+       `animation-delay` (there is no time axis to delay along), so the stagger is done by
+       starting each sibling's range slightly later instead.
+
+       This is done with :nth-child rather than with a --s2/--s3 class so that it needs no
+       markup and cannot be forgotten when a fourth item is added. */
+    .reveal:nth-child(2)    { animation-range: entry  9% entry 66%; }
+    .reveal:nth-child(3)    { animation-range: entry 14% entry 70%; }
+    .reveal:nth-child(n+4)  { animation-range: entry 18% entry 74%; }
+  }
+}
+
+/* The arrow on a text link slides on hover. Outside the reduced-motion block because it
+   is wrapped in its own transition, which is already disabled when the site's motion is:
+   a 0s transition is what an untransitioned property does anyway. */
+.textlink span,
+.btn span { transition: transform 220ms var(--ease); }
+@media (prefers-reduced-motion: no-preference) {
+  .textlink:hover span,
+  .btn:hover span { transform: translateX(4px); }
+}
+
+/* ── Layout ─────────────────────────────────────────────────────────────────
+   `.wrap` is the page measure — 1140px, 24px of side padding — and it is now the only
+   horizontal structure the site has.
+
+   ── The metadata rail is gone ──
+   There used to be a `.spread`: a 148px column on the left carrying the ordinal, the
+   count, the status and the date, against a wide column carrying the thing itself. It
+   was the most considered idea in the old design and the argument for it is still a good
+   one — it is how a catalogue is set, and it uses the width of a desktop window instead
+   of leaving 40% of it empty.
+
+   It was removed because the owner did not want it. What replaced it is the reference's
+   arrangement instead: everything flush left, running the full measure, with the metadata
+   moved out of the margin and set as a single line directly above the title it belongs
+   to. `.label` below is that line.
+
+   Two things this buys that the rail did not: the title now starts at the same left edge
+   as everything else on the page, so the eye has one margin to follow rather than two;
+   and the phone layout is no longer a special case, because a stacked arrangement is what
+   the rail collapsed into at 860px anyway. If you are tempted to bring the rail back,
+   note that it needed 40 lines of CSS and a documented bug about how it collapsed. */
 .wrap {
   width: 100%;
   max-width: 1140px;
@@ -149,74 +356,61 @@ a { color: inherit; }
   padding-inline: 24px;
 }
 
-.spread {
-  display: grid;
-  grid-template-columns: 148px minmax(0, 1fr);
-  gap: 0 48px;
-  align-items: start;
-}
-@media (max-width: 860px) {
-  .spread { grid-template-columns: minmax(0, 1fr); gap: 14px; }
-}
+/* ── The kicker ─────────────────────────────────────────────────────────────
+   A single quiet line above a title: the ordinal, the count, the category, the status.
+   This is the rail's content, rehoused.
 
-/* The metadata column. Mono, small, quiet — it should read as a label on a specimen,
-   never as something competing with the content beside it. */
-.spread__meta {
-  font-family: var(--font-mono);
-  font-size: 11.5px;
+   It was 11.5px mono, uppercase, tracked out to 0.1em. That is the micro-eyebrow every
+   product template ships with, and at 11.5px with a tenth of an em between the letters
+   it stops being type and becomes texture — the reader registers a grey smear above the
+   headline rather than a fact. Mono made it worse: a system monospace at 11.5px is
+   whatever the OS decided, so on one machine the site's most-repeated element was not
+   even set in a face this site chose.
+
+   It is now the text face at 13px, sentence case, with normal tracking — the same
+   family as the sentence under it, one size down and one tone back. Small, unhurried,
+   and clearly *written*: the setting an imprint uses for a standfirst, not the one a
+   dashboard uses for a section chip. Sentence case is doing most of the work; capitals
+   shout a label that has nothing to shout about.
+
+   It is `--ink-soft` and not the accent. An accent-coloured letterspaced kicker is the
+   single most recognisable tell of a generated page. Do not colour this.
+
+   The margin is on the label rather than on the heading below it, so a title that has no
+   kicker does not inherit a gap meant for one. */
+.label {
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 500;
   line-height: 1.5;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: 0.005em;
   color: var(--ink-soft);
-  padding-top: 0.55em;
+  margin: 0 0 14px;
 }
-.spread__meta dl, .spread__meta dd, .spread__meta dt { margin: 0; }
-.spread__meta dt { color: var(--ink-soft); opacity: .75; }
-.spread__meta dd + dt { margin-top: 12px; }
-/* Collapsed, the pairs must still read as pairs. An earlier version put display:flex
-   on .spread__meta, whose only child is the <dl> — so it did nothing at all — and then
-   zeroed the space between pairs, which ran six lines together into one block. The dl
-   itself is the flex container, and each term keeps its definition next to it. */
-@media (max-width: 860px) {
-  .spread__meta { padding-top: 0; }
-  .spread__meta dl {
-    display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 20px;
-  }
-  .spread__meta dt { width: auto; }
-  .spread__meta dt::after { content: ''; }
-  .spread__meta dd { margin-right: 4px; }
-  .spread__meta dd + dt { margin-top: 0; }
-}
+/* A separator between facts in a kicker, dimmed so the run reads as grouped rather than
+   as one long string. Sentence case needs more air around the dot than uppercase did —
+   without the tracking, the words close up against it. */
+.label i { font-style: normal; opacity: .55; margin-inline: 9px; }
 
 /* ── Type ───────────────────────────────────────────────────────────────────
-   The display face is set at a normal weight and a comfortable size. The old headline
-   was 76px at weight 800 with -0.04em tracking, which is shouting; restraint reads as
-   confidence, and a serif at 56px carries more authority than a sans at 76px because
-   it is not trying so hard. Leading is just over 1 — a serif needs more air than a
-   tight geometric sans. */
+   Every size here came down when the display face changed. A serif and a grotesque do
+   not read the same at the same number: Instrument Serif has a small x-height, so 78px
+   of it looked like a headline; Bricolage Grotesque has a large one, and 78px of that
+   looks like shouting. The hero is 68px now and reads bigger than the 78px it replaced.
+
+   Leading tightened with it for the same reason — a serif needs air between lines that
+   a grotesque set this tight does not. */
 .display {
   font-family: var(--font-display);
   font-weight: 400;
-  letter-spacing: -0.012em;
-  line-height: 1.04;
+  letter-spacing: var(--track-display);
+  line-height: 1.02;
   text-wrap: balance;
   margin: 0;
 }
-.display--hero  { font-size: clamp(44px, 7vw, 78px); }
-.display--sec   { font-size: clamp(28px, 3.6vw, 40px); }
-.display--card  { font-size: clamp(22px, 2.4vw, 27px); line-height: 1.12; }
-
-/* A short line of mono used as a label. The old kicker was uppercase letterspaced
-   sans IN THE ACCENT COLOUR, which is the single most recognisable tell of a
-   generated page. This one is quiet and does the same job. */
-.label {
-  font-family: var(--font-mono);
-  font-size: 11.5px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
-  margin: 0;
-}
+.display--hero  { font-size: clamp(38px, 6.1vw, 68px); }
+.display--sec   { font-size: clamp(25px, 3.1vw, 35px); }
+.display--card  { font-size: clamp(20px, 2.1vw, 24px); line-height: 1.14; letter-spacing: var(--track-tight); }
 
 /* Data. Anything the reader could check: a hash, a size, a version, a count, a
    statute number. Mono is the whole point — it says "this is a fact, not a flourish". */
@@ -239,10 +433,10 @@ a { color: inherit; }
 .prose { max-width: var(--measure); }
 .prose h2 {
   font-family: var(--font-display);
-  font-size: clamp(24px, 3vw, 31px);
+  font-size: clamp(22px, 2.7vw, 28px);
   font-weight: 400;
-  letter-spacing: -0.01em;
-  line-height: 1.15;
+  letter-spacing: var(--track-display);
+  line-height: 1.16;
   margin: 2em 0 0.5em;
 }
 .prose h2:first-child { margin-top: 0; }
@@ -260,12 +454,11 @@ a { color: inherit; }
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-family: var(--font);
+  font-size: 12px;
   font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 3px 7px;
+  letter-spacing: 0.005em;
+  padding: 3.5px 8px;
   border-radius: var(--r-sm);
   border: 1px solid var(--hairline);
   color: var(--ink-soft);
@@ -292,9 +485,24 @@ a { color: inherit; }
   border: 1px solid transparent;
   transition: transform 150ms var(--ease), background-color 150ms var(--ease);
 }
-.btn--primary { background: var(--accent); color: var(--accent-ink); }
-.btn--ghost   { background: transparent; color: var(--ink); border-color: var(--rule); }
-.btn--on-dark { background: rgba(255,255,255,.08); color: #fff; border-color: rgba(255,255,255,.2); }
+/* The one filled control is the brightest object on the page and the only thing that
+   looks like it is emitting rather than reflecting. The shadow is the accent at low
+   alpha, not black: a dark shadow under a bright button on a dark ground is invisible,
+   and what actually reads as depth here is spill, not shade. */
+.btn--primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: 0 0 0 1px var(--accent), 0 6px 26px -6px var(--glow);
+}
+.btn--ghost {
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+  color: var(--ink);
+  border-color: var(--rule);
+}
+.btn--ghost:hover { border-color: var(--accent); }
+/* .btn--on-dark is gone. It existed so a control could survive on the inverted footer
+   back when the rest of the site was paper; every surface is dark now, so the variant
+   described a distinction that no longer exists. Nothing referenced it. */
 
 @media (prefers-reduced-motion: no-preference) {
   .btn:hover { transform: translateY(-1px); }

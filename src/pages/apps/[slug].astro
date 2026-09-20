@@ -37,7 +37,7 @@ const privacyLine =
 const phoneShots = d.screenshots.filter((s: any) => s.shape !== 'page');
 const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
 ---
-<Base title={`${d.name} — DOUBLEEM`} description={d.audience ? `${d.tagline} ${d.audience}` : d.tagline}>
+<Base title={`${d.name} — doubleem`} description={d.audience ? `${d.tagline} ${d.audience}` : d.tagline}>
   <article>
     <header class="top wrap">
       <div class="top__copy">
@@ -58,12 +58,12 @@ const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
 
         {hasGuide && (
           <p class="top__guide">
-            First time? <a href={`/apps/${d.slug}/guide/`}>See how it works, screen by screen →</a>
+            First time? <a href={`/apps/${d.slug}/guide/`}>See how it works, screen by{'\u00A0'}screen{'\u00A0'}→</a>
           </p>
         )}
       </div>
 
-      <div class="top__preview">
+      <div class="top__preview reveal--wipe">
         <Preview name={d.name} icon={d.icon} card={d.card} />
       </div>
     </header>
@@ -74,7 +74,7 @@ const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
         the right and stays put while the detail scrolls past it. */}
     <div class="layout wrap">
       <aside class="rail" aria-label={`Get ${d.name}`}>
-        <div class="rail__card">
+        <div class="rail__card reveal">
           <h2 class="rail__head">Get it</h2>
           <div class="rail__actions">
             {d.downloads.map((dl: any, i: number) => (
@@ -115,11 +115,11 @@ const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
       <div class="main">
         {d.screenshots.length > 0 && (
           <section class="screens" aria-label={`What ${d.name} looks like`}>
-            <h2 class="sec__head">What it looks like</h2>
+            <h2 class="sec__head reveal">What it looks like</h2>
             {phoneShots.length > 0 && (
               <ol class="screens__strip">
                 {phoneShots.map((s: any) => (
-                  <li class="screens__item">
+                  <li class="screens__item reveal--wipe">
                     <img src={s.src} alt={s.alt} loading="lazy" decoding="async" />
                     {s.caption && <p class="screens__cap">{s.caption}</p>}
                   </li>
@@ -128,7 +128,7 @@ const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
             )}
 
             {pageShots.map((s: any) => (
-              <figure class="sheet">
+              <figure class="sheet reveal--wipe">
                 <img src={s.src} alt={s.alt} loading="lazy" decoding="async" />
                 {s.caption && <figcaption class="screens__cap">{s.caption}</figcaption>}
               </figure>
@@ -142,11 +142,11 @@ const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
 
         {d.platformNotes.length > 0 && (
           <section class="where">
-            <h2 class="sec__head">Where it runs, and what changes</h2>
+            <h2 class="sec__head reveal">Where it runs, and what changes</h2>
             <p class="sec__lead">The same app either way.</p>
             <dl class="where__list">
               {d.platformNotes.map((p: any) => (
-                <div class="where__row">
+                <div class="where__row reveal">
                   <dt>{platformNames[p.platform] ?? p.platform}</dt>
                   <dd>{p.note}</dd>
                 </div>
@@ -161,13 +161,13 @@ const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
             here that has not been checked on the shipping build. */}
         {d.verify.length > 0 && (
           <section class="verify">
-            <h2 class="sec__head">Don't take my word for it</h2>
+            <h2 class="sec__head reveal">Don't take my word for it</h2>
             <p class="sec__lead">
               What this page claims, and how to check each one yourself.
             </p>
             <ul class="verify__list">
               {d.verify.map((v: any) => (
-                <li class="verify__item">
+                <li class="verify__item reveal">
                   <p class="verify__claim">{v.claim}</p>
                   <p class="verify__how">{v.how}</p>
                 </li>
@@ -177,7 +177,7 @@ const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
         )}
 
         {(contact.formUrl || contact.issuesUrl) && (
-          <aside class="wrong">
+          <aside class="wrong reveal">
             <h2>If a number here looks wrong</h2>
             <p>
               Tell me. You do not need to be sure it is a bug — "this does not match my
@@ -224,8 +224,8 @@ const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
   .top__name {
     margin: 16px 0 0;
     font-family: var(--font-display);
-    font-size: clamp(42px, 7.4vw, 72px);
-    font-weight: 400; letter-spacing: -0.012em; line-height: 1;
+    font-size: clamp(36px, 6.4vw, 62px);
+    font-weight: 400; letter-spacing: var(--track-display); line-height: 0.98;
     display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
   }
   .top__native {
@@ -311,8 +311,8 @@ const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
 
   .rail__head {
     margin: 0 0 14px;
-    font-family: var(--font-mono);
-    font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+    font-family: var(--font);
+    font-size: 13px; font-weight: 600; letter-spacing: 0.005em;
     color: var(--ink-soft);
   }
   .rail__actions { display: grid; gap: 10px; }
@@ -327,8 +327,8 @@ const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
     border-top: 1px solid var(--hairline);
   }
   .rail__facts dt {
-    font-family: var(--font-mono);
-    font-size: 10.5px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+    font-family: var(--font);
+    font-size: 12.5px; font-weight: 500; letter-spacing: 0.005em;
     color: var(--ink-soft); margin-top: 18px;
   }
   .rail__facts dt:first-of-type { margin-top: 0; }
@@ -340,8 +340,8 @@ const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
   .sec__head {
     margin: 0;
     font-family: var(--font-display);
-    font-size: clamp(27px, 3.4vw, 37px);
-    font-weight: 400; letter-spacing: -0.01em; line-height: 1.08;
+    font-size: clamp(24px, 3vw, 32px);
+    font-weight: 400; letter-spacing: var(--track-display); line-height: 1.08;
   }
   .sec__lead {
     margin: 10px 0 0;
@@ -437,7 +437,7 @@ const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
   .verify__claim {
     margin: 0;
     font-family: var(--font-display);
-    font-size: 21px; font-weight: 400; letter-spacing: -0.005em; line-height: 1.2;
+    font-size: 19.5px; font-weight: 400; letter-spacing: var(--track-tight); line-height: 1.24;
   }
   /* Capping the column above stops the page scrolling; this stops the hash from spilling
      out of the card instead. `anywhere` rather than `break-all` so ordinary prose still
@@ -455,7 +455,8 @@ const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
     border-left: 3px solid var(--accent);
     border-radius: var(--r-md);
   }
-  .wrong h2 { margin: 0 0 10px; font-family: var(--font-display); font-weight: 400; font-size: 24px; }
+  .wrong h2 { margin: 0 0 10px; font-family: var(--font-display); font-weight: 400; font-size: 22px;
+    letter-spacing: var(--track-tight); }
   .wrong p { margin: 0 0 10px; }
   .wrong__links { margin: 14px 0 0; font-weight: 600; }
   .wrong__links a { text-decoration-color: var(--accent); text-underline-offset: 3px; }

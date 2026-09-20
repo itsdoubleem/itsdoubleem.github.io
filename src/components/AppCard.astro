@@ -6,11 +6,12 @@ interface Props { app: any; }
 const { app } = Astro.props;
 const d = app.data;
 ---
-<article class="card">
+<article class="card reveal">
   <a class="card__link" href={`/apps/${d.slug}/`}>
-    {/* Mono metadata instead of a row of pills. Three rounded badges above every card
-        is component-library furniture; a single line of small caps reads as a catalogue
-        entry, which is what the card is. */}
+    {/* One line of metadata instead of a row of pills. Three rounded badges above every
+        card is component-library furniture; a single written line reads as a catalogue
+        entry, which is what the card is. Set like .label — text face, sentence case —
+        because uppercase mono at 11px is the tell this site had everywhere. */}
     <span class="card__meta">
       {d.category} · {d.status === 'beta' ? 'Beta' : 'Live'} · Free
     </span>
@@ -44,16 +45,16 @@ const d = app.data;
     height: 100%;
   }
   .card__meta {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
+    font-family: var(--font);
+    font-size: 12.5px;
+    font-weight: 500;
+    letter-spacing: 0.005em;
     color: var(--ink-soft);
   }
   .card__name {
     margin: 2px 0 0;
     font-family: var(--font-display);
-    font-size: 25px; font-weight: 400; letter-spacing: -0.008em; line-height: 1.1;
+    font-size: 23px; font-weight: 400; letter-spacing: var(--track-tight); line-height: 1.14;
     display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap;
   }
   .card__native { font-size: 13px; font-weight: 500; color: var(--ink-soft); font-family: var(--font); }
@@ -70,7 +71,18 @@ const d = app.data;
     font-size: 13px; line-height: 1.4;
   }
 
-  .card:hover { border-color: var(--rule); }
+  /* On a dark ground a card cannot be lifted with a shadow — black on black is nothing.
+     What reads instead is the edge catching light, so hover raises the border to the
+     accent and spills a little of it outside the box. Keep the spill low: at a higher
+     alpha every card in the grid looks selected at once as the pointer crosses them. */
+  .card:hover {
+    /* Mixed down rather than full strength. A card is a large object and a whole
+       perimeter of pure --accent around one reads as selected, not as hovered — it also
+       spends the page's one accent colour on something the pointer is merely passing
+       over. Focus keeps the full accent, because that one IS a state. */
+    border-color: color-mix(in srgb, var(--accent) 55%, var(--rule));
+    box-shadow: 0 10px 34px -16px var(--glow);
+  }
   @media (prefers-reduced-motion: no-preference) {
     .card:hover { transform: translateY(-2px); }
   }

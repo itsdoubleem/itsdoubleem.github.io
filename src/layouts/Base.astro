@@ -35,7 +35,8 @@ const nav = [
                                     deck injects rules with is:inline — both are inline
                                     styles, so this cannot be tightened without changing
                                     how the site is built
-        font-src  'self'            the two Figtree woff2 files, self-hosted
+        font-src  'self'            the Bricolage Grotesque and Albert Sans woff2
+                                    files, self-hosted
         base-uri / form-action 'none'
                                     there is no <base> and no <form> on the site; these
                                     stop an injected one from retargeting a link or
@@ -57,19 +58,47 @@ const nav = [
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    {/* Both faces are preloaded because both are above the fold on every page: the
-        serif sets the headline, Figtree sets the line under it. The mono role uses
-        whatever the OS already has, so it costs nothing to preload and nothing to
-        download. */}
-    <link rel="preload" href="/fonts/instrument-serif-latin.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/figtree-latin.woff2" as="font" type="font/woff2" crossorigin />
+    {/* PNG rather than SVG, because the mark is artwork rather than a drawn glyph now.
+        32px is what a browser tab uses; 180px covers bookmarks and an iOS home screen.
+        Be aware the cube is not legible at 16px — see DESIGN.md § The wordmark. */}
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="180x180" href="/favicon-180.png" />
+    <link rel="apple-touch-icon" href="/favicon-180.png" />
+    {/* Both faces are preloaded because both are above the fold on every page:
+        Bricolage sets the headline, Albert Sans sets the line under it. Only the latin
+        cuts are preloaded — the latin-ext files are fetched on demand, and preloading a
+        file most visitors never need would cost them 54 KB for nothing. The mono role
+        uses whatever the OS already has, so it costs nothing either way. */}
+    <link rel="preload" href="/fonts/bricolage-grotesque-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/albert-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
   </head>
   <body>
     <header class="site-head">
       <div class="wrap site-head__inner">
-        <a href="/" class="wordmark" aria-label="DOUBLEEM, home">
-          DOUBLEEM<span aria-hidden="true">.</span>
+        {/* A mark and a wordmark, locked up.
+
+            The mark is the supplied artwork: a cube with a torn-open face, an outlined
+            lowercase m on the front and a second m revealed inside it. Double M, the long
+            way round.
+
+            It arrived as a 976x1098 RGB PNG on a WHITE background with no alpha, which on
+            this ground would have been a white rectangle. The white is keyed out with a
+            soft ramp — neutral pixels fade in proportion to their distance from white, so
+            anti-aliased edges stay clean — and anything carrying real colour stays opaque.
+            That is the teal linework, the mint m's, and the shaded inner face, which
+            measured (204,213,222) at saturation 18 and so survives the key.
+
+            A consequence worth knowing: the cube's own faces were white, so they key out
+            too and the cube reads as an open wireframe here rather than as the solid white
+            box it is on a light background. On this ground that is the better of the two.
+
+            It is 40px, not the 13.5px the drawn monogram was. Rendered small it turns to
+            mud — at 24px neither m is readable — so the size is set by the artwork, and
+            tools/check-mark.mjs measures it. */}
+        <a href="/" class="wordmark" aria-label="doubleem, home">
+          <img class="wordmark__mark" src="/assets/mark-256.png" alt=""
+               width="42" height="40" decoding="async" />
+          <span class="wordmark__type">doubleem</span>
         </a>
         <nav aria-label="Main">
           {nav.map((item) => <a href={item.href}>{item.label}</a>)}
@@ -83,7 +112,10 @@ const nav = [
 
     <footer class="site-foot">
       <div class="wrap site-foot__inner">
-        <p class="site-foot__mark">DOUBLEEM<span aria-hidden="true">.</span></p>
+        <p class="site-foot__mark">
+          <img src="/assets/mark-256.png" alt="" width="50" height="48" decoding="async" loading="lazy" />
+          <span>doubleem</span>
+        </p>
         <p class="site-foot__line">
           One person, making things and putting them where people can find them.
           This site collects nothing about you.
@@ -95,6 +127,12 @@ const nav = [
 </html>
 
 <style>
+  /* The bar stays opaque. The reference's nav floats over its hero as a translucent
+     pill, which works in a still image of one screen and stops working the moment a
+     paragraph scrolls underneath it — and the fix for that is backdrop-filter, which
+     this site dropped on purpose. What carried over instead is the shape of the thing:
+     the links are chips with their own border and surface, which is what makes the row
+     read as a control rather than as three words in a corner. */
   .site-head {
     position: sticky;
     top: 0;
@@ -107,58 +145,133 @@ const nav = [
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    min-height: 62px;
+    min-height: 66px;
   }
-  /* The wordmark is set in the display serif at a size that sits quietly beside the
-     nav rather than announcing itself. Its full stop used to be accent-coloured — one
-     of five accent things on the old homepage, and the least useful of them, since a
-     decorative dot cannot be clicked. */
+  /* The wordmark sits quietly beside the nav rather than announcing itself. Its full
+     stop used to be accent-coloured — one of five accent things on the old homepage, and
+     the least useful of them, since a decorative dot cannot be clicked. */
   .wordmark {
-    font-family: var(--font-display);
-    font-weight: 400;
-    font-size: 23px;
-    letter-spacing: 0.01em;
+    display: inline-flex;
+    align-items: center;
+    /* Wider than the 6px the small monogram wanted: the mark is now a 42px picture with
+       its own internal margins, and a lockup gap is measured from what you can see, not
+       from the box. */
+    gap: 11px;
     text-decoration: none;
+    color: var(--ink);
+  }
+  .wordmark__mark {
+    flex: none;
+    width: 42px;
+    height: auto;
+    /* The artwork's own bounding box is its alignment: it was trimmed to its ink, so the
+       cube's top and bottom edges are the image's top and bottom edges. No optical nudge
+       — the drawn monogram needed one because it was cap height against a taller line
+       box, and this is a picture that simply centres. */
+    transition: transform 260ms var(--ease);
+  }
+  /* The wordmark is the one piece of text on the site NOT set in the display face. That
+     is deliberate: Bricolage is the voice of the page's headings, and a wordmark that
+     shares it reads as another heading rather than as a name. Albert Sans at 600 is
+     already loaded — it is the text face — so this costs no extra bytes, which a third
+     family for one word would not.
+
+     Lowercase, and no full stop. Both of the rules that used to live here are therefore
+     void and gone: the positive tracking existed because eight capitals have no
+     lowercase to set their rhythm, and the negative right margin existed to pull back the
+     space that tracking added after the full stop. Lowercase sets its own rhythm and
+     wants the opposite — a touch tight. */
+  .wordmark__type {
+    font-family: var(--font);
+    font-weight: 600;
+    font-size: 25px;
+    letter-spacing: -0.018em;
+    line-height: 1;
   }
 
-  .site-head nav { display: flex; gap: 4px; }
+  @media (prefers-reduced-motion: no-preference) {
+    /* A small lift, nothing else. A monogram that rotates or bounces reads as a toy, and
+       this one is eight capitals away from the word it abbreviates — it does not need to
+       explain itself twice. */
+    .wordmark:hover .wordmark__mark { transform: translateY(-2px); }
+  }
+
+  .site-head nav { display: flex; gap: 8px; }
   .site-head nav a {
     display: inline-flex;
     align-items: center;
     min-height: 44px;
-    padding: 0 12px;
-    border-radius: var(--r-sm);
-    font-size: 15px;
+    padding: 0 16px;
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-lg);
+    background: var(--surface);
+    font-size: 14.5px;
     font-weight: 500;
     color: var(--ink-soft);
     text-decoration: none;
+    transition: border-color 150ms var(--ease), color 150ms var(--ease);
   }
-  .site-head nav a:hover { color: var(--ink); }
-  .site-head nav a[aria-current="page"] { color: var(--ink); }
+  .site-head nav a:hover { color: var(--ink); border-color: var(--rule); }
 
+  /* The header is the one row on the site with four fixed-width things in it, and the
+     mark going from 13.5px to 42px is what pushed it over: at 360px the page gained 4px
+     of horizontal scroll on every route. Everything in the row gives a little rather than
+     one thing giving a lot, because the mark cannot drop much below 36px before the two
+     m's inside the cube stop resolving.
+
+     The wordmark shrinks to 20px, not the 16px it held while it was capitals — lowercase
+     of the same nominal size reads smaller, so it needed the opposite adjustment from
+     what you would expect. 22px is the real ceiling: it fits at 360px and overruns at
+     320px. Measured at 320/360/390/430/460. */
+  @media (max-width: 460px) {
+    .wordmark { gap: 8px; }
+    .wordmark__mark { width: 36px; }
+    .wordmark__type { font-size: 20px; }
+    .site-head nav { gap: 6px; }
+    .site-head nav a { padding: 0 11px; font-size: 13.5px; }
+  }
+  .site-head nav a[aria-current="page"] { color: var(--ink); border-color: var(--rule); }
+
+  /* The footer is a raised panel rather than an inversion. It was the one dark block on
+     a paper site; now that the whole site is dark, "inverted" means nothing and the only
+     way to separate the footer from the page is to lift it — a lighter surface, a rule
+     across the top, and the glow behind it still showing at the edges.
+
+     Every rgba(255,255,255,…) that used to be in here is gone. Those values were written
+     when the footer was guaranteed to be the darkest thing on the page; they now sit on
+     --panel, which is the lightest, and white-at-45%-opacity on it measured 2.9:1. */
   .site-foot {
     margin-top: 96px;
     background: var(--panel);
-    color: #fff;
+    border-top: 1px solid var(--rule);
+    color: var(--ink);
   }
-  .site-foot__inner { padding-block: 48px; }
+  .site-foot__inner { padding-block: 52px; }
   .site-foot__mark {
-    margin: 0 0 12px;
-    font-family: var(--font-display);
-    font-weight: 400;
-    font-size: 27px;
-    letter-spacing: 0.01em;
+    margin: 0 0 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 13px;
+  }
+  .site-foot__mark img { flex: none; width: 50px; height: auto; }
+  .site-foot__mark span {
+    font-family: var(--font);
+    font-weight: 600;
+    font-size: 29px;
+    letter-spacing: -0.018em;
+    line-height: 1;
   }
   .site-foot__line {
     margin: 0 0 24px;
     max-width: 42ch;
-    color: rgba(255, 255, 255, 0.72);
+    color: var(--ink-soft);
   }
   .site-foot__meta {
     margin: 0;
-    font-family: var(--font-mono);
-    font-size: 11.5px;
-    letter-spacing: 0.06em;
-    color: rgba(255, 255, 255, 0.45);
+    font-family: var(--font);
+    font-size: 12.5px;
+    letter-spacing: 0.005em;
+    color: var(--ink-soft);
+    opacity: .8;
   }
 </style>

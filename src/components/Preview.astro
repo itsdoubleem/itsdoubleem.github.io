@@ -20,6 +20,10 @@ const { name, icon, card } = Astro.props;
 </div>
 
 <style>
+  /* The screenshot is of a light app on a dark site, so it arrives as a bright rectangle
+     and there is no dimming it — that would be showing the reader something other than
+     what they will get. What the frame does instead is give it a dark well to sit in, so
+     the brightness reads as the screen being on rather than as a hole in the page. */
   .preview {
     aspect-ratio: 3 / 4;
     border-radius: var(--r-md);

@@ -5,13 +5,13 @@ import { contact } from '../site';
 const hasAnyRoute = Boolean(contact.formUrl || contact.issuesUrl || contact.email);
 ---
 <Base
-  title="About — DOUBLEEM"
+  title="About — doubleem"
   description="Why the software here is free, what it collects, and who makes it."
 >
   <section class="wrap intro">
     <h1>About this place.</h1>
     <p class="intro__lead">
-      DOUBLEEM is one person putting their work somewhere people can find it. Software
+      doubleem is one person putting their work somewhere people can find it. Software
       mostly, for now. What each thing does, and what it costs you, is written on its own
       page — because those answers differ, and a promise made for everything is a promise
       that gets broken.
@@ -107,8 +107,8 @@ const hasAnyRoute = Boolean(contact.formUrl || contact.issuesUrl || contact.emai
     margin: 0;
     max-width: 15ch;
     font-family: var(--font-display);
-    font-size: clamp(42px, 7vw, 74px);
-    font-weight: 400; letter-spacing: -0.012em; line-height: 1.04;
+    font-size: clamp(36px, 6vw, 64px);
+    font-weight: 400; letter-spacing: var(--track-display); line-height: 1.02;
     text-wrap: balance;
   }
   .intro__lead {

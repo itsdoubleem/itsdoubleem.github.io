@@ -18,7 +18,7 @@ const g = guide.data;
 const img = (name: string) => `/assets/${a.slug}/guide/${name}.png`;
 const primary = a.downloads[0];
 ---
-<Base title={`${g.title} — DOUBLEEM`} description={g.lead}>
+<Base title={`${g.title} — doubleem`} description={g.lead}>
   <header class="top wrap">
     <p class="crumb">
       <a href="/">Apps</a> <span aria-hidden="true">/</span>
@@ -29,7 +29,7 @@ const primary = a.downloads[0];
   </header>
 
   <section class="wrap before">
-    <div class="before__card">
+    <div class="before__card reveal">
       <h2>{g.before.heading}</h2>
       <p>{g.before.body}</p>
       <ul>{g.before.items.map((i: string) => <li>{i}</li>)}</ul>
@@ -88,10 +88,15 @@ const primary = a.downloads[0];
   .crumb { margin: 0 0 18px; font-size: 14px; color: var(--ink-soft); }
   .crumb a { color: inherit; text-decoration-color: var(--hairline); }
   .crumb span { margin: 0 6px; }
+  /* This page was the last one still set in the pre-redesign house style: every heading
+     on it was Figtree at weight 800 with tracking down at -0.04em, which is the exact
+     extra-bold-geometric-sans shape the rest of the site was rewritten to get out of.
+     Headings here are the display serif at 400 now, like every other heading. */
   .top h1 {
     margin: 0; max-width: 16ch;
-    font-size: clamp(38px, 7vw, 64px);
-    font-weight: 800; letter-spacing: -0.04em; line-height: 0.98;
+    font-family: var(--font-display);
+    font-size: clamp(34px, 6vw, 58px);
+    font-weight: 400; letter-spacing: var(--track-display); line-height: 1.0;
   }
   .lead {
     margin: 18px 0 0; max-width: 52ch;
@@ -104,7 +109,9 @@ const primary = a.downloads[0];
     border-radius: var(--r-lg); padding: clamp(20px, 3vw, 28px); max-width: var(--measure);
   }
   .before__card h2 {
-    margin: 0 0 8px; font-size: 19px; font-weight: 700; letter-spacing: -0.01em;
+    margin: 0 0 8px;
+    font-family: var(--font-display);
+    font-size: 22px; font-weight: 400; letter-spacing: var(--track-tight); line-height: 1.16;
   }
   .before__card p { margin: 0 0 14px; color: var(--ink-soft); }
   .before__card ul { margin: 0; padding-left: 1.1em; }
@@ -114,8 +121,10 @@ const primary = a.downloads[0];
   .steps__divider {
     margin: 0 0 clamp(32px, 5vw, 48px);
     padding-top: clamp(32px, 5vw, 48px);
-    border-top: 1px solid var(--hairline);
-    font-size: clamp(24px, 4vw, 34px); font-weight: 700; letter-spacing: -0.02em;
+    border-top: 1px solid var(--rule);
+    font-family: var(--font-display);
+    font-size: clamp(23px, 3.5vw, 32px); font-weight: 400; letter-spacing: var(--track-display);
+    line-height: 1.06;
   }
 
   .step {
@@ -135,18 +144,27 @@ const primary = a.downloads[0];
     justify-self: center; width: 100%; max-width: 300px;
     border-radius: var(--r-lg); overflow: hidden;
     border: 1px solid var(--hairline); background: var(--surface);
+    transition: border-color 150ms var(--ease);
   }
+  .step:hover .step__shot { border-color: var(--rule); }
   .step__shot img { width: 100%; height: auto; display: block; }
 
+  /* STEP 1, STEP 2 — an ordinal, which on this site is data and therefore mono. It used
+     to be bold sans in the accent, which is both the template kicker DESIGN.md removed
+     and, on a page with eight steps, the accent appearing eight times before the reader
+     reaches the two buttons at the bottom that the accent is supposed to be reserved
+     for. Quiet mono marks the step just as clearly and costs nothing. */
   .step__kicker {
     margin: 0 0 10px;
-    font-size: 13px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase;
-    color: var(--accent);
+    font-family: var(--font);
+    font-size: 13px; font-weight: 500; letter-spacing: 0.005em;
+    color: var(--ink-soft);
   }
   .step__copy h2 {
     margin: 0 0 12px; max-width: 20ch;
-    font-size: clamp(24px, 3.4vw, 32px);
-    font-weight: 700; letter-spacing: -0.02em; line-height: 1.12;
+    font-family: var(--font-display);
+    font-size: clamp(23px, 3vw, 30px);
+    font-weight: 400; letter-spacing: var(--track-display); line-height: 1.08;
   }
   .step__copy p { margin: 0 0 12px; max-width: 54ch; font-size: 17px; }
   .step__note {
@@ -158,14 +176,25 @@ const primary = a.downloads[0];
   }
 
   .end { margin-top: clamp(24px, 4vw, 40px); }
+  /* The closing card is a raised panel with a rule, same as the homepage band. The
+     white-on-panel values it used to carry were written when --panel was the darkest
+     surface on the site; it is now the lightest, and they measured 3:1 against it. */
   .end__card {
-    background: var(--panel); color: #fff;
-    border-radius: var(--r-lg); padding: clamp(28px, 5vw, 48px);
+    background: var(--panel);
+    color: var(--ink);
+    border: 1px solid var(--rule);
+    border-radius: var(--r-lg);
+    padding: clamp(28px, 5vw, 48px);
   }
+  /* This heading was still the pre-redesign sans at weight 800 with -0.03em tracking —
+     the one place the old house style survived. It is the display serif like every
+     other heading on the site. */
   .end__card h2 {
-    margin: 0 0 10px; font-size: clamp(26px, 4vw, 38px);
-    font-weight: 800; letter-spacing: -0.03em;
+    margin: 0 0 10px;
+    font-family: var(--font-display);
+    font-size: clamp(25px, 3.5vw, 35px);
+    font-weight: 400; letter-spacing: var(--track-display); line-height: 1.02;
   }
-  .end__card p { margin: 0; max-width: 46ch; color: rgba(255,255,255,.74); }
+  .end__card p { margin: 0; max-width: 46ch; color: var(--ink-soft); }
   .end__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
 </style>

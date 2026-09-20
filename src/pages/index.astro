@@ -41,7 +41,7 @@ const stance = [
 ];
 ---
 <Base
-  title="DOUBLEEM — everything I make ends up here"
+  title="doubleem — everything I make ends up here"
   description="One person's work: apps and tools mostly, and whatever else turns out to be worth sharing."
 >
   {/* The hero sits on the paper, not in a dark panel.
@@ -56,25 +56,17 @@ const stance = [
       What replaces it is a catalogue opening: a column of mono metadata on the left, a
       serif line on the right, and one thing to click. */}
   <section class="hero">
-    <div class="hero__inner wrap spread">
-      <div class="spread__meta">
-        <dl>
-          <dt>Index</dt>
-          <dd>{count} {count === 1 ? 'entry' : 'entries'}</dd>
-          <dt>Made by</dt>
-          <dd>One person</dd>
-          <dt>Price</dt>
-          <dd>Free, always</dd>
-        </dl>
-      </div>
-
+    <div class="hero__inner wrap">
       <div class="hero__copy">
-        <h1 class="display display--hero">Everything I make ends up here.</h1>
-        <p class="lead">
+        <p class="label enter enter--1">
+          {count} {count === 1 ? 'entry' : 'entries'}<i>·</i>One person<i>·</i>Free, always
+        </p>
+        <h1 class="display display--hero enter enter--2">Everything I make ends up here.</h1>
+        <p class="lead enter enter--3">
           Apps, tools, and whatever else I end up making — each with a page that says
           plainly what it does and what it doesn't.
         </p>
-        <div class="hero__actions">
+        <div class="hero__actions enter enter--4">
           <a class="btn btn--primary" href="#work">See the work</a>
           <a class="textlink" href="/about/">What this is <span aria-hidden="true">→</span></a>
         </div>
@@ -83,9 +75,9 @@ const stance = [
   </section>
 
   <section class="work wrap" id="work">
-    <header class="spread">
-      <p class="spread__meta">01 — Work</p>
-      <div class="sec">
+    <header>
+      <div class="sec reveal">
+        <p class="label">01 — Work</p>
         <h2 class="display display--sec sec__title">The work</h2>
         <p class="sec__note">
           {count === 1
@@ -96,22 +88,15 @@ const stance = [
     </header>
 
     {feature && (
-      <article class="feature spread">
-        {/* The metadata that used to be pill-shaped badges scattered over the card.
-            Set as a specimen label in the margin, which is what it always was. */}
-        <div class="spread__meta feature__meta">
-          <dl>
-            <dt>Kind</dt>
-            <dd>{feature.data.category}</dd>
-            <dt>Status</dt>
-            <dd>{feature.data.status === 'beta' ? 'Beta' : 'Live'}</dd>
-            <dt>Price</dt>
-            <dd>Free</dd>
-          </dl>
-        </div>
-
+      <article class="feature">
         <div class="feature__body">
-          <div class="feature__text">
+          <div class="feature__text reveal">
+          {/* The same line the cards in the grid carry, so the featured work and the
+              grid below it are visibly the same kind of object described the same way.
+              It used to be a three-pair <dl> out in the margin. */}
+          <p class="label">
+            {feature.data.category}<i>·</i>{feature.data.status === 'beta' ? 'Beta' : 'Live'}<i>·</i>Free
+          </p>
           <h3 class="feature__name">
             <a href={`/apps/${feature.data.slug}/`}>{feature.data.name}</a>
             {feature.data.nativeName && (
@@ -143,7 +128,7 @@ const stance = [
               a 390px layout, so anything past ~390 CSS px is upscaling a picture of a
               phone until it looks like a zoom rather than a screenshot. "Show the
               artifact big" means give it room and weight, not magnification. */}
-          <a class="feature__shot" href={`/apps/${feature.data.slug}/`} tabindex="-1" aria-hidden="true">
+          <a class="feature__shot reveal--wipe" href={`/apps/${feature.data.slug}/`} tabindex="-1" aria-hidden="true">
             <Preview name={feature.data.name} icon={feature.data.icon} card={feature.data.card} />
           </a>
         </div>
@@ -151,8 +136,8 @@ const stance = [
     )}
 
     {grouped.map(([label, items]) => (
-      <section class="group spread">
-        <p class="spread__meta">{label} — {items.length}</p>
+      <section class="group">
+        <p class="label reveal">{label} — {items.length}</p>
         <div class="grid" data-count={Math.min(items.length, 3)}>
           {items.map((app) => <AppCard app={app} />)}
         </div>
@@ -160,15 +145,20 @@ const stance = [
     ))}
   </section>
 
-  {/* A dark band to break a long light page — the one inversion left on the site, now
-      that the hero has given it up. The keys are set in the display serif rather than
-      in extra-bold sans, and the lead above them is mono instead of accent-coloured. */}
+  {/* This was a dark band breaking up a long light page — the one inversion left on the
+      site. There is nothing to invert any more, so it does the same job the other way
+      round: it is the lightest surface on the page rather than the darkest, lifted off
+      the ground by a rule and a thin line of the accent along its top edge.
+
+      The three things it says are each a checkable property of the site, which is why
+      they can sit this large without embarrassing anybody. Do not add a fourth that is
+      a claim rather than a fact. */}
   <section class="band">
-    <div class="band__inner wrap spread">
-      <p class="spread__meta band__lead">True of everything here</p>
+    <div class="band__inner wrap">
+      <p class="label band__lead">True of everything here</p>
       <ul class="band__list">
         {stance.map((s) => (
-          <li>
+          <li class="reveal">
             <p class="band__k">{s.k}</p>
             <p class="band__v">{s.v}</p>
           </li>
@@ -198,13 +188,12 @@ const stance = [
 
   /* ---------- the featured work ---------- */
   .feature { margin-top: clamp(30px, 4vw, 52px); }
-  .feature__meta { padding-top: 0.9em; }
 
   .feature__name {
     margin: 0;
     font-family: var(--font-display);
-    font-size: clamp(32px, 4.6vw, 52px);
-    font-weight: 400; letter-spacing: -0.012em; line-height: 1.02;
+    font-size: clamp(29px, 4.1vw, 46px);
+    font-weight: 400; letter-spacing: var(--track-display); line-height: 1.0;
     display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
   }
   .feature__name a { color: inherit; text-decoration: none; }
@@ -242,6 +231,10 @@ const stance = [
   @media (min-width: 1040px) {
     .feature__body { grid-template-columns: minmax(0, 1fr) 340px; column-gap: 56px; }
   }
+  /* The screenshot is mounted, not floated: same surface, border and radius as a card,
+     so it reads as one object in a filed set rather than as a picture lying near some
+     text. The screenshot itself is light, which on this ground makes it the brightest
+     thing in the section — which is correct, because it is the actual work. */
   .feature__shot {
     display: block;
     padding: 9px;
@@ -249,43 +242,75 @@ const stance = [
     background: var(--surface);
     border: 1px solid var(--hairline);
     border-radius: var(--r-lg);
+    transition: border-color 150ms var(--ease);
   }
+  .feature__shot:hover { border-color: var(--rule); }
 
   /* ---------- the grid, for everything after the first ---------- */
   .group { margin-top: clamp(44px, 6vw, 72px); }
+  /* Columns are capped, not divided. When the metadata rail was removed the grid
+     inherited the 196px it used to occupy, and two columns of the full 1092px measure
+     made each card 532px wide — which put a 504px preview inside it. `card.png` is a
+     390px phone screen captured at 780px, so anything past ~390 CSS px is magnifying a
+     picture of a phone until it reads as a zoom rather than a screenshot. That is the
+     trap DESIGN.md § The app card describes, and widening the page walked straight into
+     it without anything looking obviously wrong.
+
+     `minmax(280px, 400px)` with `justify-content: start` fills as many capped columns as
+     fit and leaves the remainder as space rather than stretching the cards into it. At
+     1280px that is three 364px columns, so the preview lands at 336px — comfortably
+     under what it was captured at. Re-check this if --gap or .wrap ever changes. */
   .grid {
     display: grid;
     gap: var(--gap);
-    grid-template-columns: 1fr;
-  }
-  @media (min-width: 620px) and (max-width: 860px) {
-    .grid { grid-template-columns: repeat(2, 1fr); }
-  }
-  @media (min-width: 1000px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+    /* One rule at every width, no breakpoints. The 418px ceiling is what holds the
+       preview at or under the 390px it was captured at once the card's 14px of padding
+       either side is taken off; the 260px floor is the narrowest a card can be before
+       its tagline starts wrapping every two words.
 
-  /* ---------- the dark band ---------- */
+       The single-column case needs the ceiling just as much as the multi-column one:
+       with a plain `1fr` at a 500px viewport the one card took the full 452px and put a
+       422px preview inside it, which is the same magnification bug as before wearing a
+       phone-sized disguise. Measured at 390/500/700/1024/1280/1440. */
+    grid-template-columns: repeat(auto-fill, minmax(260px, 418px));
+    justify-content: start;
+  }
+
+  /* ---------- the band ---------- */
   .band {
+    position: relative;
     margin-block: clamp(72px, 10vw, 120px) 0;
     background: var(--panel);
-    color: #fff;
+    border-block: 1px solid var(--hairline);
     padding-block: clamp(52px, 7vw, 84px);
   }
-  .band__lead { color: rgba(255, 255, 255, 0.5); }
+  /* A single hairline of the accent across the top. It is the only place on the site
+     where the accent appears on something you cannot click, and it earns that by being
+     one pixel tall and by fading out at both ends rather than stopping dead. */
+  .band::before {
+    content: '';
+    position: absolute;
+    inset: -1px 0 auto;
+    height: 1px;
+    background: linear-gradient(to right, transparent 4%, var(--accent) 50%, transparent 96%);
+    opacity: .85;
+  }
+  .band__lead { color: var(--ink-soft); }
   .band__list {
     list-style: none; margin: 0; padding: 0;
     display: grid; gap: clamp(26px, 3vw, 40px);
   }
   @media (min-width: 760px) { .band__list { grid-template-columns: repeat(3, 1fr); } }
-  .band__list li { border-top: 1px solid rgba(255, 255, 255, 0.18); padding-top: 20px; }
+  .band__list li { border-top: 1px solid var(--rule); padding-top: 20px; }
   .band__k {
     margin: 0;
     font-family: var(--font-display);
-    font-size: clamp(23px, 2.6vw, 30px);
-    font-weight: 400; letter-spacing: -0.005em;
+    font-size: clamp(21px, 2.3vw, 27px);
+    font-weight: 400; letter-spacing: var(--track-tight);
   }
   .band__v {
     margin: 10px 0 0;
     font-size: 15px; line-height: 1.6;
-    color: rgba(255, 255, 255, 0.66);
+    color: var(--ink-soft);
   }
 </style>
