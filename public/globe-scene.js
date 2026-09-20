@@ -1090,23 +1090,8 @@
   style.textContent =
     '.curio .neb,.curio .sky,.curio .sky-fx{display:none!important}' +
     'main{position:relative}' +
-    '.curio-sky{position:absolute;z-index:-1;display:block;pointer-events:none}' +
-    /* The light the cursor carries. Fixed, so it follows across the whole page rather
-       than only over the canvas; screen-blended so it lifts what is under it instead of
-       washing it out; and pointer-events: none like every other decorative layer here.
-       It is painted from two custom properties and nothing else, which is the same
-       contract motion.js works to. */
-    '.cursor-glow{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:0;' +
-      'transition:opacity .45s ease;mix-blend-mode:screen;' +
-      'background:radial-gradient(500px 500px at var(--mx,50%) var(--my,50%),' +
-      'rgba(8,223,156,.22) 0%,rgba(111,243,200,.11) 32%,rgba(8,223,156,.04) 55%,transparent 72%)}' +
-    '.cursor-glow.is-lit{opacity:1}';
+    '.curio-sky{position:absolute;z-index:-1;display:block;pointer-events:none}';
   document.head.appendChild(style);
-
-  var glow = document.createElement('div');
-  glow.className = 'cursor-glow';
-  glow.setAttribute('aria-hidden', 'true');
-  document.body.appendChild(glow);
 
   var main = document.querySelector('main') || curio.parentElement;
   var device = document.querySelector('.hero__device');
@@ -1197,26 +1182,6 @@
     document.fonts.ready.then(function () { layout(); place(); });
   }
   window.addEventListener('load', function () { layout(); place(); }, { once: true });
-
-  /* Drive the cursor light. One rAF for the two writes, for the same reason motion.js
-     coalesces its own: pointermove fires far faster than the compositor draws, and each
-     custom-property write invalidates style for the subtree it lands on. */
-  if (!reduced) {
-    var gx = 0, gy = 0, gq = false, lit = false;
-    var paint = function () {
-      gq = false;
-      glow.style.setProperty('--mx', gx.toFixed(1) + 'px');
-      glow.style.setProperty('--my', gy.toFixed(1) + 'px');
-    };
-    window.addEventListener('pointermove', function (e) {
-      gx = e.clientX; gy = e.clientY;
-      if (!lit) { lit = true; glow.classList.add('is-lit'); }
-      if (!gq) { gq = true; requestAnimationFrame(paint); }
-    }, { passive: true });
-    document.addEventListener('pointerleave', function () {
-      lit = false; glow.classList.remove('is-lit');
-    }, { passive: true });
-  }
 
   window.__doubleemSky = hero;
 })();

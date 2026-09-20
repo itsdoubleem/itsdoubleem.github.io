@@ -54,28 +54,25 @@ if (fine.matches && !still.matches) {
      which is what lets the media query at 900px flatten the tilt to zero without this
      file knowing anything about breakpoints.
 
-     ── This used to track the whole hero, and the reason it stopped ──
-     The pointer was measured against a *region* — [data-tilt-area] — so the phone
-     answered the cursor crossing anywhere in the hero, on the argument that a tilt you
-     have to hover to trigger reads as a hover state while one that answers the section
-     reads as parallax.
+     The pointer is tracked against a *region* — [data-tilt-area] — rather than against
+     the device itself, so the phone responds to the cursor crossing the hero instead of
+     only to the cursor being on top of it. A tilt you have to be hovering to trigger
+     reads as a hover state; one that answers the whole section reads as parallax.
 
-     That argument held while the phone was the only thing in the hero that moved. It
-     stopped holding on 2026-09-21, when the globe arrived: the globe now answers the
-     whole page, so a device answering the whole hero as well meant two objects swinging
-     off one cursor, out of step with each other, for the length of the section. The
-     parallax reading belongs to the background now. The device gets the other job — it
-     responds when you are actually on it, and sits still when you are not.
-
-     So the pointer is measured against the device itself. [data-tilt-area] is still the
-     element the loop walks, because that is the markup contract and the hero may hold
-     more than one tiltable thing later; it is simply no longer the thing measured. */
+     ── It was scoped to the device for part of 2026-09-21, and put back ──
+     When the globe arrived the worry was that two objects answering one cursor would
+     read as out of step, so this briefly measured the device itself and the phone sat
+     still unless you were on it. Watched side by side, the opposite is true: the globe
+     and the device leaning the same way at the same time is the effect, and a phone that
+     ignores the cursor next to a sky that follows it reads as broken rather than calm.
+     Both move together. If that ever needs undoing again, the change is this one line —
+     measure against `target` instead of `area`. */
   for (const area of document.querySelectorAll('[data-tilt-area]')) {
     const target = area.querySelector('[data-tilt]');
     if (!target) continue;
 
-    target.addEventListener('pointermove', (e) => {
-      const r = target.getBoundingClientRect();
+    area.addEventListener('pointermove', (e) => {
+      const r = area.getBoundingClientRect();
       set(target, {
         '--tx': ((e.clientX - r.left) / r.width  * 2 - 1).toFixed(3),
         '--ty': ((e.clientY - r.top)  / r.height * 2 - 1).toFixed(3),
@@ -84,7 +81,7 @@ if (fine.matches && !still.matches) {
 
     // Return to rest rather than freezing mid-tilt. The CSS transition on --tx/--ty is
     // what makes this a glide and not a snap.
-    target.addEventListener('pointerleave', () => set(target, { '--tx': '0', '--ty': '0' }), { passive: true });
+    area.addEventListener('pointerleave', () => set(target, { '--tx': '0', '--ty': '0' }), { passive: true });
   }
 
   /* ── The edge highlight ──
