@@ -101,7 +101,6 @@
     '}'
   ].join('\n');
 
-  /* Rim crescent + outer haze (BackSide, additive, no depth test) */
   /* City-light dot matrix */
   var DOT_VERT = [
     'attribute float aSize;','attribute float aHot;','attribute float aPhase;','attribute float aLat;',
@@ -196,89 +195,6 @@
     '  col = mix(col, uIce, vProx * 0.85);',
     '  float a = disc * vAlpha * uOpacity * (0.34 + vProx * 0.9) * mix(1.0, 0.5, vSoft);',
     '  gl_FragColor = vec4(col, a);',
-    '}'
-  ].join('\n');
-
-  /* ---------------- Meteors: tapered billboard ribbons ---------------- */
-  var METEOR_VERT = [
-    'attribute vec3 aOrigin;','attribute vec3 aDir;','attribute float aLen;','attribute float aWidth;',
-    'attribute float aSpeed;','attribute float aSeed;','attribute float aSpan;','attribute float aDuty;',
-    'uniform float uTime;','uniform float uWidth;',
-    'varying vec2 vUv;','varying float vFade;','varying float vSeed;','varying float vNdcX;','varying float vDepth;',
-    'void main(){',
-    '  vUv = uv;',
-    '  vSeed = aSeed;',
-    '  float cycle = fract(aSeed + uTime * aSpeed);',
-    '  float live = step(cycle, aDuty);',
-    '  float trip = cycle / max(aDuty, 0.0001);',
-    '  vec3 dir = normalize(aDir);',
-    '  vec3 head = aOrigin + dir * (trip * aSpan);',
-    '  vec3 p = head - dir * (uv.y * aLen);',           // uv.y: 0 at head, 1 at tail
-    '  vec4 mv = modelViewMatrix * vec4(p, 1.0);',
-    '  vec3 dv = normalize((modelViewMatrix * vec4(dir, 0.0)).xyz);',
-    '  vec3 side = cross(dv, vec3(0.0, 0.0, 1.0));',
-    '  float sl = length(side);',
-    '  side = sl > 0.0001 ? side / sl : vec3(1.0, 0.0, 0.0);',
-    '  float taper = 1.0 - uv.y * 0.74;',               // tail narrows to a point
-    '  mv.xyz += side * (uv.x - 0.5) * 2.0 * aWidth * uWidth * taper;',
-    '  vFade = live * pow(sin(clamp(trip, 0.0, 1.0) * 3.14159), 1.35);',
-    '  vDepth = -mv.z;',
-    '  vec4 clip = projectionMatrix * mv;',
-    '  vNdcX = clip.x / max(abs(clip.w), 0.001);',
-    '  gl_Position = clip;',
-    '}'
-  ].join('\n');
-
-  var METEOR_FRAG = [
-    'uniform vec3 uHead;','uniform vec3 uTrail;','uniform float uOpacity;','uniform float uCopyGuard;',
-    'varying vec2 vUv;','varying float vFade;','varying float vSeed;','varying float vNdcX;','varying float vDepth;',
-    'void main(){',
-    '  float across = 1.0 - abs(vUv.x * 2.0 - 1.0);',
-    '  float body = pow(clamp(across, 0.0, 1.0), 1.5);',
-    '  float core = pow(clamp(across, 0.0, 1.0), 7.0);',
-    '  float along = pow(1.0 - vUv.y, 2.0);',           // brightest at the head
-    '  if (body * along <= 0.001) discard;',
-    '  vec3 col = mix(uTrail, uHead, pow(1.0 - vUv.y, 3.0) * 0.85 + core * 0.4);',
-    '  float guard = mix(1.0, mix(0.12, 1.0, smoothstep(-0.60, 0.04, vNdcX)), uCopyGuard);',
-    '  float a = uOpacity * body * along * vFade * guard * smoothstep(0.7, 2.4, vDepth);',
-    '  gl_FragColor = vec4(col * (0.6 + core * 1.5), a);',
-    '}'
-  ].join('\n');
-
-  var METEOR_HEAD_VERT = [
-    'attribute vec3 aOrigin;','attribute vec3 aDir;','attribute float aSize;',
-    'attribute float aSpeed;','attribute float aSeed;','attribute float aSpan;','attribute float aDuty;',
-    'uniform float uTime;','uniform float uH;','uniform float uDpr;',
-    'varying float vFade;','varying float vSeed;','varying float vNdcX;',
-    'void main(){',
-    '  float cycle = fract(aSeed + uTime * aSpeed);',
-    '  float live = step(cycle, aDuty);',
-    '  float trip = cycle / max(aDuty, 0.0001);',
-    '  vec3 p = aOrigin + normalize(aDir) * (trip * aSpan);',
-    '  vec4 mv = modelViewMatrix * vec4(p, 1.0);',
-    '  float depth = -mv.z;',
-    '  vFade = live * pow(sin(clamp(trip, 0.0, 1.0) * 3.14159), 1.35) * smoothstep(0.7, 2.4, depth);',
-    '  vSeed = aSeed;',
-    '  gl_PointSize = clamp(aSize * uH / max(depth, 0.001) * uDpr, 2.0 * uDpr, 64.0 * uDpr);',
-    '  vec4 clip = projectionMatrix * mv;',
-    '  vNdcX = clip.x / max(abs(clip.w), 0.001);',
-    '  gl_Position = clip;',
-    '}'
-  ].join('\n');
-
-  var METEOR_HEAD_FRAG = [
-    'uniform vec3 uHead;','uniform vec3 uHalo;','uniform float uOpacity;','uniform float uCopyGuard;',
-    'varying float vFade;','varying float vSeed;','varying float vNdcX;',
-    'void main(){',
-    '  vec2 uv = (gl_PointCoord - 0.5) * 2.0;',
-    '  float d = length(uv);',
-    '  if (d > 1.0) discard;',
-    '  float glow = pow(1.0 - d, 3.0);',
-    '  float core = pow(1.0 - d, 14.0);',
-    '  vec3 col = mix(uHalo, uHead, clamp(core * 1.5, 0.0, 1.0));',
-    '  float guard = mix(1.0, mix(0.12, 1.0, smoothstep(-0.60, 0.04, vNdcX)), uCopyGuard);',
-    '  float a = (glow * 0.7 + core) * vFade * uOpacity * guard * (0.65 + 0.35 * vSeed);',
-    '  gl_FragColor = vec4(col * (0.8 + core * 2.0), a);',
     '}'
   ].join('\n');
 
@@ -670,108 +586,6 @@
                 halo: 0.10, opacity: 0.62,
                 dim: col.violet.clone().lerp(col.cyan, 0.35).multiplyScalar(0.35), hot: col.ice });
 
-    /* --- 7. Meteors ------------------------------------------------------ */
-    var NMET = o.meteors === undefined ? 10 : o.meteors;
-    var mQuad = [], mUv = [], mOrigin = [], mDir = [], mLen = [], mWid = [], mSpeed = [], mSeed = [], mSpan = [], mDuty = [], mIdx = [];
-    var hOrigin = [], hDir = [], hSize = [], hSpeed = [], hSeed = [], hSpan = [], hDuty = [], hPos = [];
-    for (var mi = 0; mi < NMET; mi++) {
-      // Entry in the upper atmosphere: a meteor only glows where there is air to ablate in.
-      var nu = Math.random() * 2 - 1;
-      var np = Math.random() * Math.PI * 2;
-      var nr = Math.sqrt(Math.max(0, 1 - nu * nu));
-      var nrm = new THREE.Vector3(Math.cos(np) * nr, nu, Math.sin(np) * nr);
-      var origin = nrm.clone().multiplyScalar(R * 1.055);
-
-      // Shallow entry: mostly tangential, biased inward so the track descends.
-      var tmpv = Math.abs(nrm.y) > 0.9 ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0);
-      var tan1 = new THREE.Vector3().crossVectors(nrm, tmpv).normalize();
-      var tan2 = new THREE.Vector3().crossVectors(nrm, tan1).normalize();
-      var roll = Math.random() * Math.PI * 2;
-      var dv = tan1.multiplyScalar(Math.cos(roll)).add(tan2.multiplyScalar(Math.sin(roll)))
-                   .multiplyScalar(0.90).add(nrm.clone().multiplyScalar(-0.44)).normalize();
-
-      var span  = R * (0.30 + Math.random() * 0.32);   // burns out inside the shell
-      var len   = R * (0.10 + Math.pow(Math.random(), 1.3) * 0.18);
-      var wid   = R * (0.0055 + Math.random() * 0.0065);
-      var speed = (0.085 + Math.random() * 0.075) * MO * (reduced ? 0.25 : 1);
-      var duty  = 0.16 + Math.random() * 0.12;         // dark most of the time
-      var seed  = Math.random();
-      var base  = mi * 4;
-      var uvs = [[0, 0], [1, 0], [0, 1], [1, 1]];
-      for (var v4 = 0; v4 < 4; v4++) {
-        mQuad.push(origin.x, origin.y, origin.z);
-        mUv.push(uvs[v4][0], uvs[v4][1]);
-        mOrigin.push(origin.x, origin.y, origin.z);
-        mDir.push(dv.x, dv.y, dv.z);
-        mLen.push(len); mWid.push(wid); mSpeed.push(speed); mSeed.push(seed);
-        mSpan.push(span); mDuty.push(duty);
-      }
-      mIdx.push(base, base + 1, base + 2, base + 2, base + 1, base + 3);
-      hPos.push(origin.x, origin.y, origin.z);
-      hOrigin.push(origin.x, origin.y, origin.z);
-      hDir.push(dv.x, dv.y, dv.z);
-      hSize.push(wid * (3.0 + Math.random() * 2.2));
-      hSpeed.push(speed); hSeed.push(seed); hSpan.push(span); hDuty.push(duty);
-    }
-
-    var metGeo = keep(new THREE.BufferGeometry());
-    metGeo.setAttribute('position', new THREE.Float32BufferAttribute(mQuad, 3));
-    metGeo.setAttribute('uv',       new THREE.Float32BufferAttribute(mUv, 2));
-    metGeo.setAttribute('aOrigin',  new THREE.Float32BufferAttribute(mOrigin, 3));
-    metGeo.setAttribute('aDir',     new THREE.Float32BufferAttribute(mDir, 3));
-    metGeo.setAttribute('aLen',     new THREE.Float32BufferAttribute(mLen, 1));
-    metGeo.setAttribute('aWidth',   new THREE.Float32BufferAttribute(mWid, 1));
-    metGeo.setAttribute('aSpeed',   new THREE.Float32BufferAttribute(mSpeed, 1));
-    metGeo.setAttribute('aSeed',    new THREE.Float32BufferAttribute(mSeed, 1));
-    metGeo.setAttribute('aSpan',    new THREE.Float32BufferAttribute(mSpan, 1));
-    metGeo.setAttribute('aDuty',    new THREE.Float32BufferAttribute(mDuty, 1));
-    metGeo.setIndex(mIdx);
-
-    var meteorMats = [];
-    function meteorLayer(width, opacity, head, trail, order) {
-      var mtl = keep(new THREE.ShaderMaterial({
-        vertexShader: METEOR_VERT, fragmentShader: METEOR_FRAG,
-        uniforms: {
-          uTime: { value: 0 }, uWidth: { value: width },
-          uHead: { value: head }, uTrail: { value: trail }, uOpacity: { value: opacity },
-          uCopyGuard: { value: 1 }
-        },
-        transparent: true, depthWrite: false, depthTest: true, side: THREE.DoubleSide,
-        blending: THREE.AdditiveBlending
-      }));
-      meteorMats.push(mtl);
-      var mesh = new THREE.Mesh(metGeo, mtl);
-      mesh.frustumCulled = false;
-      mesh.renderOrder = order;
-      world.add(mesh);
-      return mtl;
-    }
-    meteorLayer(3.4, 0.18, col.cyan.clone().lerp(col.ice, 0.5), col.violet, 6);
-    meteorLayer(1.4, 0.85, new THREE.Color(0xF4FBFF), col.violet.clone().lerp(col.cyan, 0.30), 7);
-
-    var headGeo = keep(new THREE.BufferGeometry());
-    headGeo.setAttribute('position', new THREE.Float32BufferAttribute(hPos, 3));
-    headGeo.setAttribute('aOrigin',  new THREE.Float32BufferAttribute(hOrigin, 3));
-    headGeo.setAttribute('aDir',     new THREE.Float32BufferAttribute(hDir, 3));
-    headGeo.setAttribute('aSize',    new THREE.Float32BufferAttribute(hSize, 1));
-    headGeo.setAttribute('aSpeed',   new THREE.Float32BufferAttribute(hSpeed, 1));
-    headGeo.setAttribute('aSeed',    new THREE.Float32BufferAttribute(hSeed, 1));
-    headGeo.setAttribute('aSpan',    new THREE.Float32BufferAttribute(hSpan, 1));
-    headGeo.setAttribute('aDuty',    new THREE.Float32BufferAttribute(hDuty, 1));
-    var headMat = keep(new THREE.ShaderMaterial({
-      vertexShader: METEOR_HEAD_VERT, fragmentShader: METEOR_HEAD_FRAG,
-      uniforms: {
-        uTime: { value: 0 }, uH: { value: 800 }, uDpr: { value: 1 },
-        uHead: { value: new THREE.Color(0xFFFFFF) }, uHalo: { value: col.cyan.clone().lerp(col.ice, 0.4) },
-        uOpacity: { value: 0.80 }, uCopyGuard: { value: 1 }
-      },
-      transparent: true, depthWrite: false, depthTest: true, blending: THREE.AdditiveBlending
-    }));
-    var meteorHeads = new THREE.Points(headGeo, headMat);
-    meteorHeads.frustumCulled = false;
-    meteorHeads.renderOrder = 8;
-    world.add(meteorHeads);
-
     /* --- 9. Ambient dust ------------------------------------------------ */
     var uPos = [], uSize = [], uPhase = [], uSeed = [];
     for (var p = 0; p < NDUST; p++) {
@@ -839,7 +653,7 @@
     /* ------------------------------- Resize ------------------------------- */
     var dpr = 1, aspect = 1, halfW = 1, halfH = 1;
     var blurHalf = new THREE.Vector2(0.002, 0.002), blurQuarter = new THREE.Vector2(0.004, 0.004);
-    var sizedMats = [dotMat, nodeMat, dustMat, headMat].concat(ringMats);
+    var sizedMats = [dotMat, nodeMat, dustMat].concat(ringMats);
 
     function resize() {
       var w = canvas.clientWidth || (canvas.parentElement && canvas.parentElement.clientWidth) || 1;
@@ -884,8 +698,6 @@
         blurQuarter.set(1 / qw, 1 / qh);
       }
       dotMat.uniforms.uScale.value = (narrow && !FIXED_FILL) ? 0.9 : 1.0;
-      for (var cg = 0; cg < meteorMats.length; cg++) meteorMats[cg].uniforms.uCopyGuard.value = narrow ? 0 : 1;
-      headMat.uniforms.uCopyGuard.value = narrow ? 0 : 1;
     }
     resize();
 
@@ -905,7 +717,7 @@
     document.addEventListener('visibilitychange', onVisibility);
     function kick() { if (alive && !raf) { prev = performance.now(); raf = requestAnimationFrame(frame); } }
 
-    var timed = [dotMat, nodeMat, dustMat, headMat].concat(gridMats, arcMats, meteorMats);
+    var timed = [dotMat, nodeMat, dustMat].concat(gridMats, arcMats);
 
     function frame(now) {
       raf = 0;
@@ -1010,7 +822,7 @@
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* Wide screens only — /globe.js decides that and never loads this file otherwise. */
-  var TUNE = { globeFrac: 0.78, headFrac: 0.55, particles: 520, meteors: 14,
+  var TUNE = { globeFrac: 0.78, headFrac: 0.55, particles: 520,
                bloom: 0.5, dpr: 2, motion: 0.65 };
 
   var style = document.createElement('style');
@@ -1092,7 +904,7 @@
     fill: geo.fill, tilt: 23.5, fieldScale: geo.spread,
     motion: reduced ? 0.25 : TUNE.motion,
     bloom: TUNE.bloom, exposure: 1.04,
-    meteors: TUNE.meteors, particles: TUNE.particles,
+    particles: TUNE.particles,
     dprCap: TUNE.dpr, manualPlacement: true
   });
   place();
