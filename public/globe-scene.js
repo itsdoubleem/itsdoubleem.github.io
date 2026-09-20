@@ -203,7 +203,7 @@
   var METEOR_VERT = [
     'attribute vec3 aOrigin;','attribute vec3 aDir;','attribute float aLen;','attribute float aWidth;',
     'attribute float aSpeed;','attribute float aSeed;','attribute float aSpan;','attribute float aDuty;',
-    'uniform float uTime;','uniform float uWidth;','uniform vec3 uTailDir;','uniform float uUseTailDir;',
+    'uniform float uTime;','uniform float uWidth;',
     'varying vec2 vUv;','varying float vFade;','varying float vSeed;','varying float vNdcX;','varying float vDepth;',
     'void main(){',
     '  vUv = uv;',
@@ -213,12 +213,9 @@
     '  float trip = cycle / max(aDuty, 0.0001);',
     '  vec3 dir = normalize(aDir);',
     '  vec3 head = aOrigin + dir * (trip * aSpan);',
-    // A meteor's trail follows its own path. A comet's does not: the tail is blown off
-    // it by the solar wind and points away from the light wherever the comet is going.
-    '  vec3 tdir = uUseTailDir > 0.5 ? normalize(uTailDir) : dir;',
-    '  vec3 p = head - tdir * (uv.y * aLen);',           // uv.y: 0 at head, 1 at tail
+    '  vec3 p = head - dir * (uv.y * aLen);',           // uv.y: 0 at head, 1 at tail
     '  vec4 mv = modelViewMatrix * vec4(p, 1.0);',
-    '  vec3 dv = normalize((modelViewMatrix * vec4(tdir, 0.0)).xyz);',
+    '  vec3 dv = normalize((modelViewMatrix * vec4(dir, 0.0)).xyz);',
     '  vec3 side = cross(dv, vec3(0.0, 0.0, 1.0));',
     '  float sl = length(side);',
     '  side = sl > 0.0001 ? side / sl : vec3(1.0, 0.0, 0.0);',
@@ -737,8 +734,7 @@
         uniforms: {
           uTime: { value: 0 }, uWidth: { value: width },
           uHead: { value: head }, uTrail: { value: trail }, uOpacity: { value: opacity },
-          uCopyGuard: { value: 1 },
-          uTailDir: { value: new THREE.Vector3(0, 1, 0) }, uUseTailDir: { value: 0 }
+          uCopyGuard: { value: 1 }
         },
         transparent: true, depthWrite: false, depthTest: true, side: THREE.DoubleSide,
         blending: THREE.AdditiveBlending
@@ -752,78 +748,6 @@
     }
     meteorLayer(3.4, 0.18, col.cyan.clone().lerp(col.ice, 0.5), col.violet, 6);
     meteorLayer(1.4, 0.85, new THREE.Color(0xF4FBFF), col.violet.clone().lerp(col.cyan, 0.30), 7);
-
-    /* --- 7c. Comets ------------------------------------------------------
-       A meteor is only luminous while it ablates in air, which is why those stay pinned
-       to 1.055R. A comet is not: its coma and tail are driven by sunlight and solar
-       wind, so it can be anywhere in the field — which is what lets these reach the top
-       of the page without the scene telling a lie. The tail is therefore NOT drawn
-       behind its motion; it points away from the light, via uTailDir. */
-    var NCOMET = o.comets === undefined ? 5 : o.comets;
-    var kq = [], kuv = [], korig = [], kdir = [], klen = [], kwid = [], kspd = [], kseed = [], kspan = [], kduty = [], kidx = [];
-    for (var ci = 0; ci < NCOMET; ci++) {
-      var cu = Math.random() * 2 - 1;
-      var cp = Math.random() * Math.PI * 2;
-      var cr = Math.sqrt(Math.max(0, 1 - cu * cu));
-      var cd = new THREE.Vector3(Math.cos(cp) * cr, cu * 0.5, Math.sin(cp) * cr).normalize();
-      var far = R * (2.4 + Math.random() * 3.2) * SPREAD;
-      var off = new THREE.Vector3(
-        (Math.random() - 0.5) * far * 1.6,
-        (Math.random() * 0.75 + 0.15) * far,      // biased high: the upper field is the point
-        (Math.random() - 0.5) * far * 0.8);
-      var cspan = R * (2.5 + Math.random() * 3.0) * SPREAD;
-      var corg = off.sub(cd.clone().multiplyScalar(cspan * 0.5));
-      var clen = R * (0.9 + Math.random() * 1.6) * SPREAD;
-      var cwid = R * (0.010 + Math.random() * 0.012);
-      var cspd = (0.004 + Math.random() * 0.006) * MO * (reduced ? 0.3 : 1);
-      var csd  = Math.random();
-      var cbase = ci * 4;
-      var cuv = [[0, 0], [1, 0], [0, 1], [1, 1]];
-      for (var cv = 0; cv < 4; cv++) {
-        kq.push(corg.x, corg.y, corg.z);
-        kuv.push(cuv[cv][0], cuv[cv][1]);
-        korig.push(corg.x, corg.y, corg.z);
-        kdir.push(cd.x, cd.y, cd.z);
-        klen.push(clen); kwid.push(cwid); kspd.push(cspd); kseed.push(csd);
-        kspan.push(cspan); kduty.push(1);          // always out, unlike a meteor
-      }
-      kidx.push(cbase, cbase + 1, cbase + 2, cbase + 2, cbase + 1, cbase + 3);
-    }
-    var cometGeo = keep(new THREE.BufferGeometry());
-    cometGeo.setAttribute('position', new THREE.Float32BufferAttribute(kq, 3));
-    cometGeo.setAttribute('uv',       new THREE.Float32BufferAttribute(kuv, 2));
-    cometGeo.setAttribute('aOrigin',  new THREE.Float32BufferAttribute(korig, 3));
-    cometGeo.setAttribute('aDir',     new THREE.Float32BufferAttribute(kdir, 3));
-    cometGeo.setAttribute('aLen',     new THREE.Float32BufferAttribute(klen, 1));
-    cometGeo.setAttribute('aWidth',   new THREE.Float32BufferAttribute(kwid, 1));
-    cometGeo.setAttribute('aSpeed',   new THREE.Float32BufferAttribute(kspd, 1));
-    cometGeo.setAttribute('aSeed',    new THREE.Float32BufferAttribute(kseed, 1));
-    cometGeo.setAttribute('aSpan',    new THREE.Float32BufferAttribute(kspan, 1));
-    cometGeo.setAttribute('aDuty',    new THREE.Float32BufferAttribute(kduty, 1));
-    cometGeo.setIndex(kidx);
-
-    // Anti-sunward, in world space: the key light points one way, the tail the other.
-    var TAIL = new THREE.Vector3(0.52, -0.46, -0.72).normalize();
-    function cometLayer(width, opacity, headCol, trailCol, order) {
-      var mtl = keep(new THREE.ShaderMaterial({
-        vertexShader: METEOR_VERT, fragmentShader: METEOR_FRAG,
-        uniforms: {
-          uTime: { value: 0 }, uWidth: { value: width },
-          uHead: { value: headCol }, uTrail: { value: trailCol }, uOpacity: { value: opacity },
-          uCopyGuard: { value: 1 },
-          uTailDir: { value: TAIL }, uUseTailDir: { value: 1 }
-        },
-        transparent: true, depthWrite: false, depthTest: true, side: THREE.DoubleSide,
-        blending: THREE.AdditiveBlending
-      }));
-      meteorMats.push(mtl);
-      var mesh = new THREE.Mesh(cometGeo, mtl);
-      mesh.frustumCulled = false;
-      mesh.renderOrder = order;
-      world.add(mesh);
-    }
-    cometLayer(4.2, 0.085, col.cyan.clone().lerp(col.ice, 0.4), col.violet, 4);
-    cometLayer(1.2, 0.30,  new THREE.Color(0xEAFBF4), col.violet.clone().lerp(col.cyan, 0.35), 5);
 
     var headGeo = keep(new THREE.BufferGeometry());
     headGeo.setAttribute('position', new THREE.Float32BufferAttribute(hPos, 3));
