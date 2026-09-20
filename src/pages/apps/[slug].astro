@@ -264,13 +264,23 @@ const heroScreen = d.card
         </section>
       )}
 
+      {/* The words come from the app, not from here. This aside used to carry LOGGER's —
+          "this does not match my payslip", "a wage figure that is quietly wrong" — on
+          every app page, so HANGIL, which has no payslip and computes no wages, asked
+          its readers to report a mismatched payslip. Copy that is only true of one app
+          is that app's copy; see `wrong` in content.config.ts.
+
+          The fallback says nothing an app could contradict.
+
+          Note the comment sits OUTSIDE the `&& (` below: the body of a JSX conditional
+          holds exactly one element, and a comment in there is a second expression. That
+          is a compile error, not a warning. */}
       {(contact.formUrl || contact.issuesUrl) && (
         <aside class="wrong reveal">
-          <h2>If a number here looks wrong</h2>
+          <h2>{d.wrong?.heading ?? 'If something here is wrong'}</h2>
           <p>
-            Tell me. You do not need to be sure it is a bug — "this does not match my
-            payslip" is enough. A wage figure that is quietly wrong is worse than no
-            figure, so this is the most useful thing you can send me.
+            {d.wrong?.body ??
+              'Tell me. You do not need to be sure it is a bug — noticing that something does not match what you expected is enough, and it is the most useful thing you can send me.'}
           </p>
           <p class="wrong__links">
             {contact.formUrl && <a href={contact.formUrl}>Report a problem</a>}

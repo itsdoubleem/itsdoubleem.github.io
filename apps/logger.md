@@ -41,6 +41,9 @@ verify:
     how: It loads one script — /motion.js, from this domain — which tilts the phone on the front page and does nothing else. No third-party scripts, no cookies, no analytics. Open your browser's network panel and count the requests, then read the file — it is short, and it is the whole of what runs here.
   - claim: The APK you download is the file I built.
     how: Hash it before you install it — shasum -a 256 logger.apk on macOS or Linux, certutil -hashfile logger.apk SHA256 on Windows. It must print c180c7398240e4a1b0f1ef572418238253d373ce8d967ab314f3a32f37698dc7. One character out and it is not my build, so delete it. The same hash is on the repo's front page on GitHub, and that is the copy worth trusting — anyone able to swap the file on this site could swap the hash beside it just as easily.
+wrong:
+  heading: If a number here looks wrong
+  body: Tell me. You do not need to be sure it is a bug — "this does not match my payslip" is enough. A wage figure that is quietly wrong is worse than no figure, so this is the most useful thing you can send me.
 order: 1
 sourceUrl: ""
 downloads:

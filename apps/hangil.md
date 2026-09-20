@@ -48,6 +48,9 @@ verify:
     how: Hash it before you install it — shasum -a 256 hangil.apk on macOS or Linux, certutil -hashfile hangil.apk SHA256 on Windows. It must print ce5c778114ce1c92cf19fab02e11494dc841921b76ca758f000f5ca0a1d31f6e. One character out and it is not my build, so delete it.
   - claim: The Korean audio is your own phone speaking, not a download.
     how: Turn airplane mode on and press any play button. It still speaks, because the app hands the sentence to the phone's own text-to-speech engine. That is why there is no audio to wait for — and why, if your phone has no Korean voice installed, the app says so on the first screen instead of playing you something wrong.
+wrong:
+  heading: If something here is taught wrong
+  body: Tell me. You do not need to be sure — an answer marked wrong that you think is right, a translation that reads oddly, a sentence no Korean would actually say. An app that teaches something incorrect is worse than one that teaches less, so this is the most useful thing you can send me.
 order: 2
 sourceUrl: ""
 downloads:

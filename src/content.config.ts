@@ -71,6 +71,21 @@ const apps = defineCollection({
     verify: z
       .array(z.object({ claim: z.string(), how: z.string() }))
       .default([]),
+    /* The closing "tell me if this is wrong" aside. It is optional, and where it is
+     * absent the page falls back to copy that is true of anything.
+     *
+     * It exists because that aside used to be hardcoded in src/pages/apps/[slug].astro
+     * in LOGGER's words — "this does not match my payslip", "a wage figure that is
+     * quietly wrong" — and so HANGIL, a Korean study app with no payslip and no wage
+     * figures in it, asked its readers to report a mismatched payslip. CLAUDE.md § How
+     * to add an app: nothing in src/ may name an app, and copy that only makes sense
+     * for one app is naming it.
+     *
+     * Write the body for the thing THIS app gets wrong. The heading should name the
+     * kind of error a reader would actually notice. */
+    wrong: z
+      .object({ heading: z.string(), body: z.string() })
+      .optional(),
     order: z.number(),
     sourceUrl: z.string().optional(),
     downloads: z
