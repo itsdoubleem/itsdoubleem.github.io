@@ -288,7 +288,8 @@ const nav = [
   .site-head nav a:hover { color: var(--ink); border-color: var(--rule); }
 
   /* The wordmark is a link and measured 34px on a phone — the mark is 36px tall but the
-     lockup's box was shorter. The nav chips are already 44. */
+     lockup's box was shorter. The nav chips get their 44 from the rule below, where the
+     touch target and the drawn chip stopped being the same box. */
   @media (pointer: coarse) {
     .wordmark { min-height: 44px; }
   }
@@ -309,7 +310,53 @@ const nav = [
     .wordmark__type { font-size: 20px; }
     .site-head__bar { padding-inline: 10px 8px; min-height: 52px; }
     .site-head nav { gap: 6px; }
-    .site-head nav a { padding: 0 11px; font-size: 13.5px; }
+
+    /* ── The chip you see is 34px; the chip you can hit is still 44 ──
+       These were 44px tall inside a 52px bar — 85% of its height, with 4px of air above
+       and below — and the owner reported them on 2026-09-21 as looking too big. They
+       were: at that ratio a chip stops reading as a chip in a bar and starts reading as
+       a slab filling it. Measured against the alternatives on an SM-S928N:
+
+           44px (as shipped)  0.85 of the bar   the reported problem
+           36px               0.69              fine
+           34px               0.65              chosen — sits with the 36px mark
+           32px               0.62              text starts to crowd its own border
+
+       34 is also what the wordmark beside it wants: the cube is 36px, so a 34px chip is
+       the same object at the same scale rather than a taller one competing with it.
+
+       ── Why the height moved and the touch target did not ──
+       DESIGN.md § Accessibility floor sets 44x44 for touch targets and gives the reason:
+       the audience is on phones. So the BORDER shrank and the TARGET did not. The ::after
+       is an invisible overlay, centred on the chip and 44px tall whatever the chip is. It
+       carries no paint, it sits inside the anchor so a press on it is a press on the
+       link, and it cannot reach its neighbour because it grows only vertically while the
+       6px gap between chips is horizontal.
+
+       THE HEIGHT IS DECLARED, NOT DERIVED, and the first version of this got that wrong.
+       It said `inset: -5px 0`, reasoning 34 + 5 + 5 = 44. It measured **42**: `inset` on
+       an absolutely positioned box resolves against its containing block's PADDING box,
+       and this anchor has a 1px border, so each -5px landed 4px outside the chip you can
+       see. Writing `height: 44px` says the number the floor actually requires, and it
+       stays right if the border or the chip height ever changes. Verified by walking
+       elementFromPoint outward from each chip's centre until the anchor stops answering.
+
+       Width needs no help: the narrower chip still measures 53px. */
+    .site-head nav a {
+      position: relative;
+      min-height: 34px;
+      padding: 0 10px;
+      font-size: 13px;
+    }
+    .site-head nav a::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      height: 44px;
+      transform: translateY(-50%);
+    }
   }
   .site-head nav a[aria-current="page"] { color: var(--ink); border-color: var(--rule); }
 
