@@ -36,9 +36,9 @@
  *     The canvas is `position: fixed` with its box stated in full here — inset, width,
  *     height — so it cannot take part in layout or feed anything's ResizeObserver.
  *  2. The page is complete without it. Below it are the ground, the glow and the grid
- *     from global.css, and on the front page the nebula and the star layers as well —
- *     all CSS, all the finished appearance on their own. JS off, no 2D context, a
- *     blocked request: no canvas, no gap, nothing half-drawn.
+ *     from global.css — CSS, and the finished appearance on their own. JS off, no 2D
+ *     context, a blocked request: no canvas, no gap, nothing half-drawn, and the front
+ *     page keeps the nebula and the star layers this file would otherwise hide.
  *  3. It reads nothing about the visitor and stores nothing. No pointer listener (there
  *     is no pointer), no sensors, no cookies, no storage, no network of any kind.
  *  4. It is a named file in /public, not a bundled /_astro hash, because the about page,
@@ -54,12 +54,6 @@
 
   var main = document.querySelector('main');
   if (!main) return;
-
-  /* The front page's CSS sky STAYS underneath this. /globe-scene.js hides .neb and .sky
-     when it mounts the globe, because the globe replaces them; this replaces nothing —
-     the nebula and the star tiles are the light the orbs are drifting in, exactly as the
-     globe drifts in them on a wide screen. Every layer in that section has a transparent
-     background, so the field reads through it rather than being buried by it. */
 
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -111,8 +105,32 @@
   }
   if (!ctx) return;
 
+  /* ── The front page's CSS sky goes, the same way it goes on a wide screen ──
+     /globe-scene.js hides .neb and .sky when it mounts the globe, because the globe
+     replaces them. This file shipped on 2026-09-22 NOT hiding them, on the reasoning
+     that the nebula and the star tiles were the light the orbs drift in — which is what
+     they are on a desktop, where the globe sits in them.
+
+     On a phone they are not that. The section is a 384px column, the nebula is a picture
+     cropped to `cover` and the five star tiles are at their densest, so one band of cloud
+     and grain belongs to one section and nothing else on the page does. The owner looked
+     at it on the device the same day and asked for the orbs alone.
+
+     THE LAYERS STAY IN THE MARKUP AND ARE HIDDEN FROM SCRIPT, which is the arrangement
+     /globe-scene.js keeps and for the same reason: with JavaScript off, or with no 2D
+     context, the reader gets the nebula and the stars exactly as before rather than a
+     section with nothing in it. Deleting them from the component would take that away
+     from the one visitor who has no other sky.
+
+     The cost of keeping them is one request. `display: none` arrives from this script,
+     which is deferred, and by then the style engine has already started fetching
+     /assets/sky/nebula.webp for .neb__drift — measured on the phone, it is still in the
+     resource list. 34 KB for a picture the reader will not see, paid so the reader
+     without JavaScript still sees it. Moving the background into a `min-width` media
+     query would save it and would take the fallback away with it. */
   var style = document.createElement('style');
   style.textContent =
+    '.curio .neb,.curio .sky{display:none!important}' +
     '.page-sky{position:fixed;inset:0;width:100%;height:100%;' +
     'z-index:-1;display:block;pointer-events:none}';
   document.head.appendChild(style);

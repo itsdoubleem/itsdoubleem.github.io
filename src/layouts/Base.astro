@@ -140,9 +140,13 @@ const nav = [
         7KB one is what it spends instead, and it arrived on 2026-09-22 because the field
         was a wide-screen-only thing and there was no reason for it to be. That holds
         even when a phone asks for the desktop site, which is the whole reason the second
-        clause of the gate is 1200px and not 901. The front page's CSS sky stays
-        underneath it on a phone rather than being hidden, which is the one thing the two
-        branches do differently.
+        clause of the gate is 1200px and not 901.
+
+        Both branches hide the front page's CSS sky — the nebula and the star tiles —
+        from script rather than deleting it, so a reader with no JavaScript still gets
+        that section the way it was built. The phone branch hid nothing for the first few
+        hours of its life; on a 384px column that band of cloud belonged to one section
+        and nothing else did, and the owner asked for the orbs alone.
 
         Named files at stable paths for the same reason /motion.js is one: the about
         page, README.md and apps/logger.md all invite the reader to count the requests
