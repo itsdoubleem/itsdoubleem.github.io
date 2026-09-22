@@ -26,10 +26,10 @@ const nav = [
       ── What changed, and what did not ──
       This used to be `default-src 'none'` with NOTHING granting script-src, because the
       site shipped no script at all. It now ships two on every page — /motion.js and
-      /globe.js — and two more that /globe.js fetches on a wide screen, so the policy
-      is 'self' instead of nothing. The grant has not widened as files were added;
-      'self' covered them already, which is the point of the note below about a hash
-      being the tighter policy.
+      /globe.js — plus whichever field /globe.js decides the device can draw, so the
+      policy is 'self' instead of nothing. The grant has not widened as files were
+      added; 'self' covered them already, which is the point of the note below about a
+      hash being the tighter policy.
 
       The thing that grant was protecting against is unchanged. Markdown in /apps is
       rendered with <Content />, and Astro passes raw HTML in a markdown body straight
@@ -43,13 +43,14 @@ const nav = [
       tighter policy is a hash: 'sha256-…' for the one file.
 
       What each grant is for, so nothing gets widened by guesswork:
-        script-src 'self'           /motion.js and /globe.js, plus the two files
-                                    /globe.js loads on a wide screen — /three.min.js
-                                    and /globe-scene.js. Nothing else, and nothing from
-                                    another origin: three.js is vendored into /public
-                                    rather than pulled from a CDN, which is what keeps
-                                    "no third-party scripts" true as a fact about the
-                                    network and not just about intent.
+        script-src 'self'           /motion.js and /globe.js, plus whichever field
+                                    /globe.js loads: /three.min.js and /globe-scene.js
+                                    on a wide screen, or /sky-mobile.js everywhere else.
+                                    Nothing else, and nothing from another origin:
+                                    three.js is vendored into /public rather than pulled
+                                    from a CDN, which is what keeps "no third-party
+                                    scripts" true as a fact about the network and not
+                                    just about intent.
 
                                     They are deliberately real files in /public rather
                                     than bundled /_astro hashes, because the about page,
@@ -121,21 +122,26 @@ const nav = [
 
     {/* The second script, and the only one that can pull in more. /globe.js paints
         nothing: it checks for a wide screen, a real pointer and a WebGL context, and
-        only then fetches /three.min.js and /globe-scene.js — the globe in the sky behind
-        the story on the front page, and on every other page the orb field that globe
-        sits in, mounted from the same scene with the planet left out.
+        fetches one of two fields on the answer.
 
-        That second case is why the fetch is no longer front-page-only: /globe.js used to
-        stop when it found no `.curio` deck, and does not any more. One extra request on
-        an interior page, cached across the site after the first.
+        Yes — /three.min.js and /globe-scene.js: the globe in the sky behind the story on
+        the front page, and on every other page the orb field that globe sits in, mounted
+        from the same scene with the planet left out. That second case is why the fetch is
+        no longer front-page-only: /globe.js used to stop when it found no `.curio` deck,
+        and does not any more. One extra request on an interior page, cached across the
+        site after the first.
 
-        On a phone it loads, finds it has nothing to do and stops — which is the point
-        of splitting it. /three.min.js is 589KB and a handset never fetches it. What a
-        phone gets is the sky that was always there: a picture and a stack of CSS.
+        No — /sky-mobile.js: the same orb field, drawn in a 2D canvas, on every page. A
+        PHONE STILL NEVER FETCHES /three.min.js, which is the point of splitting this
+        file: the library is 589KB and a handset should not spend it on decoration. The
+        7KB one is what it spends instead, and it arrived on 2026-09-22 because the field
+        was a wide-screen-only thing and there was no reason for it to be. The front
+        page's CSS sky stays underneath it on a phone rather than being hidden, which is
+        the one thing the two branches do differently.
 
         Named files at stable paths for the same reason /motion.js is one: the about
         page, README.md and apps/logger.md all invite the reader to count the requests
-        in their network panel, so every script has to be findable. Adding a fifth means
+        in their network panel, so every script has to be findable. Adding a sixth means
         editing those three in the same commit. */}
     <script is:inline src="/globe.js" defer></script>
   </head>

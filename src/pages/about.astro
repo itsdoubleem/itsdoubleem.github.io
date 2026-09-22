@@ -55,9 +55,10 @@ const hasAnyRoute = Boolean(contact.formUrl || contact.issuesUrl || contact.emai
       you were never shown a consent banner: there is nothing to consent to.
     </p>
     <p>
-      There are two scripts on every page, and I would rather name them than let you
-      find them. Both are served from this domain, both only move things, and both read
-      nothing about you and store nothing.
+      There are two scripts on every page, and a third that one of them fetches. I
+      would rather name them than let you find them. All of them are served from this
+      domain, all of them only move things, and all of them read nothing about you and
+      store nothing.
     </p>
     <p>
       <a href="/motion.js">/motion.js</a> tilts the phone on the front page towards your
@@ -66,17 +67,22 @@ const hasAnyRoute = Boolean(contact.formUrl || contact.issuesUrl || contact.emai
     </p>
     <p>
       <a href="/globe.js">/globe.js</a> paints nothing at all. It checks whether you are
-      on a wide screen with a mouse and a browser that can draw 3D, and only then does it
-      fetch two more files — <a href="/three.min.js">/three.min.js</a>, the rendering
-      library that does the drawing, and <a href="/globe-scene.js">/globe-scene.js</a>,
-      the scene itself. On the front page that scene is a planet, in the sky behind the
-      story. On this page and every other one it is only the drift of lit specks you can
-      see behind these words — the same field, with the planet left out. On a phone it
-      loads, finds it has nothing to do and stops, so a handset never downloads the
-      589&nbsp;KB library. If you are counting requests: two scripts on a phone, four on a
-      wide screen, and the specks are the last thing to arrive and the first thing to go
-      — underneath them the page is the same ground, glow and grid it would be if none of
-      this turned up at all.
+      on a wide screen with a mouse and a browser that can draw 3D, and fetches a
+      different thing depending on the answer. If you are, it takes two more files —
+      <a href="/three.min.js">/three.min.js</a>, the rendering library that does the
+      drawing, and <a href="/globe-scene.js">/globe-scene.js</a>, the scene itself. On
+      the front page that scene is a planet, in the sky behind the story; on this page
+      and every other one it is only the drift of lit specks you can see behind these
+      words — the same field, with the planet left out.
+    </p>
+    <p>
+      If you are on a phone, it takes <a href="/sky-mobile.js">/sky-mobile.js</a>
+      instead: the same drift of specks, drawn in a plain 2D canvas, with no planet and
+      no library behind it. That is about 7&nbsp;KB, and it is there so that a handset
+      never downloads the 589&nbsp;KB one. If you are counting requests: three scripts on
+      a phone, four on a wide screen, and the specks are the last thing to arrive and the
+      first thing to go — underneath them the page is the same ground, glow and grid it
+      would be if none of this turned up at all.
     </p>
     <p>
       three.js is somebody else's work, used under the MIT licence, and its copyright
