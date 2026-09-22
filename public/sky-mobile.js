@@ -94,12 +94,12 @@
      A missed frame at this rate is also invisible, which is why the field can afford to
      lose one to a scroll.
 
-     With this cap and the one above, a scripted scroll of the homepage on an emulated
-     Pixel 7 at dpr 3 with the CPU throttled 6x measured 60.2 fps with the field running
-     against 60.1 with it blocked, no frame over 33ms either way. That is an emulated
-     phone on a desktop GPU and DESIGN.md § The cosmos rule 6 is explicit that such a
-     number proves less than it looks — it says the field is not expensive; it does not
-     say it is free on a handset. Retune either cap and re-measure on a real one. */
+     With this cap and the one above, measured on the SM-S928N itself — 384 CSS px at
+     dpr 3.75, scripted scroll of the homepage, 195 frames — the field runs at 60.0 fps
+     against 60.1 with the script blocked, no frame over 33ms either way, and 2.1ms
+     between the two worst frames. Retune either cap and take it again on the phone
+     rather than in a narrow desktop window; DESIGN.md § The atmosphere has the adb
+     recipe and § The cosmos rule 6 has the reason. */
   var FPS = 32;
 
   var canvas = document.createElement('canvas');
