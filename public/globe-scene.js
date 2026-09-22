@@ -865,7 +865,7 @@
 
   var style = document.createElement('style');
   style.textContent =
-    '.curio .neb,.curio .sky,.curio .sky-fx{display:none!important}' +
+    '.curio .neb,.curio .sky{display:none!important}' +
     'main{position:relative}' +
     '.curio-sky{position:absolute;z-index:-1;display:block;pointer-events:none}';
   document.head.appendChild(style);
