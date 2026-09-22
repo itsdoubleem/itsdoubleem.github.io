@@ -334,6 +334,17 @@ e
       animation-play-state: paused;
     }
   }
+  /* And a mouse on a tablet, where "pointer: fine" is false because the primary input
+     is still the touchscreen. The has-mouse class is set by /motion.js only after a real
+     pointermove of pointerType "mouse" — see global.css by [data-glow] for why no media
+     query can do this, and why a tap on a phone still must not.
+
+     NOTE this block is a JS template literal in the frontmatter, not the scoped <style>
+     below: no backticks in the prose, and no :global() — these rules are injected raw
+     and are unscoped already. */
+  html.has-mouse .curio__deck:hover #curio-auto:checked ~ .curio__card {
+    animation-play-state: paused;
+  }
 
   /* The per-card delay is POSITIVE, and it is the one number here that is easy to get
      backwards. A negative delay does not hold an animation back, it starts it already
@@ -930,6 +941,16 @@ e
         0 20px 64px -26px color-mix(in oklab, var(--accent) 38%, transparent),
         0 0 110px -34px color-mix(in oklab, var(--accent) 30%, transparent);
     }
+  }
+  /* The tablet-with-a-mouse half, same as the pause above it. The bloom is the other
+     half of the pause signal, so the two have to be revealed on exactly the same
+     states — if you add a selector to one, add it to the other. */
+  :global(html.has-mouse) .curio__card:hover {
+    border-color: color-mix(in oklab, var(--accent) 26%, var(--hairline));
+    box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--accent) 10%, transparent),
+      0 20px 64px -26px color-mix(in oklab, var(--accent) 38%, transparent),
+      0 0 110px -34px color-mix(in oklab, var(--accent) 30%, transparent);
   }
   @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
     .curio__card {

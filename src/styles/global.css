@@ -588,13 +588,30 @@ main,
 
    This is the same query /motion.js gates itself on, and the two now agree by
    construction: the script that aims the glow and the rule that reveals it are served to
-   the same devices. Do not split them. */
+   the same devices. Do not split them.
+
+   ── The second selector, added 2026-09-22: a mouse on a tablet ──
+   `pointer: fine` is false on a Galaxy Tab S10 Ultra WITH A MOUSE PLUGGED IN, because
+   the primary input is still the touchscreen. Measured on the device: `pointer: fine`
+   false, `pointer: coarse` true, `any-pointer: fine` true, `any-hover: hover` true. So
+   the query above is right about the phone and wrong about the tablet, and there is no
+   third query that is right about both — the phone answers `any-pointer: fine` too,
+   because of its S-Pen.
+
+   `html.has-mouse` is /motion.js's answer: it goes on <html> the first time a
+   `pointermove` arrives whose `pointerType` is `mouse`, which a finger and a stylus
+   never send. So the reveal stays off for a tap on a phone, and comes on for a cursor on
+   a tablet the moment that cursor moves. The media query stays as well, because with
+   JavaScript off a desktop still has to light its panels. Two selectors, one effect, and
+   the note in /motion.js § The mouse that arrives later is the other half of this one. */
 [data-glow]:focus-within::before,
 [data-glow]:focus-within::after { opacity: 1; }
 @media (pointer: fine) {
   [data-glow]:hover::before,
   [data-glow]:hover::after { opacity: 1; }
 }
+html.has-mouse [data-glow]:hover::before,
+html.has-mouse [data-glow]:hover::after { opacity: 1; }
 
 /* ── The pill ───────────────────────────────────────────────────────────────
    One per page, above the headline, and it says something true about what is on the

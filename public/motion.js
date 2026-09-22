@@ -8,8 +8,13 @@
  * CSS. See DESIGN.md § Motion for why that boundary is drawn where it is.
  *
  * ── Rules this file must keep ──
- *  1. It writes CSS custom properties and nothing else. It never sets a layout property,
- *     never inserts an element, never touches text. Everything it does is composited.
+ *  1. It writes CSS custom properties, plus ONE marker class on <html>. It never sets a
+ *     layout property, never inserts an element, never touches text. Everything it does
+ *     is composited.
+ *
+ *     The marker is `has-mouse`, added the first time a real mouse moves. It is here
+ *     because no media query can answer the question the CSS needs answered — see § The
+ *     mouse that arrives later, below. global.css and OneTrueThing.astro name it.
  *  2. The page is complete without it. Both effects have a CSS resting state that is the
  *     correct, finished appearance — JavaScript off, touch screen, or a blocked request
  *     all give a page that looks deliberate rather than broken.
@@ -20,17 +25,89 @@
  *     hash. That is on purpose: the copy tells people to open the network panel and
  *     count the requests, so the one script has to be findable and named.
  *
- * Keep it under 2 KB. If it needs to grow past "moves things", the four claim sites
- * listed in rule 3 change in the same commit.
+ * The budget is behaviour, not bytes: "moves things", and nothing past it. The file is
+ * about 4 KB over the wire — it was 2 KB before the mouse-detection note below was
+ * written, and 61 of its 197 lines are code. If the BEHAVIOUR grows past moving things,
+ * the four claim sites listed in rule 3 change in the same commit.
  */
 
-// A pointer effect for a device without a pointer is jank with no payoff, and someone
-// who asked their OS to stop moving things asked this too. Both bail before any
-// listener is attached, so a phone pays the parse cost and nothing else.
+/* ── The mouse that arrives later ──
+   A pointer effect for a device without a pointer is jank with no payoff, and someone
+   who asked their OS to stop moving things asked this too.
+
+   `(pointer: fine)` asks whether the PRIMARY input is a fine one, and that is the right
+   question for a phone: an S24 Ultra has an S-Pen, so it answers `hover: hover` and
+   `any-pointer: fine` truthfully, and gating on either of those latched the deck's glow
+   on for three and a half seconds after a tap. global.css has the measurements, by
+   [data-glow].
+
+   It is the WRONG question for a tablet with a mouse plugged into it. Measured on a
+   Galaxy Tab S10 Ultra over adb, mouse connected:
+
+       pointer: fine FALSE     pointer: coarse   true
+       any-pointer: fine true  any-hover: hover  true
+
+   The primary input is still the touchscreen, so `pointer: fine` is false and stays
+   false while you move a real cursor around the screen. The owner reported it on
+   2026-09-22: the phone in the hero did not lean, and the deck's card did not light.
+
+   No media query separates that tablet from that phone — both answer `any-pointer: fine`,
+   because both have a stylus. So the mouse is not asked about, it is WAITED FOR. On a
+   device that could have one, a single listener waits for a `pointermove` whose
+   `pointerType` is `mouse`; only then do the effects start and `has-mouse` go on <html>.
+   A finger reports `touch` and a stylus reports `pen`, so neither ever trips it, and the
+   phone behaves exactly as it did before.
+
+   The cost on a device that never sees a mouse is one passive listener that reads one
+   property and returns. A touchscreen with no stylus attaches nothing at all. */
 const fine = matchMedia('(pointer: fine)');
+const anyFine = matchMedia('(any-pointer: fine)');
 const still = matchMedia('(prefers-reduced-motion: reduce)');
 
-if (fine.matches && !still.matches) {
+// `pointerType` is '' on some synthetic events; only a stated non-mouse type is refused.
+const notMouse = (e) => e.pointerType && e.pointerType !== 'mouse';
+
+let armed = false, running = false;
+
+/* Both queries are watched, not just read: a mouse plugged into a tablet mid-visit flips
+   `any-pointer: fine` to true, and a page that only looked once would stay inert until
+   the next navigation. Listening to a MediaQueryList costs nothing until it changes,
+   which is the difference between this and arming a pointer listener on every device. */
+arm();
+fine.addEventListener('change', arm);
+anyFine.addEventListener('change', arm);
+
+function arm() {
+  if (running || armed) return;
+  if (fine.matches) { mouseIsHere(); return; }   // desktop: no waiting needed
+  if (!anyFine.matches) return;                  // no fine pointer exists at all
+
+  armed = true;
+  const probe = (e) => {
+    if (notMouse(e)) return;                     // a finger says `touch`, a stylus `pen`
+    removeEventListener('pointermove', probe);
+    mouseIsHere();
+  };
+  addEventListener('pointermove', probe, { passive: true });
+}
+
+function mouseIsHere() {
+  if (running) return;
+  running = true;
+
+  /* The class the CSS is waiting on. `:hover` on a touch screen is Android's phantom
+     hover — it arrives after the finger lifts and overstays — so every hover rule on
+     this site is behind `(pointer: fine)` OR this class, and this class is only ever set
+     by a real mouse having moved.
+
+     It goes on REGARDLESS of prefers-reduced-motion, and the two effects below do not.
+     Revealing a panel under the cursor is not motion; a desktop under that preference
+     has always kept it, by way of the media query, and a tablet should not lose it for
+     want of a class. What the preference stops is the aiming — the tilt and the
+     directional edge — which is the part that moves. */
+  document.documentElement.classList.add('has-mouse');
+  if (still.matches) return;
+
   // One rAF for the whole page. Pointer events fire far faster than the compositor
   // draws, so without this the same custom property is written a dozen times between
   // two frames and every write invalidates style for its subtree.
@@ -80,6 +157,7 @@ if (fine.matches && !still.matches) {
     if (!target) continue;
 
     addEventListener('pointermove', (e) => {
+      if (notMouse(e)) return;   // a finger dragging the page is not aiming anything
       set(target, {
         '--tx': (e.clientX / innerWidth  * 2 - 1).toFixed(3),
         '--ty': (e.clientY / innerHeight * 2 - 1).toFixed(3),
@@ -109,6 +187,7 @@ if (fine.matches && !still.matches) {
      plus the app cards is a dozen elements, and `closest` on a pointermove is cheaper
      than a dozen live listeners plus the bookkeeping to remove them. */
   document.addEventListener('pointermove', (e) => {
+    if (notMouse(e)) return;
     const el = e.target instanceof Element && e.target.closest('[data-glow]');
     if (!el) return;
     const r = el.getBoundingClientRect();
