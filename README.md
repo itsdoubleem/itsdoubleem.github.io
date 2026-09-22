@@ -34,15 +34,16 @@ Three, and they are not style preferences.
 
 The site collects nothing, so it needs no cookie banner. It loads two scripts on every
 page — `/motion.js` and `/globe.js` — which move things and nothing else. `/globe.js`
-paints nothing itself; it measures the device and fetches one of two fields. On a wide
-screen that is `/three.min.js` and `/globe-scene.js`, which draw the globe behind the
-story on the front page and, on every other page, the orb field that globe sits in. On a
-phone it is `/sky-mobile.js`, about 7 KB, which draws that same orb field in a 2D canvas
-with no globe and no library — so a handset still never downloads the 589 KB one.
-three.js is vendored into `/public` under its MIT licence rather than loaded from a CDN,
-so there are still no third-party requests, no analytics and no cookies. Keep both true.
-All five are named in the about page's prose and in LOGGER's claim table; a sixth one
-means editing those in the same commit.
+paints nothing itself; it measures the device and fetches one of two fields. A window
+over 1200px, or a narrower one with a mouse, gets `/three.min.js` and `/globe-scene.js`,
+which draw the globe behind the story on the front page and, on every other page, the orb
+field that globe sits in — that covers laptops, desktops and tablets. A phone gets
+`/sky-mobile.js`, about 7 KB, which draws that same orb field in a 2D canvas with no globe
+and no library, so a handset still never downloads the 589 KB one even when it asks for
+the desktop site. three.js is vendored into `/public` under its MIT licence rather than
+loaded from a CDN, so there are still no third-party requests, no analytics and no
+cookies. Keep both true. All five are named in the about page's prose and in LOGGER's
+claim table; a sixth one means editing those in the same commit.
 
 ## Adding a piece of work
 

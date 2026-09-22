@@ -66,9 +66,10 @@ const hasAnyRoute = Boolean(contact.formUrl || contact.issuesUrl || contact.emai
       about fifty more explaining why it is there.
     </p>
     <p>
-      <a href="/globe.js">/globe.js</a> paints nothing at all. It checks whether you are
-      on a wide screen with a mouse and a browser that can draw 3D, and fetches a
-      different thing depending on the answer. If you are, it takes two more files —
+      <a href="/globe.js">/globe.js</a> paints nothing at all. It measures how wide this
+      window is, whether you are holding a mouse, and whether your browser can draw 3D,
+      and fetches a different thing depending on the answer. A window wider than
+      1200&nbsp;pixels — or a narrower one with a mouse — takes two more files:
       <a href="/three.min.js">/three.min.js</a>, the rendering library that does the
       drawing, and <a href="/globe-scene.js">/globe-scene.js</a>, the scene itself. On
       the front page that scene is a planet, in the sky behind the story; on this page
@@ -76,13 +77,15 @@ const hasAnyRoute = Boolean(contact.formUrl || contact.issuesUrl || contact.emai
       words — the same field, with the planet left out.
     </p>
     <p>
-      If you are on a phone, it takes <a href="/sky-mobile.js">/sky-mobile.js</a>
-      instead: the same drift of specks, drawn in a plain 2D canvas, with no planet and
-      no library behind it. That is about 7&nbsp;KB, and it is there so that a handset
-      never downloads the 589&nbsp;KB one. If you are counting requests: three scripts on
-      a phone, four on a wide screen, and the specks are the last thing to arrive and the
-      first thing to go — underneath them the page is the same ground, glow and grid it
-      would be if none of this turned up at all.
+      A phone takes <a href="/sky-mobile.js">/sky-mobile.js</a> instead: the same drift
+      of specks, drawn in a plain 2D canvas, with no planet and no library behind it.
+      That is about 7&nbsp;KB, and it is there so that a handset never downloads the
+      589&nbsp;KB one — including a handset asking for the desktop site, which is why the
+      line is drawn at 1200 and not at the width a phone claims in that mode. A tablet is
+      on the other side of it and gets the planet. If you are counting requests: three
+      scripts on a phone, four on anything wider, and the specks are the last thing to
+      arrive and the first thing to go — underneath them the page is the same ground,
+      glow and grid it would be if none of this turned up at all.
     </p>
     <p>
       three.js is somebody else's work, used under the MIT licence, and its copyright
