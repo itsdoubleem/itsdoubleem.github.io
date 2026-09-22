@@ -21,3 +21,11 @@ ROADMAP.md
 apps/README.md
 guides/README.md
 tools/sample-output/README.md
+
+# Working material for whoever is art-directing the globe. Same reasoning as the block
+# above: it is documentation and reference, the build never reads it, and the reference
+# stills are ~5MB of PNG that regenerate from the running site in one command
+# (node tools/capture-globe.mjs). tools/capture-globe.mjs itself IS committed — the
+# script is the reproducible part, the pictures are not.
+HANDOFF-VISUAL.md
+handoff/
