@@ -450,6 +450,20 @@ e
           should be checkable against something already on this page rather than asserting
           an anecdote of its own. It carries the same source link that chapter does.
 
+          THAT NUMBER IS HARDCODED AND NOTHING CHECKS IT. "Chapter 24" is a literal in the
+          paragraph below, and it finds the Homo sapiens entry by its position in curios.ts
+          rather than by its name. Insert an entry anywhere above that one and this sentence
+          quietly starts naming a different card — a paragraph arguing for honest evidence,
+          illustrated by a chapter that does not say what it claims it says. There is no
+          test and no type error; the page still builds and still looks right.
+
+          Swapping two entries is safe, which is why the 2026-09-23 reorder could move 5/6
+          and 13/14 without touching anything here — a swap renumbers nothing. Inserting is
+          the dangerous operation. If you add a chapter above Homo sapiens, change this
+          number to match. curios.ts carries the same warning at the point where someone
+          would actually make that mistake, because whoever inserts a chapter is editing
+          that file and has no reason to open this one.
+
           The two dates here were wrong in the draft this came from, and both were fixed
           rather than shipped: the earlier figure was given as 150,000 years (the accepted
           benchmark was Omo Kibish at about 195,000; Herto, at about 160,000, is the

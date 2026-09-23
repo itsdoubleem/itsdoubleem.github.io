@@ -43,6 +43,19 @@
  * oxygen it went on to breathe out.
  *
  * The homepage counts the entries itself, so adding chapter 43 is appending to this array.
+ *
+ * APPENDING IS FREE. INSERTING IS NOT, AND ONE THING OUTSIDE THIS FILE WILL BREAK QUIETLY.
+ * Adding to the end costs nothing. Putting a chapter into the middle renumbers every
+ * chapter after it, and the primer above the deck in OneTrueThing.astro opens with
+ * "Chapter 24 is the example" — meaning the Homo sapiens entry, which it locates by
+ * counting rather than by name. Insert anything above 24 and that sentence points at the
+ * wrong card, in a paragraph whose whole subject is not overstating what the evidence
+ * says. Nothing catches it: the types are fine, the build passes, the page looks right.
+ * So if you insert above Homo sapiens, open OneTrueThing.astro and move that number.
+ *
+ * Swapping two entries is safe and needs no edit anywhere — a swap changes the order but
+ * not the count, which is why the 2026-09-23 reorder of 5/6 and 13/14 left the primer
+ * alone. It is insertion and deletion that shift the numbering.
  */
 export type Curio = {
   /* One member on purpose — see the note above before widening it. */
