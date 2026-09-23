@@ -172,10 +172,9 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The Air Turns Breathable',
     reveal:
-      'Some of those microbes learned to live off sunlight — photosynthesis — and gave off oxygen as waste. Over hundreds of millions of years that waste filled the oceans and then the air, killing off much of the life already here and leaving behind an atmosphere animals could one day breathe.',
-    source: 'Smithsonian Magazine, LUCA, the Ancestor of All Life on Earth',
-    sourceUrl:
-      'https://www.smithsonianmag.com/air-space-magazine/luca-ancestor-all-life-earth-180959980/',
+      'Some of those microbes learned to live off sunlight — photosynthesis — and gave off oxygen as waste. Over hundreds of millions of years that waste filled the oceans and then the air, killing off many of the microbes already here and leaving behind an atmosphere animals could one day breathe.',
+    source: 'Wikipedia, Great Oxidation Event',
+    sourceUrl: 'https://en.wikipedia.org/wiki/Great_Oxidation_Event',
   },
   {
     kind: 'Science',
