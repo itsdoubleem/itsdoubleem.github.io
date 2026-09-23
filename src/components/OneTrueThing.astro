@@ -130,12 +130,19 @@ const sky = {
 
 /* ── Auto-advance ──
  * Seconds each chapter holds before the deck moves itself on. The whole loop is this
- * times the number of chapters, so at 42 chapters and 10 seconds it is 7 minutes end to
- * end. Ten is about the floor for a block of two sentences — below it the deck is moving
- * before an average reader has finished, and the hover pause stops being a courtesy and
- * starts being the only way to read the thing.
+ * times the number of chapters, so at 42 chapters and 13 seconds it is about 9 minutes
+ * end to end. Below this the deck is moving before an average reader has finished, and
+ * the hover pause stops being a courtesy and starts being the only way to read the thing.
+ *
+ * Where 13 comes from: the longest chapter in curios.ts is 50 words, and easy prose reads
+ * at roughly four words a second, so the slowest card needs about 12.5 seconds. This was
+ * 10, set when the deck's longest card was 79 words and nobody could finish that one on
+ * the timer at any setting. The 2026-09-23 rewrite pulled every chapter into a 33–50 band,
+ * which is what makes a single number work for all 42 — so if you add a chapter longer
+ * than 50 words, this is the number that has to move with it. See the length note at the
+ * top of curios.ts.
  */
-const DWELL = 10;
+const DWELL = 13;
 const LOOP = DWELL * curios.length;
 /* A chapter's share of the loop, and the entry fade as a share of it. The fade is 640ms
  * to match .curio__card's own curio-in, so a card that arrives on the timer looks like a

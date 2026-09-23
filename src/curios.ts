@@ -26,6 +26,22 @@
  * of a line is a paraphrase, say so in `reveal` — the correction is more interesting than the
  * quote, and it is the site's argument in miniature.
  *
+ * HOW LONG A CHAPTER GETS TO BE, WHICH IS NOT A STYLE PREFERENCE.
+ * OneTrueThing.astro sets DWELL = 10 — ten seconds before the deck advances itself. That is
+ * about forty words at a normal reading pace, so a card much past forty-five cannot be
+ * finished by a reader who is not pressing the buttons. On 2026-09-23 the deck averaged 46.5
+ * words with one card at 80, and every entry was rewritten down into a 36–51 band. Keep new
+ * chapters inside it. If a chapter genuinely needs more room, raise DWELL rather than let one
+ * card run long — an uneven deck is worse than a slow one, because the reader cannot tell
+ * which cards they are allowed to finish.
+ *
+ * That same pass removed the deck's repetitions: chapters used to restate the one before
+ * (four in a row re-explained that cooked food is soft) and to end by previewing the one
+ * after, which left the next chapter nothing to say. A chapter should carry exactly one beat
+ * and hand the next one its subject, not its content. Two pairs were also swapped into
+ * chronological order — stars now ignite before they explode, and LUCA comes before the
+ * oxygen it went on to breathe out.
+ *
  * The homepage counts the entries itself, so adding chapter 43 is appending to this array.
  */
 export type Curio = {
@@ -45,7 +61,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The Primordial Soup',
     reveal:
-      'At its birth 13.8 billion years ago, the universe was an unimaginably hot, dense ball of pure energy. Too hot for solid matter, it existed as a searing soup made entirely of free-floating quarks, gluons, and photons.',
+      'The universe began 13.8 billion years ago as a ball of energy too hot for anything solid to hold together. What filled it was a soup of loose quarks, gluons, and photons — the smallest pieces of matter and light, with nothing yet built from them.',
     source: 'RocketSTEM, Unravelling the mystery behind the Big Bang birth of the universe',
     sourceUrl:
       'https://www.rocketstem.org/2025/06/23/quest-to-unravel-the-mystery-behind-the-big-bang-birth-of-the-universe/',
@@ -54,7 +70,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The First Building Blocks',
     reveal:
-      'Within microseconds, the expanding cosmic fluid cooled down to about a trillion degrees. This rapid cooling allowed the floating quarks to bind together, creating the universe’s very first protons and neutrons.',
+      'Within microseconds the soup expanded and cooled to about a trillion degrees — hotter than any star, but cool enough for loose quarks to stick to one another. Bound together, they made the universe’s first protons and neutrons.',
     source: 'RocketSTEM, Unravelling the mystery behind the Big Bang birth of the universe',
     sourceUrl:
       'https://www.rocketstem.org/2025/06/23/quest-to-unravel-the-mystery-behind-the-big-bang-birth-of-the-universe/',
@@ -63,7 +79,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The First Atoms and Light',
     reveal:
-      'About 380,000 years later, the universe cooled enough for protons to trap electrons, forming the first hydrogen and helium atoms. This allowed light to travel freely through space for the first time, lighting up the dark cosmos.',
+      'About 380,000 years on, protons finally held on to passing electrons and the first hydrogen and helium atoms formed. Until then light had bounced off loose electrons and gone nowhere; now space turned clear and it streamed out, the oldest light we can still see.',
     source: 'NASA Science, WMAP Overview',
     sourceUrl: 'https://science.nasa.gov/mission/wmap/wmap-overview/',
   },
@@ -71,32 +87,32 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The Simplest Elements',
     reveal:
-      'Hydrogen, helium, and trace amounts of lithium were the only elements formed because their simple atomic structures needed just a few protons to bond. These abundant early elements, primarily hydrogen and helium, provided all the essential fuel needed for gravity to ignite the very first stars.',
+      'Only the simplest elements came out of those first minutes: hydrogen, helium, and a trace of lithium, each needing just a handful of protons to hold together. Everything heavier — carbon, oxygen, iron — did not exist yet, and there was nowhere yet to make it.',
     source: 'Wikipedia, Nucleosynthesis',
     sourceUrl: 'https://en.wikipedia.org/wiki/Nucleosynthesis',
   },
   {
     kind: 'Science',
+    lead: 'The Gravity Engine',
+    reveal:
+      'Hydrogen and helium are light gases, but a cloud of them light-years across adds up to an enormous weight. Gravity pulled each cloud inward until the squeeze at its center grew hot enough to start nuclear fusion, and the first stars switched on.',
+    source: 'Britannica, Nucleosynthesis',
+    sourceUrl: 'https://www.britannica.com/science/nucleosynthesis',
+  },
+  {
+    kind: 'Science',
     lead: 'The Forge of Complex Elements',
     reveal:
-      'While early stars ran on simple hydrogen and helium, they could only create lighter elements inside their cores before running out of fuel. When these massive stars died in violent supernova explosions, the extreme heat and pressure forged all the heavier elements — like iron, gold, and iodine — scattering them across the cosmos.',
+      'A star fuses hydrogen into heavier and heavier elements until it runs out of fuel. When the biggest ones die they explode as supernovae, and the heat and pressure of that death forge heavier elements still — iron, gold, iodine — scattering them across space.',
     source: 'Columbia News, A Cosmic Explosion Forged Heavy Elements Like Gold and Platinum',
     sourceUrl:
       'https://news.columbia.edu/news/cosmic-explosion-forged-heavy-elements-gold-and-platinum',
   },
   {
     kind: 'Science',
-    lead: 'The Gravity Engine',
-    reveal:
-      'Although hydrogen and helium are lightweight gases, their vast clouds spanned light-years, containing immense total mass. Over millions of years, gravity relentlessly pulled these massive clouds inward, compressing them until the central pressure became so intense that nuclear fusion ignited the first stars.',
-    source: 'Britannica, Nucleosynthesis',
-    sourceUrl: 'https://www.britannica.com/science/nucleosynthesis',
-  },
-  {
-    kind: 'Science',
     lead: 'The Birth of Galaxies',
     reveal:
-      'Over hundreds of millions of years, giant clouds of hydrogen gas collapsed under gravity, pulling early stars together. These massive stellar clusters merged and rotated, forming the universe’s first generation of galaxies.',
+      'Stars did not form alone. Over hundreds of millions of years they gathered into enormous groups that drew on each other, merged, and settled into a spin — the first galaxies in the universe.',
     source: 'NASA Science, Hubble Approaches the Final Frontier: The Dawn of Galaxies',
     sourceUrl:
       'https://science.nasa.gov/missions/hubble/hubble-approaches-the-final-frontier-the-dawn-of-galaxies/',
@@ -105,7 +121,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The Milky Way Takes Shape',
     reveal:
-      'About 13 billion years ago, smaller protogalaxies collided and fused together to build our home galaxy, the Milky Way. Over billions of years, it drew in more cosmic dust and stars, sculpting its iconic swirling spiral arms.',
+      'About 13 billion years ago small early galaxies ran into each other and merged into one — the Milky Way, ours. It has been swallowing gas, dust and smaller galaxies ever since, and that slow feeding drew out its spiral arms.',
     source: 'UC Davis Letters & Science Magazine, How Did the Milky Way Galaxy Form?',
     sourceUrl:
       'https://lettersandsciencemag.ucdavis.edu/science-technology/how-did-milky-way-galaxy-form',
@@ -114,7 +130,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The Birth of Our Solar System',
     reveal:
-      'Around 4.6 billion years ago, a dense cloud of interstellar gas and star-remnant dust collapsed, forming a rotating protoplanetary disk. Most of this collapsing material gathered at the center to ignite our Sun, while remaining debris orbited around it.',
+      'Around 4.6 billion years ago a cloud of gas and the dust of dead stars fell in on itself and flattened into a spinning disk. Almost all of it piled into the middle and lit up as our Sun; what was left kept circling.',
     source: 'NASA Science, How did our Solar System form?',
     sourceUrl:
       'https://science.nasa.gov/astrobiology/learning-resources/alp/how-did-our-solar-system-form/',
@@ -123,7 +139,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The Formation of Earth',
     reveal:
-      'Inside the spinning disk, rocky remnants repeatedly smashed together and fused over tens of millions of years to build planet Earth. Initially a molten ball of magma, Earth eventually cooled, forming a solid crust that set the stage for liquid oceans and life.',
+      'In the leftover ring, rock stuck to rock over tens of millions of years — dust, to pebbles, to boulders, to a planet — until Earth reached the size it is now. It began molten throughout, and cooled slowly until a crust hardened on top.',
     source: 'Introduction to Historical Geology (Maricopa), The Hadean Eon (4600–4000 Ma)',
     sourceUrl: 'https://open.maricopa.edu/fallglg102/chapter/the-hadean-4600-4000-ma/',
   },
@@ -131,7 +147,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The Origin of Earth’s Water',
     reveal:
-      'During its fiery youth, molten Earth was relentlessly bombarded by icy comets and water-rich asteroids from the outer solar system. As these icy bodies vaporized upon impact, they trapped steam in the young atmosphere that eventually cooled, condensed, and rained down to fill our oceans.',
+      'Much of Earth’s water probably arrived from outside — carried in by comets and water-rich asteroids striking the young planet. Each impact flashed its ice into steam, the steam built up in the air, and once Earth cooled it fell back as rain and filled the oceans.',
     source: 'Earth How, Did Earth’s First Water Come from Comets, Volcanoes or Asteroids?',
     sourceUrl: 'https://earthhow.com/origin-of-water-comets-volcanoes-outgassing/',
   },
@@ -139,16 +155,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The Seeds of Life',
     reveal:
-      'Though Earth’s early atmosphere was toxic and inhospitable, cooling temperatures allowed liquid water oceans to stabilize and dissolve key organic chemicals. In deep-sea hydrothermal vents powered by geothermal energy, these chemical building blocks combined into self-replicating molecules, sparking the very first microbial life around 3.8 billion years ago.',
-    source: 'Smithsonian Magazine, LUCA, the Ancestor of All Life on Earth',
-    sourceUrl:
-      'https://www.smithsonianmag.com/air-space-magazine/luca-ancestor-all-life-earth-180959980/',
-  },
-  {
-    kind: 'Science',
-    lead: 'The Evolution of Early Life',
-    reveal:
-      'From those simple microbial origins, early single-celled organisms evolved over billions of years, eventually developing photosynthesis to pump oxygen into the atmosphere. This oxygen-rich environment paved the way for complex multicellular organisms to emerge, triggering an explosion of diverse life across the planet.',
+      'The early air would poison anything alive today, but the new oceans could dissolve carbon-based chemicals and hold them together. At hot vents on the sea floor, fed by heat from inside the Earth, some combined into molecules that could copy themselves — the first life, 3.8 billion years ago.',
     source: 'Smithsonian Magazine, LUCA, the Ancestor of All Life on Earth',
     sourceUrl:
       'https://www.smithsonianmag.com/air-space-magazine/luca-ancestor-all-life-earth-180959980/',
@@ -157,15 +164,24 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'LUCA, the Universal Ancestor',
     reveal:
-      'All life on Earth today traces its lineage back to LUCA — the Last Universal Common Ancestor — a microscopic organism that lived over 3.5 billion years ago. Scientists believe LUCA originated deep underwater near deep-sea hydrothermal vents, where rich minerals and thermal energy fueled the very first metabolic reactions.',
+      'Every living thing on Earth descends from a single microbe: LUCA, the Last Universal Common Ancestor, which lived over 3.5 billion years ago — not the first life, but the last ancestor every survivor shares. We can tell because bacteria, trees and people all still run on the same genetic code.',
     source: 'Earth How, LUCA: Last Universal Common Ancestor',
     sourceUrl: 'https://earthhow.com/luca-last-universal-common-ancestor/',
   },
   {
     kind: 'Science',
+    lead: 'The Air Turns Breathable',
+    reveal:
+      'Some of those microbes learned to live off sunlight — photosynthesis — and gave off oxygen as waste. Over hundreds of millions of years that waste filled the oceans and then the air, killing off much of the life already here and leaving behind an atmosphere animals could one day breathe.',
+    source: 'Smithsonian Magazine, LUCA, the Ancestor of All Life on Earth',
+    sourceUrl:
+      'https://www.smithsonianmag.com/air-space-magazine/luca-ancestor-all-life-earth-180959980/',
+  },
+  {
+    kind: 'Science',
     lead: 'The Rise of Complex Life',
     reveal:
-      'For billions of years, life remained single-celled until primitive cells merged to form complex eukaryotic cells with nucleus structures. This evolutionary leap allowed cells to specialize, leading to soft-bodied multicellular marine animals and the sudden explosion of diverse sea life during the Cambrian Explosion.',
+      'Cells got more complicated: the eukaryotic cell keeps its DNA in a nucleus and runs on structures that were once separate microbes it absorbed. Cells like that could stick together and take on different jobs, and the first animal bodies appeared in a rush — the Cambrian Explosion.',
     source: 'Exploring Our Fluid Earth (University of Hawaiʻi), Change Over Time',
     sourceUrl:
       'https://manoa.hawaii.edu/exploringourfluidearth/physical/ocean-floor/change-over-time',
@@ -174,7 +190,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The Step onto Land',
     reveal:
-      'Around 375 million years ago, ancient lobe-finned fish developed sturdy fins and primitive lungs to navigate shallow waters. Over millions of years, these land-exploring creatures evolved into the first tetrapods, giving rise to amphibians, reptiles, and early mammal ancestors.',
+      'Around 375 million years ago some fish in shallow water had thick jointed fins that could prop up their weight, and simple lungs for gulping air. Those that coped out of the water did better, and their descendants became tetrapods — the four-limbed line leading to amphibians, reptiles, and us.',
     source: 'National Geographic, Walking Towards Land',
     sourceUrl: 'https://www.nationalgeographic.com/science/article/walking-towards-land',
   },
@@ -182,7 +198,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The Age of Mammals',
     reveal:
-      'When a massive asteroid wiped out the non-avian dinosaurs 66 million years ago, it cleared ecological space for small, nocturnal mammals to thrive. These surviving mammals rapidly adapted and diversified, evolving into tree-dwelling primates with keen vision and grasping hands.',
+      'An asteroid struck 66 million years ago and killed the dinosaurs, birds aside, emptying nearly every role in the food chain. Mammals had been small and mostly active at night; with the competition gone they spread out, and one branch became primates — tree-living, sharp-eyed, with hands that grip.',
     source:
       'Popular Science, The ancestor of all placental mammals survived the dino-killing asteroid',
     sourceUrl: 'https://www.popsci.com/science/dinosaur-asteroid-mammal-evolution/',
@@ -191,7 +207,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'Walking Upright',
     reveal:
-      'Around 6 million years ago in Africa, climate shifts shrank dense rainforests into open grasslands, favoring primates that could walk on two legs. This bipedal stance freed their hands to carry food and manipulate tools, sparking the lineage of early human relatives called hominins.',
+      'Around 6 million years ago in Africa the climate dried and grassland opened between the shrinking forests. Primates that crossed that open ground on two legs did better, and walking upright left their hands free to carry food and young — the start of the hominin line, which leads to us.',
     source: 'Smithsonian’s Human Origins Program, Walking Upright',
     sourceUrl: 'https://humanorigins.si.edu/human-characteristics/walking-upright',
   },
@@ -199,15 +215,15 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The First Toolmakers',
     reveal:
-      'Around 2.6 million years ago, early Homo species (like Homo habilis, literally “handy man”) began deliberately chipping stones into sharp-edged flakes and choppers, known as Oldowan tools. These simple tools let early humans butcher carcasses and crack bones for marrow, opening up a richer, more reliable source of protein and fat than they could get with hands and teeth alone.',
+      'Around 2.6 million years ago, Homo habilis — “handy man” — began knocking flakes off stones to make a cutting edge. These Oldowan tools did what teeth and nails could not: open a carcass, strip meat from bone, and crack the bone for the fatty marrow inside.',
     source: 'Smithsonian’s Human Origins Program, Homo habilis',
     sourceUrl: 'https://humanorigins.si.edu/evidence/human-fossils/species/homo-habilis',
   },
   {
     kind: 'Science',
-    lead: 'Homo Erectus Masters Fire',
+    lead: 'Homo Erectus Keeps a Fire',
     reveal:
-      'Roughly a million years ago, Homo erectus became the first hominin species to control fire and use it to cook food. Cooking softened tough meat and plant fibers, making meals far easier to chew and digest than anything eaten raw.',
+      'Roughly a million years ago Homo erectus was keeping fire — the earliest firm evidence of a hominin controlling it, though it may have started much earlier. Fire meant warmth, light and safety at night, and it meant cooking: heat breaks food down before it ever reaches the mouth.',
     source:
       'Harvard Gazette, Invention of cooking drove evolution of the human species, new book argues',
     sourceUrl:
@@ -217,7 +233,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'Cooking and the Growing Brain',
     reveal:
-      'Cooked food yields more usable protein and calories for less digestive effort, freeing up energy that the body once spent on chewing and digestion. Because brain tissue is metabolically expensive to run, this extra energy budget is thought to have helped fuel the growth of larger, more complex hominin brains.',
+      'Cooking saves the body a great deal of work — less chewing, less digesting, more calories out of the same meal. The brain is the most expensive organ to run, and that spare energy is thought to be part of what paid for hominin brains getting bigger.',
     source: 'Scientific American, Cooking Up Bigger Brains',
     sourceUrl: 'https://www.scientificamerican.com/article/cooking-up-bigger-brains/',
   },
@@ -225,15 +241,15 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'Softer Food, Bigger Skulls',
     reveal:
-      'One scientific hypothesis points to the temporalis, a powerful jaw muscle that wraps over the skull and constrains its growth during childhood. As cooked, softer food reduced the need for heavy chewing, this muscle grew smaller over generations (via a mutation in the MYH16 gene around 2.4 million years ago), possibly loosening its grip on the skull and leaving more room for the brain to expand.',
+      'One idea points at the temporalis, the jaw muscle that wraps over the skull and presses on it as a child grows. A mutation in the MYH16 gene, about 2.4 million years ago, shrank it — and a looser grip may have left the skull free to grow larger.',
     source: 'National Geographic, Chew On This',
     sourceUrl: 'https://www.nationalgeographic.com/science/article/chew-on-this',
   },
   {
     kind: 'Science',
-    lead: 'The Useless Wisdom Teeth',
+    lead: 'The Teeth That No Longer Fit',
     reveal:
-      'As jaws kept shrinking alongside softer, cooked diets, human mouths gradually lost the room they once had for a full set of molars. The third molars, or “wisdom teeth,” are a leftover from our big-jawed ancestors, and today they often grow in crooked, impacted, or unnecessary, making removal a common modern procedure.',
+      'Human jaws kept getting shorter, but the tooth count did not follow. The third molars — wisdom teeth — are left over from ancestors with room for them; in a modern jaw they often arrive sideways or stay trapped under the gum, which is why having them pulled is so ordinary.',
     source:
       'Pitt Med Magazine (University of Pittsburgh), Tween science: Why do we have wisdom teeth?',
     sourceUrl:
@@ -243,7 +259,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The Emergence of Homo Sapiens',
     reveal:
-      'Around 300,000 years ago in Africa, Homo sapiens evolved with larger brains, complex language, and advanced toolmaking abilities. With unmatched adaptability and abstract thinking, our species migrated across the globe, becoming the sole surviving human species on Earth.',
+      'Around 300,000 years ago in Africa, Homo sapiens appeared: a large brain, and hands and tools much like ours. What sets the species apart is language — it let what one person learned outlive them, so each generation could start where the last left off.',
     source: 'Smithsonian’s Human Origins Program, Our species arose at least 300,000 years ago',
     sourceUrl:
       'https://humanorigins.si.edu/research/whats-hot-human-origins/our-species-arose-least-300000-years-ago',
@@ -252,7 +268,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'Out of Africa',
     reveal:
-      'Starting around 70,000 years ago, groups of Homo sapiens began migrating out of Africa in waves, spreading across Asia, Europe, and eventually every other continent. This “Out of Africa” expansion is the leading theory explaining how one African-born species came to populate the entire globe.',
+      'From around 70,000 years ago, groups of Homo sapiens walked out of Africa in waves — into Asia, then Europe, then everywhere people now live. It is called the Out of Africa account, and it means every person alive outside Africa descends from those few travelling groups.',
     source: 'Smithsonian Magazine, The Great Human Migration',
     sourceUrl: 'https://www.smithsonianmag.com/history/the-great-human-migration-13561/',
   },
@@ -260,7 +276,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'Meeting Our Ancient Cousins',
     reveal:
-      'As Homo sapiens spread into Europe and Asia, they encountered and interbred with Neanderthals and, farther east, with the more mysterious Denisovans. Today, people of European and Asian descent carry small traces of Neanderthal DNA, Melanesian and Aboriginal Australian populations carry the most Denisovan DNA (4–6%), and populations that stayed in Africa carry little to none of either.',
+      'Sapiens were not alone out there. In Europe and Asia they met Neanderthals, and further east Denisovans, and had children with both — which is why most people outside Africa still carry a little of their DNA, and why those cousins are gone as separate peoples but not gone completely.',
     source: 'Smithsonian’s Human Origins Program, Ancient DNA and Neanderthals',
     sourceUrl: 'https://humanorigins.si.edu/evidence/genetics/ancient-dna-and-neanderthals',
   },
@@ -268,7 +284,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The Rise of Civilization',
     reveal:
-      'Around 10,000 BCE, the last Ice Age ended and a warming climate allowed some human groups to abandon nomadic hunting and gathering in favor of farming wheat, barley, and domesticated animals. This Agricultural Revolution let people settle permanently in one place, and these growing farming settlements eventually swelled into the first cities, laying the groundwork for organized civilization.',
+      'Around 10,000 BCE the last Ice Age ended, and in the warmer climate some groups stopped following their food and began growing it — wheat, barley, herded animals. A field has to be stayed with, so people stayed, and settlements that could store a surplus became the first cities.',
     source: 'Britannica, Neolithic Revolution',
     sourceUrl: 'https://www.britannica.com/event/Neolithic-Revolution',
   },
@@ -276,7 +292,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The Dawn of History',
     reveal:
-      'Around 3,200 BCE, the Sumerians of Mesopotamia developed cuneiform, wedge-shaped marks pressed into clay tablets, widely regarded as the world’s oldest known writing system. Because writing let people record laws, trade, and events instead of relying on memory alone, this moment is conventionally treated as the dividing line between “prehistory” and recorded history.',
+      'Around 3,200 BCE the Sumerians of Mesopotamia pressed wedge-shaped marks into wet clay: cuneiform, the oldest writing we know of. It started as accounting — who owed what — and ended up holding laws, letters and stories, which is why historians date recorded history from here.',
     source: 'Britannica, Cuneiform',
     sourceUrl: 'https://www.britannica.com/topic/cuneiform',
   },
@@ -284,7 +300,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'Gods and the Rise of Religion',
     reveal:
-      'As early civilizations grew, people across Mesopotamia, Egypt, and beyond developed polytheistic religions, worshipping many gods tied to natural forces like the sun, rivers, and harvests. Over the following millennia, some societies gradually shifted toward monotheism, the belief in a single god, a transition seen in movements like Akhenaten’s short-lived worship of Aten in ancient Egypt and, more lastingly, in the emergence of Judaism.',
+      'The early cities worshipped many gods, each tied to something a farming life depended on — the sun, the river, the harvest. Later some turned to a single god: Akhenaten tried it in Egypt and it died with him; in Judaism it held, and Christianity and Islam grew from there.',
     source: 'World History Encyclopedia, Monotheism in the Ancient World',
     sourceUrl: 'https://www.worldhistory.org/article/1454/monotheism-in-the-ancient-world/',
   },
@@ -292,7 +308,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The First Empires',
     reveal:
-      'Around 2,334 BCE, Sargon of Akkad united the city-states of Mesopotamia into what’s considered history’s first empire, the Akkadian Empire. This model of one ruler controlling many conquered peoples and cities became the blueprint for empires that followed for thousands of years.',
+      'Around 2,334 BCE Sargon of Akkad took the Mesopotamian city-states one at a time and ruled them as one state — the Akkadian Empire, usually counted as the first. The new part was not conquering but holding: one army, one law, one tax, over people who had never been one people.',
     source: 'Britannica, Sargon',
     sourceUrl: 'https://www.britannica.com/biography/Sargon',
   },
@@ -300,7 +316,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'Law Written in Stone',
     reveal:
-      'Around 1,754 BCE, the Babylonian king Hammurabi had one of the earliest and most complete legal codes carved into a massive stone stele, listing 282 laws covering everything from theft to family disputes. Its famous “an eye for an eye” principle set a public, consistent standard of justice that everyone, in theory, could see and know.',
+      'Around 1,754 BCE the Babylonian king Hammurabi had 282 laws cut into a stone pillar and set it up in public — theft, wages, marriage, medicine, all of it. Putting the penalties where anyone could read them is the point: the rule stops being whatever a judge feels that day.',
     source:
       'World History Encyclopedia, Code of Hammurabi: The Most Influential Law Code of the Ancient World',
     sourceUrl: 'https://www.worldhistory.org/Code_of_Hammurabi/',
@@ -309,7 +325,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The Invention of Currency',
     reveal:
-      'Around 600 BCE, the kingdom of Lydia (in modern-day Turkey) minted the first standardized metal coins, made from electrum, a natural gold-silver alloy. Standardized coinage replaced clunky barter and unweighed precious metals, making trade faster and more trustworthy across long distances.',
+      'Around 600 BCE the kingdom of Lydia, in what is now Turkey, stamped the first coins: lumps of electrum, a natural mix of gold and silver, each made to a set weight. The stamp was the invention — take the value on trust, instead of weighing and testing every payment.',
     source: 'World History Encyclopedia, The Invention of the First Coinage in Ancient Lydia',
     sourceUrl:
       'https://www.worldhistory.org/article/1793/the-invention-of-the-first-coinage-in-ancient-lydi/',
@@ -318,7 +334,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The Birth of Philosophy',
     reveal:
-      'Starting around the 6th century BCE, thinkers in Greece like Thales and later Socrates, Plato, and Aristotle began asking systematic questions about reality, ethics, and knowledge, apart from religious explanations. This launched Western philosophy and laid intellectual groundwork for later scientific reasoning.',
+      'From about the 6th century BCE, thinkers in Greece — Thales, then Socrates, Plato, Aristotle — asked what the world is made of, what a good life is, and how anyone knows anything, without answering “the gods did it”. Demanding a reason rather than a story is where science starts.',
     source: 'Britannica, Greek Philosophy',
     sourceUrl: 'https://www.britannica.com/topic/Greek-philosophy',
   },
@@ -326,7 +342,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'Empires of Antiquity',
     reveal:
-      'Between the 6th century BCE and the 5th century CE, a succession of vast empires — the Persian, Alexander the Great’s Macedonian, and eventually Rome — connected huge swaths of Europe, Asia, and Africa under shared trade networks and laws. Rome alone endured for centuries, spreading its language, roads, and institutions across three continents.',
+      'Between the 6th century BCE and the 5th century CE, a run of empires — Persian, then Alexander’s, then Rome — put Europe, Asia and North Africa under shared roads, coinage and law. Goods and ideas moved further than a person ever had, and so did religions, languages and disease.',
     source: 'Britannica, Roman Empire',
     sourceUrl: 'https://www.britannica.com/place/Roman-Empire',
   },
@@ -334,7 +350,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The Fall of Rome',
     reveal:
-      'In 476 CE, the last Western Roman emperor, Romulus Augustulus, was deposed by the Germanic chieftain Odoacer, traditionally marking the fall of the Western Roman Empire after centuries of internal decline and outside invasions. Europe then entered the Middle Ages, a long period marked by fragmented, smaller kingdoms in place of centralized imperial rule.',
+      'In 476 CE the Germanic leader Odoacer removed the last western Roman emperor, Romulus Augustulus. The date marks the fall more than it caused it — the west had been coming apart for a century — and after it western Europe was a patchwork of small kingdoms instead of one empire.',
     source: 'Britannica, Roman Empire: Height and decline of imperial Rome',
     sourceUrl: 'https://www.britannica.com/place/Roman-Empire/Height-and-decline-of-imperial-Rome',
   },
@@ -342,7 +358,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The Printing Press',
     reveal:
-      'In 1440, Johannes Gutenberg introduced the movable-type printing press in Germany, allowing books to be mass-produced instead of copied by hand. This dramatically increased literacy and the speed at which ideas, including scientific and religious ones, could spread across Europe.',
+      'Around 1440 in Germany, Johannes Gutenberg printed using movable metal type, so a book could be run off in numbers instead of copied out by hand. Books got cheap, reading spread, and an idea could now travel faster than the people who wanted to stop it.',
     source: 'Britannica, Johannes Gutenberg',
     sourceUrl: 'https://www.britannica.com/biography/Johannes-Gutenberg',
   },
@@ -350,7 +366,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The Scientific Revolution',
     reveal:
-      'From the 16th to 17th centuries, figures like Copernicus, Galileo, and Newton overturned ancient assumptions about the universe, showing the Earth orbits the Sun and describing nature through mathematical laws. This shift toward observation and experimentation became the foundation of modern science.',
+      'In the 16th and 17th centuries Copernicus, Galileo and Newton showed that the Earth goes around the Sun, and that the same few equations govern a falling apple and an orbiting moon. The method was the real result: make a claim, then test it, and let the test decide.',
     source: 'Britannica, Scientific Revolution',
     sourceUrl: 'https://www.britannica.com/science/Scientific-Revolution',
   },
@@ -358,7 +374,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The Industrial Revolution',
     reveal:
-      'Starting around 1760 in Britain, the invention of steam engines and mechanized manufacturing transformed economies from agricultural and hand-crafted to industrial and factory-based. This rapid technological shift reshaped where and how people worked, lived, and traveled within a few generations.',
+      'From about 1760 in Britain, steam engines gave machines power that needed no muscle, water or wind. Work moved out of homes and fields into factories and people moved with it into cities — within two generations most of the country lived a life its grandparents would not recognize.',
     source: 'Britannica, Industrial Revolution',
     sourceUrl: 'https://www.britannica.com/event/Industrial-Revolution',
   },
@@ -366,7 +382,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'Electricity and the Modern World',
     reveal:
-      'In the late 19th century, inventors like Thomas Edison and Nikola Tesla harnessed electricity for practical use, powering lights, motors, and eventually entire cities. Electrification became the backbone of nearly every technology that followed, from communication to computing.',
+      'In the late 19th century Edison, Tesla and Westinghouse worked out how to generate electricity and send it down wires — first to lamps and motors, then to whole cities. Electricity is not one invention but the thing almost every later invention runs on, computers included.',
     source: 'HISTORY, How Edison, Tesla and Westinghouse Battled to Electrify America',
     sourceUrl: 'https://www.history.com/articles/what-was-the-war-of-the-currents',
   },
@@ -374,7 +390,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The Computer Age Begins',
     reveal:
-      'In the 1940s, machines like the ENIAC became some of the first general-purpose electronic computers, initially built for military calculations during World War II. Over the following decades, computers shrank from room-sized machines to desktop devices, transforming how humans processed information.',
+      'In the 1940s machines like ENIAC became the first general-purpose electronic computers, built in wartime to work out artillery tables. What set them apart was that changing the program changed the job, and over the following decades they shrank from filling a room to sitting on a desk.',
     source: 'Britannica, ENIAC',
     sourceUrl: 'https://www.britannica.com/technology/ENIAC',
   },
@@ -382,7 +398,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The Internet Connects the World',
     reveal:
-      'In 1969, the U.S. military-funded ARPANET sent its first message between two computers, planting the seed of what would become the internet. By the 1990s, the World Wide Web made this network accessible to ordinary people, connecting the globe in a way no previous technology had.',
+      'In 1969 the U.S. military-funded ARPANET sent its first message between two computers; it crashed on the third letter of “LOGIN”. That network grew into the internet, and in the 1990s the World Wide Web put a readable page on top of it, which is what reached ordinary people.',
     source: 'Britannica, ARPANET',
     sourceUrl: 'https://www.britannica.com/topic/ARPANET',
   },
@@ -390,7 +406,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The Rise of Artificial Intelligence',
     reveal:
-      'Though the term “artificial intelligence” was coined in 1956 at the Dartmouth Conference, AI remained limited for decades until breakthroughs in machine learning and neural networks in the 2010s allowed computers to recognize images, understand language, and generate original content. By the 2020s, AI systems became woven into daily life, marking a new chapter in the same story that began with the Big Bang — matter, memory, and mind converging into machines that can now, in their own way, think.',
+      'The term was coined in 1956, and for fifty years the results stayed thin. Then in the 2010s enough data and computing made neural networks work — machines shown examples until they find the pattern, rather than told the rules. Atoms from the Big Bang, arranged into something that learns.',
     source: 'IBM, The History of Artificial Intelligence',
     sourceUrl: 'https://www.ibm.com/think/topics/history-of-artificial-intelligence',
   },
