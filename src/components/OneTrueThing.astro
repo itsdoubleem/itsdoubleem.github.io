@@ -18,6 +18,42 @@
  */
 import { curios } from '../curios';
 
+/* ── Which chapter the primer points at, found rather than typed ──
+ * The primer below opens "Chapter N is the example" and then prints that chapter's own
+ * citation. Carrying the same source as the chapter is the whole point of the example —
+ * it makes the paragraph checkable against something already on this page instead of
+ * being an anecdote of its own. So the source is the real link between the two, and the
+ * number is derived from it rather than written down beside it.
+ *
+ * This was the literal "Chapter 24" until 2026-09-23. That counted positions in
+ * curios.ts, so inserting any chapter above Homo sapiens silently repointed the sentence
+ * at a different card — in the one paragraph on the page arguing for not claiming more
+ * than the evidence supports, with no test and no type error to catch it. Deriving it
+ * means an insertion moves the number along with the chapter and a retitle cannot touch
+ * it at all.
+ *
+ * The one thing that still breaks the link is that chapter's `sourceUrl` changing, or a
+ * second chapter taking the same one. Both stop the build here with a message saying what
+ * to do, which is the behaviour worth having: a failed build costs a minute, and a wrong
+ * citation under a paragraph about honest evidence costs the argument.
+ */
+const PRIMER_SOURCE_URL =
+  'https://humanorigins.si.edu/research/whats-hot-human-origins/our-species-arose-least-300000-years-ago';
+
+const primerMatches = curios.filter((c) => c.sourceUrl === PRIMER_SOURCE_URL);
+if (primerMatches.length !== 1) {
+  throw new Error(
+    'OneTrueThing: the primer needs exactly one chapter in curios.ts carrying\n' +
+      '  ' + PRIMER_SOURCE_URL + '\n' +
+      'but found ' + primerMatches.length + '. The primer prints that chapter\'s number and\n' +
+      'its citation, so it cannot render without knowing which chapter it means. Either\n' +
+      'restore that sourceUrl on the Homo sapiens chapter, or point PRIMER_SOURCE_URL at\n' +
+      'whichever chapter the primer should now be illustrating.',
+  );
+}
+const primerChapter = curios.indexOf(primerMatches[0]) + 1;
+const primerSource = primerMatches[0].source;
+
 /* This took a `num` prop so the page could number its section heads — "02 — Deck",
  * "03 — Deck" depending on what sat above it. The ordinals were removed from the
  * section heads on 2026-09-20 and the prop went with them; there is nothing left for a
@@ -450,19 +486,12 @@ e
           should be checkable against something already on this page rather than asserting
           an anecdote of its own. It carries the same source link that chapter does.
 
-          THAT NUMBER IS HARDCODED AND NOTHING CHECKS IT. "Chapter 24" is a literal in the
-          paragraph below, and it finds the Homo sapiens entry by its position in curios.ts
-          rather than by its name. Insert an entry anywhere above that one and this sentence
-          quietly starts naming a different card — a paragraph arguing for honest evidence,
-          illustrated by a chapter that does not say what it claims it says. There is no
-          test and no type error; the page still builds and still looks right.
-
-          Swapping two entries is safe, which is why the 2026-09-23 reorder could move 5/6
-          and 13/14 without touching anything here — a swap renumbers nothing. Inserting is
-          the dangerous operation. If you add a chapter above Homo sapiens, change this
-          number to match. curios.ts carries the same warning at the point where someone
-          would actually make that mistake, because whoever inserts a chapter is editing
-          that file and has no reason to open this one.
+          The number and the citation below are both derived — see primerChapter at the top
+          of this file. Neither is typed out here, so reordering, inserting and retitling
+          chapters all leave this paragraph correct without anyone remembering to come and
+          look. What it cannot absorb is that chapter's sourceUrl changing; that stops the
+          build with an explanation rather than shipping the wrong card under a paragraph
+          about not overstating the evidence.
 
           The two dates here were wrong in the draft this came from, and both were fixed
           rather than shipped: the earlier figure was given as 150,000 years (the accepted
@@ -484,7 +513,7 @@ e
         {/* {' '} before the <em>: a line break between text and an inline element is
             collapsed away here, and the first render read "confidentlyHomo sapiens". */}
         <p>
-          Chapter 24 is the example. The oldest fossils confidently called{' '}
+          Chapter {primerChapter} is the example. The oldest fossils confidently called{' '}
           <em>Homo sapiens</em> were about 195,000 years old, from Omo Kibish in Ethiopia.
           Then in June 2017 remains from Jebel Irhoud in Morocco were dated to roughly
           300,000 years, and our species became a hundred thousand years older in a single
@@ -495,7 +524,7 @@ e
             end of a sentence — every other claim in this section names its source that
             way and this one should not look like an afterthought. */}
         <p class="curio__primer-src">
-          <a href="https://humanorigins.si.edu/research/whats-hot-human-origins/our-species-arose-least-300000-years-ago">Smithsonian’s Human Origins Program, Our species arose at least 300,000 years ago</a>
+          <a href={PRIMER_SOURCE_URL}>{primerSource}</a>
         </p>
       </div>
     </div>

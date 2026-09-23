@@ -44,18 +44,19 @@
  *
  * The homepage counts the entries itself, so adding chapter 43 is appending to this array.
  *
- * APPENDING IS FREE. INSERTING IS NOT, AND ONE THING OUTSIDE THIS FILE WILL BREAK QUIETLY.
- * Adding to the end costs nothing. Putting a chapter into the middle renumbers every
- * chapter after it, and the primer above the deck in OneTrueThing.astro opens with
- * "Chapter 24 is the example" — meaning the Homo sapiens entry, which it locates by
- * counting rather than by name. Insert anything above 24 and that sentence points at the
- * wrong card, in a paragraph whose whole subject is not overstating what the evidence
- * says. Nothing catches it: the types are fine, the build passes, the page looks right.
- * So if you insert above Homo sapiens, open OneTrueThing.astro and move that number.
+ * ONE `sourceUrl` IN HERE IS LOAD-BEARING, AND IT IS NOT OBVIOUS FROM THIS FILE.
+ * The primer above the deck in OneTrueThing.astro opens "Chapter N is the example" and
+ * means the Homo sapiens chapter. It does not count to 24 — it finds that chapter by
+ * matching its own citation against `sourceUrl`, then prints the number and the source it
+ * finds. So appending, inserting, reordering and retitling are all safe here and need no
+ * edit there; the primer follows the chapter around on its own.
  *
- * Swapping two entries is safe and needs no edit anywhere — a swap changes the order but
- * not the count, which is why the 2026-09-23 reorder of 5/6 and 13/14 left the primer
- * alone. It is insertion and deletion that shift the numbering.
+ * What it cannot survive is that chapter losing its `sourceUrl`, or a second chapter
+ * taking the same one, because then there is no single chapter for the primer to mean.
+ * Either case stops the build with a message naming the URL and what to do about it,
+ * which is the trade worth having: the alternative was a literal "Chapter 24" that went
+ * silently wrong the first time anyone inserted a chapter above it, in the one paragraph
+ * on the page arguing for not claiming more than the evidence supports.
  */
 export type Curio = {
   /* One member on purpose — see the note above before widening it. */
