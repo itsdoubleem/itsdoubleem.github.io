@@ -7,7 +7,7 @@
 // replaced the comment and left the code holding raw placeholders. The service
 // worker then failed to parse and the app quietly stopped working offline.
 
-const VERSION = 'bb8d9db7da';
+const VERSION = '9f9087cb05';
 const CACHE = `hangil-${VERSION}`;
 const FILES = [
   "./",
