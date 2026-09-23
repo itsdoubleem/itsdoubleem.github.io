@@ -39,16 +39,16 @@ platformNotes:
   - platform: android
     note: Installs from the file itself, with no store account. Your phone will warn you about installing from outside the store — that warning is normal for anything distributed this way. The Android app speaks Korean through the phone's own speech engine, so it can use a better voice than a browser can, and Settings lets you pick which engine and which of the installed Korean voices reads to you. Your progress lives in the app's own storage, so it survives an update.
   - platform: web
-    note: It opens in any browser and there is nothing to install, but it is meant to be added to your home screen — on Android, Chrome's menu › Add to Home screen; on iPhone, Safari's share button › Add to Home Screen. After that it opens full screen like any other app and works with no connection. In a browser the Korean is read by a voice your device already has — the app picks the best one on the device, and Settings lets you choose another. Chrome and Edge also offer online voices, which sound better because they run on Google's or Microsoft's servers — so every sentence is sent there and they stop working offline. The app lists them, says so, and never picks one for you. Your progress lives in that browser's storage for this address, so it does not follow you to another phone or another browser — take a backup from Settings before you switch.
+    note: It opens in any browser and there is nothing to install, but it is meant to be added to your home screen — on Android, Chrome's menu › Add to Home screen; on iPhone, Safari's share button › Add to Home Screen. After that it opens full screen like any other app and works with no connection. In a browser the app picks the best Korean voice available, with nothing to set. In Safari, and in the browser on an Android phone or tablet, that is a voice on the device itself. In Chrome and Edge on a computer the on-device Korean voices are poor, so the app uses the browser's online voice instead — which works by sending the sentence being spoken to Google or Microsoft. It is only ever the app's own Korean, never your answers or your progress. With no connection a voice on the device takes over, and Settings lets you choose an on-device voice permanently if you would rather nothing went out at all. Your progress lives in that browser's storage for this address, so it does not follow you to another phone or another browser — take a backup from Settings before you switch.
 verify:
   - claim: It works with no connection.
-    how: Open it once with a connection, then turn airplane mode on and open it again. The course, the vocabulary, the exam papers and the review deck all still work. The whole app is 897 KB and your browser keeps a copy after the first visit.
+    how: Open it once with a connection, then turn airplane mode on and open it again. The course, the vocabulary, the exam papers and the review deck all still work. The whole app is 898 KB and your browser keeps a copy after the first visit.
   - claim: It cannot send your progress anywhere.
-    how: Open your browser's network panel and use the app. Every request it makes is for its own files, and once it has loaded it makes none at all — answering a question sends nothing. There is no account to sign into, no analytics, and no third-party script on the page.
+    how: Open your browser's network panel and use the app. Every request it makes is for its own files, and once it has loaded it makes none at all — answering a question sends nothing. The one thing that can leave is a sentence being read aloud in Chrome or Edge, which use an online voice — the browser sends that sentence to Google or Microsoft to be spoken. Your progress is never part of it. There is no account to sign into, no analytics, and no third-party script on the page.
   - claim: The Android app cannot reach the internet at all.
     how: It asks for no internet permission. Unzip the APK and read its manifest — with that permission absent, Android will not let the app use the network, whatever anybody claims about it. The trade-off is real and worth knowing — it also rules out the speech engines' online voices, which are better than the offline ones, so the app is limited to the Korean voices already on your phone.
   - claim: The APK you download is the file I built.
-    how: Hash it before you install it — shasum -a 256 hangil.apk on macOS or Linux, certutil -hashfile hangil.apk SHA256 on Windows. It must print b07e6e608b2cf2b6732d9f39451bad4d13f0cba2def9cb7b18097c5e833290e4. One character out and it is not my build, so delete it.
+    how: Hash it before you install it — shasum -a 256 hangil.apk on macOS or Linux, certutil -hashfile hangil.apk SHA256 on Windows. It must print 10ce3c4280b852b8035260bd5cad44daf02dbc3c240fa72bee5e7da23c2628a5. One character out and it is not my build, so delete it.
   - claim: The Korean audio is your own phone speaking, not a download.
     how: Turn airplane mode on and press any play button. It still speaks, because the app hands the sentence to the phone's own text-to-speech engine. That is why there is no audio to wait for — and why, if your phone has no Korean voice installed, the app says so on the first screen instead of playing you something wrong.
 wrong:
@@ -155,13 +155,21 @@ published free; the app leaves a shelf for each and ships them empty.
 
 ## Your data
 
-**Nothing leaves the device.** There is no server, no account, no sign-up, no
+**Nothing about you leaves the device.** There is no server, no account, no sign-up, no
 analytics and no telemetry. The Android app goes further and ships with no
 internet permission at all, so the guarantee is enforced by Android rather than
 merely stated here. Your progress, your review schedule and your exam
 scores are in your browser's own storage and nowhere else — not because a setting
 is switched on, but because the app has no code that sends anything anywhere.
 Once it has loaded, it makes no network requests at all.
+
+One thing to know about the audio in a browser. In Chrome and Edge the app reads
+Korean with the browser's online voice, because it is far better than the voices
+those browsers have on the device — and an online voice works by sending the
+sentence being spoken to Google or Microsoft. That sentence is the app's own
+Korean and nothing else. If you would rather even that stayed put, pick an
+on-device voice in Settings. Safari, phone and tablet browsers, and the Android
+app all speak on the device.
 
 The trade-off is real: clear the browser's data and your progress goes with it.
 Settings has a backup you can save to a file and restore later, and it is worth
