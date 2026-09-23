@@ -105,7 +105,7 @@ The APKs this site serves are committed under `public/downloads/`. Their SHA-256
 
 ```
 c180c7398240e4a1b0f1ef572418238253d373ce8d967ab314f3a32f37698dc7  logger.apk
-7919f15fefb73bd0f76c5471f3ad1e79c42676f880395adfd4390fc84877948f  hangil.apk
+b07e6e608b2cf2b6732d9f39451bad4d13f0cba2def9cb7b18097c5e833290e4  hangil.apk
 ```
 
 The app page prints the same hash, but a hash is only worth as much as the page it sits
