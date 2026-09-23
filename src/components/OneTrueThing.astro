@@ -478,13 +478,24 @@ e
       </p>
 
       {/* ── The primer ──
-          Four sentences on what "science says" means, because the deck makes 42 confident
-          claims about things nobody watched happen, and a reader is entitled to know on
-          what basis. It sits BEFORE the cards for that reason: it frames them.
+          What "science says" means, because the deck makes 42 confident claims about
+          things nobody watched happen, and a reader is entitled to know on what basis. It
+          sits BEFORE the cards for that reason: it frames them.
 
-          The worked example is chapter 24, and it is chapter 24 on purpose — the primer
-          should be checkable against something already on this page rather than asserting
-          an anecdote of its own. It carries the same source link that chapter does.
+          THE EXAMPLE COMES FIRST AND THE LESSON IS DRAWN FROM IT, which is the opposite of
+          how this read until 2026-09-23. It used to open with four abstract sentences and
+          reach the fossils last, and two of those sentences made the same point — that
+          being wrong later is not a failure — once about the method and once about a
+          conclusion. With the heading and the standfirst above it, that was three framings
+          stacked before anything a reader could check. Jebel Irhoud does the arguing better
+          than either abstract sentence did: a species getting a hundred thousand years
+          older in one paper IS the method working, and saying so afterwards costs one line
+          instead of four. If you add to this, add evidence, not another way of putting it.
+
+          The worked example is the Homo sapiens chapter on purpose — the primer should be
+          checkable against something already on this page rather than asserting an anecdote
+          of its own. It carries the same source link that chapter does, which is also how
+          it finds the chapter's number.
 
           The number and the citation below are both derived — see primerChapter at the top
           of this file. Neither is typed out here, so reordering, inserting and retitling
@@ -504,21 +515,24 @@ e
           clause, because that is the sentence making the claim — a reader should not have
           to carry a date forward from one sentence to place the event in the next. */}
       <div class="curio__primer">
-        <p>
-          Science is the study of nature — whatever nature turns out to be, that is what
-          science reports. It changes its answer when the evidence changes, and that is the
-          method working rather than failing. A conclusion later shown to be wrong was not a
-          lie; it was the honest reading of everything available at the time.
-        </p>
         {/* {' '} before the <em>: a line break between text and an inline element is
-            collapsed away here, and the first render read "confidentlyHomo sapiens". */}
+            collapsed away here, and the first render read "firmlyHomo sapiens". The same
+            trap caught {primerChapter} below on the day this was rewritten — it sat at the
+            end of a line and rendered "Chapter 24carries the new date". An expression and
+            the words touching it have to share a source line, or take a {' '}. */}
         <p>
-          Chapter {primerChapter} is the example. The oldest fossils confidently called{' '}
+          The oldest fossils we could firmly call{' '}
           <em>Homo sapiens</em> were about 195,000 years old, from Omo Kibish in Ethiopia.
           Then in June 2017 remains from Jebel Irhoud in Morocco were dated to roughly
           300,000 years, and our species became a hundred thousand years older in a single
-          paper. The old number never claimed nothing older existed — only that nothing
-          older had been found.
+          paper.
+        </p>
+        <p>
+          That is the method working, not failing. Science reports whatever nature turns
+          out to be, so the answer moves when the evidence moves. The old number was the
+          honest reading of everything available at the time — never a claim that nothing
+          older existed, only that nothing older had been found.
+          Chapter {primerChapter} carries the new date.
         </p>
         {/* Its own line, and styled like a card's citation rather than trailing off the
             end of a sentence — every other claim in this section names its source that
