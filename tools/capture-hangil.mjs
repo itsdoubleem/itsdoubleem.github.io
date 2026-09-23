@@ -55,6 +55,10 @@ const seed = async () => {
       lang: 'en', theme: 'light', rate: 0.85, rom: true,
       done: { g01: { at: t, score: 1 }, g02: { at: t, score: 1 }, g03: { at: t, score: 0.83 },
               g04: { at: t, score: 1 }, g05: { at: t, score: 0.83 } },
+      // Five units in means the alphabet lessons are behind them. Without this
+      // the Today screen tells a learner five units into the course to go and
+      // start the alphabet — a true screen, but of an impossible learner.
+      letters: Object.fromEntries(['a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8'].map(id => [id, { at: t, score: 1 }])),
       srs: { 'u:g03:2': { due: t, ivl: 0, ease: 2.2, reps: 0, lapses: 1 },
              'w:월급':  { due: t, ivl: 0, ease: 2.2, reps: 0, lapses: 1 },
              'u:g05:1': { due: t, ivl: 0, ease: 2.4, reps: 0, lapses: 1 } },
@@ -92,6 +96,7 @@ await go('#/exam');                 await shot('05-exam');
 await go('#/exam/drill/d01');       await shot('06-sign');
 await go('#/vocab/v04');            await shot('07-vocab');
 await go('#/exam/drill/d08', 900);  await shot('08-picture');
+await go('#/hangeul/lesson/a8/practice'); await shot('09-sounds');
 
 await b.close();
 console.log('captured to', OUT);

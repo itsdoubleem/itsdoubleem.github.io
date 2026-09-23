@@ -21,14 +21,17 @@ screenshots:
     alt: A lesson titled Turning a whole sentence into an adjective, with the forms (으)ㄴ, 는 and (으)ㄹ in a tinted pill beneath it, then a Walk me through it button, above several paragraphs explaining how Korean puts a whole clause in front of the noun
     caption: A unit from the last level. The explanation comes first and is written out in full — the app is not a flashcard deck with a grammar note attached.
   - src: /assets/hangil/shots/05-exam.png
-    alt: The exam menu, explaining that the EPS-TOPIK paper is forty questions at five points each, then a How the exam works reader, then Practice paper 1 and Practice paper 2 each labelled 40 questions and 50 minutes, above a section headed 업종별 by trade
-    caption: The exam side. Below what is shown here it drills each question type the paper uses, so nothing on the day is a surprise format. The day-streak and review counts visible in these captures come from a sample of progress made while taking them, not from anyone's study record.
+    alt: The EPS-TOPIK screen, explaining that it is practice for the paper itself — forty questions, twenty listening and twenty reading, in fifty minutes — and that the Korean is taught in the course. Below it a How the exam works reader, then a section headed 1 · By question type, starting with Signs and notices and The right word
+    caption: The exam side is exam preparation, kept apart from the course. It starts with each question type the paper uses, so nothing on the day is a surprise format, and then moves on to full timed papers. The day-streak and review counts visible in these captures come from a sample of progress made while taking them, not from anyone's study record.
   - src: /assets/hangil/shots/06-sign.png
     alt: A practice question showing the Korean sign 출입 금지 in a bordered box, with the Korean instruction to choose the correct meaning and four Korean answer options below it
     caption: A sign question. Where the paper photographs a sign, this prints the sign's own words — the words are the thing being tested. Questions built on a drawing have a drawing.
   - src: /assets/hangil/shots/08-picture.png
     alt: A listening question headed in Korean, asking the reader to listen and choose the correct picture, above a two-by-two grid of four line drawings labelled A to D — a safety helmet, a glove, safety goggles and a face mask
     caption: A picture question. You hear one Korean sentence and pick the drawing it describes, with nothing written down to fall back on. The drawings are original line art made for this app.
+  - src: /assets/hangil/shots/09-sounds.png
+    alt: A question from the alphabet lessons headed How blocks change each other. It shows the word 직업 and asks how it is actually said, with four options in brackets — 직컵, 지겁, 지컵 and 직업 as it is written
+    caption: The last alphabet lesson is about how blocks change each other, because a word you can read on paper often sounds quite different when spoken. 직업 is said 지겁, and one wrong option is always the word said exactly as it is written.
   - src: /assets/hangil/shots/07-vocab.png
     alt: The Safety vocabulary set, listing 안전, 위험 and 조심 with romanisation, English meaning and a Korean example sentence under each, with a round play button beside every word
     caption: Vocabulary, grouped by where you will hear it. Every word and sentence has a play button.
@@ -39,13 +42,13 @@ platformNotes:
     note: It opens in any browser and there is nothing to install, but it is meant to be added to your home screen — on Android, Chrome's menu › Add to Home screen; on iPhone, Safari's share button › Add to Home Screen. After that it opens full screen like any other app and works with no connection. Your progress lives in that browser's storage for this address, so it does not follow you to another phone or another browser — take a backup from Settings before you switch.
 verify:
   - claim: It works with no connection.
-    how: Open it once with a connection, then turn airplane mode on and open it again. The course, the vocabulary, the exam papers and the review deck all still work. The whole app is 843 KB and your browser keeps a copy after the first visit.
+    how: Open it once with a connection, then turn airplane mode on and open it again. The course, the vocabulary, the exam papers and the review deck all still work. The whole app is 892 KB and your browser keeps a copy after the first visit.
   - claim: It cannot send your progress anywhere.
     how: Open your browser's network panel and use the app. Every request it makes is for its own files, and once it has loaded it makes none at all — answering a question sends nothing. There is no account to sign into, no analytics, and no third-party script on the page.
   - claim: The Android app cannot reach the internet at all.
     how: It asks for no internet permission. Unzip the APK and read its manifest — with that permission absent, Android will not let the app use the network, whatever anybody claims about it. The trade-off is real and worth knowing — it also rules out the speech engines' online voices, which are better than the offline ones, so the app is limited to the Korean voices already on your phone.
   - claim: The APK you download is the file I built.
-    how: Hash it before you install it — shasum -a 256 hangil.apk on macOS or Linux, certutil -hashfile hangil.apk SHA256 on Windows. It must print 0ed67ab7beb51714863133ae3c3e5db142e916acc35ea4cfab03d01ba67239a8. One character out and it is not my build, so delete it.
+    how: Hash it before you install it — shasum -a 256 hangil.apk on macOS or Linux, certutil -hashfile hangil.apk SHA256 on Windows. It must print 7919f15fefb73bd0f76c5471f3ad1e79c42676f880395adfd4390fc84877948f. One character out and it is not my build, so delete it.
   - claim: The Korean audio is your own phone speaking, not a download.
     how: Turn airplane mode on and press any play button. It still speaks, because the app hands the sentence to the phone's own text-to-speech engine. That is why there is no audio to wait for — and why, if your phone has no Korean voice installed, the app says so on the first screen instead of playing you something wrong.
 wrong:
@@ -83,10 +86,12 @@ explanation, a table, five real sentences with audio, the mistakes people
 actually make, and a mixed exercise set — multiple choice, word order, listening,
 matching.
 
-Underneath both sits **one review deck**. Everything you answer goes into it, and
-comes back at a widening gap — a day, three days, a week, a fortnight. Get
-something wrong and it starts again from today. A word you fumbled in unit three
-will find you again while you are in unit eleven, which is the whole point.
+Everything you answer comes back at a widening gap — a day, three days, a week,
+a fortnight — and something you get wrong starts again from today. A word you
+fumbled in unit three will find you again while you are in unit eleven, which
+is the whole point. There are **two review decks**, because there are two jobs:
+the Korean itself (the alphabet, the course, the vocabulary) is reviewed on its
+own tab, and exam questions you missed are gone over inside the exam side.
 
 Every Korean sentence in the app has a play button, and the voice is your own
 phone's. Nothing is downloaded and nothing is streamed, so the audio works in
@@ -95,8 +100,12 @@ speech engine and which of its Korean voices reads to you — most phones have
 four or five installed and they do not sound alike, so it is worth a minute in
 Settings to find the one you can listen to for an hour.
 
-There is also a **한글 trainer** for anyone who cannot read the letters yet, and
-**197 words** grouped by where you will hear them — the shop floor, the safety
+**It starts with the alphabet.** Eight short lessons take you from the six
+plain vowels to reading any block, and the last one covers how blocks change
+each other when spoken — why 한국어 is said 한구거, and every 합니다 you hear is
+함니다. Each lesson walks through its letters, then asks you to read blocks and to
+pick the one you heard from four that differ by a single letter. Alongside the
+course there are **197 words** grouped by where you will hear them — the shop floor, the safety
 notice, the payslip, the clinic, the farm.
 
 Two shelves sit empty on purpose, for material published free by HRD Korea that
@@ -110,7 +119,8 @@ quietly takes its place in every question that used it.
 Korean has stopped improving because survival Korean is enough to get through the
 day.
 
-It assumes nothing. If you cannot read 한글, unit zero is the alphabet. If you
+It assumes nothing. If you cannot read 한글, the alphabet lessons come first, and
+the home screen always says what to do next. If you
 can already hold a conversation, the last six units are the ones that sound like
 an adult — modifying clauses, reported speech, the endings that carry attitude,
 and the plain written style that contracts and government notices are written in.

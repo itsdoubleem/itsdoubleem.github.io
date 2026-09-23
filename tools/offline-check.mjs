@@ -60,6 +60,10 @@ const CHECKS = [
   ['#/course/g05/learn', 'Tell someone where you are going'],
   ['#/vocab/v04/learn', '안전'],
   ['#/weak', 'Weak spots'],
+  // The alphabet lessons: a walk-through, and the practice alphabet.js and
+  // hangul.js build — a module missing from the precache fails only here.
+  ['#/hangeul/lesson/a1', '기본 모음'],
+  ['#/hangeul/lesson/a8/practice', 'How is this actually said?'],
 ];
 let failed = 0;
 for (const [hash, expect] of CHECKS) {
