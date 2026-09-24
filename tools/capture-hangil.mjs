@@ -1,6 +1,6 @@
 /* Captures HANGIL's screenshots from the shipping build — never a mock-up.
  *
- *   node tools/build.mjs                 # so dist/ is current
+ *   node tools/build.mjs                 # in ~/Hangil_app, then copy its dist/ to public/hangil/
  *   npm run dev            (in the site) # serves it at /hangil/
  *   node tools/capture-hangil.mjs        # writes into public/assets/hangil/
  *
@@ -11,7 +11,7 @@ import { chromium } from 'playwright';
 import { mkdir } from 'node:fs/promises';
 
 // index.html spelled out: astro dev does not serve a directory index for files
-// copied into public/, which is the same reason capture-guide.mjs names it too.
+// copied into public/, which is the same reason capture-logger.mjs names it too.
 const BASE = process.env.HANGIL_URL || 'http://localhost:4321/hangil/index.html';
 const OUT = process.env.HANGIL_OUT || 'public/assets/hangil';
 await mkdir(`${OUT}/shots`, { recursive: true });
@@ -19,7 +19,7 @@ await mkdir(`${OUT}/shots`, { recursive: true });
 const b = await chromium.launch();
 const page = await b.newPage({
   viewport: { width: 390, height: 844 },
-  /* 3, matching tools/capture-guide.mjs — see the long note there. 2 makes a 780px file
+  /* 3, matching tools/capture-logger.mjs — see the long note there. 2 makes a 780px file
      for a 390px layout, which is 1:1 only on a 2x display; on a 3.75x phone that is
      pixel-perfect only up to 208 CSS px, and every place this site draws a capture is
      wider than that. 3 gives 1170 x 2532. */
@@ -41,7 +41,7 @@ const page = await b.newPage({
  * untouched, and a reader sees a screen the app really produces. It is only fixed which
  * of them, so that re-running this script twice gives the same files twice.
  *
- * Same purpose as the pinned clock in tools/capture-guide.mjs, for the same reason. */
+ * Same purpose as the pinned clock in tools/capture-logger.mjs, for the same reason. */
 await page.addInitScript(() => {
   let s = 20260920 >>> 0;
   Math.random = () => ((s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296);

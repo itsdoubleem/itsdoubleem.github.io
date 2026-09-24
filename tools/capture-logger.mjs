@@ -2,7 +2,7 @@
  *
  * Run it whenever Logger changes, so the guide never shows a screen that no longer
  * exists:   npm run dev        (in one terminal)
- *           node tools/capture-guide.mjs
+ *           node tools/capture-logger.mjs
  *
  * It drives the real app at /logger/ — it does not mock anything. The app hangs its
  * handlers on plain divs and ignores a synthetic .click(), so each tap marks the tightest

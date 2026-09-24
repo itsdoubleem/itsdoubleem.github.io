@@ -26,7 +26,7 @@
  *
  * ── What is inside it is NOT drawn ──
  * The screens are `card.png` and friends: real captures of the running app, produced by
- * tools/capture-guide.mjs. DESIGN.md § The app card explains at length why a hand-built
+ * tools/capture-logger.mjs. DESIGN.md § The app card explains at length why a hand-built
  * HTML miniature is forbidden here — the last one said "VERIFY TO CLOCK IN" where the
  * app says "HOLD TO CLOCK IN" and omitted a whole card. Do not reintroduce one.
  *
@@ -39,7 +39,7 @@
  *
  * These were 780 x 1688 (2x) until 2026-09-20. On a 3.75x phone a 780px source is 1:1
  * only up to 208 CSS px, so the device at 290px was upscaling it by 1.39x. Recaptured at
- * deviceScaleFactor: 3 — see the note at the top of tools/capture-guide.mjs.
+ * deviceScaleFactor: 3 — see the note at the top of tools/capture-logger.mjs.
  */
 interface Screen {
   src: string;

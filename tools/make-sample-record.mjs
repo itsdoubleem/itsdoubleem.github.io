@@ -1,8 +1,14 @@
-/* Captures the LOGGER guide screenshots straight from the shipping app.
+/* Makes the invented work record the LOGGER guide shows, by driving the shipping app.
  *
- * Run it whenever Logger changes, so the guide never shows a screen that no longer
- * exists:   npm run dev        (in one terminal)
- *           node tools/capture-guide.mjs
+ *   npm run dev                          (in one terminal)
+ *   node tools/make-sample-record.mjs    # writes tools/sample-output/
+ *   node tools/render-page.mjs "$PWD/tools/sample-output/record.html" out.png
+ *
+ * The second step turns the record into a picture; read the note at the top of
+ * render-page.mjs before letting it replace the guide's 12-record.png.
+ *
+ * Every name, shift and figure is made up — see tools/sample-output/README.md for why a
+ * real phone's export must never stand in for this.
  *
  * It drives the real app at /logger/ — it does not mock anything. The app hangs its
  * handlers on plain divs and ignores a synthetic .click(), so each tap marks the tightest

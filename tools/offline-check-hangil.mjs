@@ -1,7 +1,7 @@
 /* Proves HANGIL still works with the network off — the claim the app page makes.
  *
  *   npx astro build && npx astro preview --port 8140
- *   node tools/offline-check.mjs
+ *   node tools/offline-check-hangil.mjs
  *
  * It registers the service worker, cuts the network at the browser context, reloads,
  * and walks three screens that need three different content files. Exits non-zero if
