@@ -89,7 +89,7 @@ const grouped = GROUPS
       <section class="group">
         {/* No count beside the heading. A heading that names the kind of work is
             doing its whole job; the reader can see how many cards are under it. */}
-        <p class="label reveal">{label}</p>
+        <h2 class="label reveal">{label}</h2>
         {items.length >= 4 ? (
           <div class="shelf">
             {items.map((app) => <AppCard app={app} />)}
