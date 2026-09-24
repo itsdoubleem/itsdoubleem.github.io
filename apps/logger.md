@@ -129,7 +129,7 @@ are paid — there is no version of this app that needs a copy of that, so it do
 have one.
 
 The trade-off is real and you should know it: if you lose the phone or clear the app's
-data, the records are gone. Use the backup export in 설정 › 백업과 내보내기, and keep the
+data, the records are gone. Use the backup export in 설정 › Backup, and keep the
 file somewhere you control.
 
 If your phone has a fingerprint sensor, the punch pad can use it, so clocking in is one
