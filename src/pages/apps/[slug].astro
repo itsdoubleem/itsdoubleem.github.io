@@ -31,9 +31,19 @@ import Base from '../../layouts/Base.astro';
 import PhoneDevice from '../../components/PhoneDevice.astro';
 import { themeColor } from '../../theme-color';
 import { contact } from '../../site';
+import { fill, noticeIsLive, releaseFacts } from '../../release';
 
 export async function getStaticPaths() {
   const [apps, guides] = await Promise.all([getCollection('apps'), getCollection('guides')]);
+  // The slug is the URL and the filename is what a person edits; if they disagree, the
+  // page for apps/foo.md quietly appears at /apps/bar/. One rule, checked here.
+  // (Not app.id — the glob loader takes the id FROM `slug`, so the two always agree.)
+  for (const app of apps) {
+    const file = app.filePath?.split('/').pop()?.replace(/\.md$/, '');
+    if (file !== app.data.slug) {
+      throw new Error(`apps/${file}.md says slug: ${app.data.slug} — they must match`);
+    }
+  }
   return apps.map((app) => ({
     params: { slug: app.data.slug },
     props: { app, hasGuide: guides.some((g) => g.data.app === app.data.slug) },
@@ -43,6 +53,18 @@ export async function getStaticPaths() {
 const { app, hasGuide } = Astro.props;
 const d = app.data;
 const { Content } = await render(app);
+
+// Release facts — version, size, hash — come from `release:` and the file itself, and
+// prose asks for them by token. See src/release.ts.
+const facts = releaseFacts(d.release);
+const f = (text: string) => fill(text, facts);
+
+// The update notice, if there is one and its last day has not passed. Its badge goes on
+// one download button, and links to the section rather than wrapping it: a link cannot
+// sit inside a link, and the button still has to download.
+const notice = noticeIsLive(d.notice) ? d.notice : undefined;
+const badgeOn = notice && (notice.download ?? d.release?.apk ?? d.downloads[0].href);
+const noticeParas = notice ? notice.body.split(/\n\s*\n/).map((p: string) => f(p.trim())) : [];
 
 const langNames: Record<string, string> = {
   ko: '한국어', en: 'English', vi: 'Tiếng Việt', zh: '中文',
@@ -130,12 +152,17 @@ const heroScreen = d.card
               should not need a scroll. */}
           <div class="apphead__actions">
             {d.downloads.map((dl: any, i: number) => (
-              <a class={`btn ${i === 0 ? 'btn--primary' : 'btn--ghost'}`} href={dl.href}>
-                <span class="btn__label">
-                  {dl.label}
-                  {dl.note && <span class="btn__note">{dl.note}</span>}
-                </span>
-              </a>
+              <span class="getit">
+                <a class={`btn ${i === 0 ? 'btn--primary' : 'btn--ghost'}`} href={dl.href}>
+                  <span class="btn__label">
+                    {dl.label}
+                    {dl.note && <span class="btn__note">{f(dl.note)}</span>}
+                  </span>
+                </a>
+                {notice && dl.href === badgeOn && (
+                  <a class="getit__badge" href={`#${notice.id}`}>{notice.badge}</a>
+                )}
+              </span>
             ))}
           </div>
 
@@ -181,6 +208,17 @@ const heroScreen = d.card
         is right for a grid of cards and much too wide for prose. */}
     <div class="wrap">
      <div class="read">
+      {/* Before everything else in the column, because it is the thing to read before
+          downloading — the badge on the button links straight here. No .reveal: a reader
+          who arrives by the anchor must see it at once, not watch it fade in. */}
+      {notice && (
+        <section class="notice block" id={notice.id} aria-labelledby={`${notice.id}-head`}>
+          <p class="notice__tag">{notice.badge}</p>
+          <h2 class="notice__head" id={`${notice.id}-head`}>{f(notice.heading)}</h2>
+          {noticeParas.map((p: string) => <p>{p}</p>)}
+        </section>
+      )}
+
       {hasGuide && (
         <a class="bigrow" href={`/apps/${d.slug}/guide/`}>
           <span>How to use {d.name}, screen by screen</span>
@@ -236,7 +274,7 @@ const heroScreen = d.card
             {d.platformNotes.map((p: any) => (
               <div class="where__row reveal">
                 <dt>{platformNames[p.platform] ?? p.platform}</dt>
-                <dd>{p.note}</dd>
+                <dd>{f(p.note)}</dd>
               </div>
             ))}
           </dl>
@@ -256,8 +294,8 @@ const heroScreen = d.card
           <ul class="verify__list">
             {d.verify.map((v: any) => (
               <li class="verify__item reveal">
-                <p class="verify__claim">{v.claim}</p>
-                <p class="verify__how">{v.how}</p>
+                <p class="verify__claim">{f(v.claim)}</p>
+                <p class="verify__how">{f(v.how)}</p>
               </li>
             ))}
           </ul>
@@ -389,6 +427,42 @@ const heroScreen = d.card
     display: flex; flex-wrap: wrap; gap: 12px;
   }
   .apphead__actions .btn { min-height: 54px; }
+
+  /* ---------- the update notice ---------- */
+  /* The badge is a second link pinned to the button's corner, not a part of it — the
+     button downloads and the badge goes to the notice, and a link inside a link is
+     invalid HTML that browsers untangle unpredictably. The ring in the ground colour is
+     what separates it from the mint: red on mint measures 1.77:1, and without the ring
+     the two read as one smudge. The corner offset is kept inside .getit's padding so the
+     badge never overlaps the button beside it when the row wraps on a phone. */
+  .getit { position: relative; display: inline-flex; padding: 10px 10px 0 0; margin: -10px -10px 0 0; }
+  .getit__badge {
+    position: absolute; top: 0; right: 0;
+    display: inline-flex; align-items: center;
+    min-height: 24px; padding: 0 9px;
+    border-radius: 999px;
+    background: var(--alert); color: var(--accent-ink);
+    box-shadow: 0 0 0 2px var(--ground);
+    font-size: 12px; font-weight: 700; line-height: 1; white-space: nowrap;
+    text-decoration: none;
+  }
+  .getit__badge:hover { text-decoration: underline; text-underline-offset: 2px; }
+
+  .notice {
+    padding: 22px;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-left: 3px solid var(--alert);
+    border-radius: var(--r-md);
+    scroll-margin-top: calc(var(--head-h) + 14px);
+  }
+  .notice__tag { margin: 0 0 8px; font-size: 12.5px; font-weight: 700; color: var(--alert); }
+  .notice__head {
+    margin: 0 0 10px; font-family: var(--font-display); font-weight: 400; font-size: 22px;
+    letter-spacing: var(--track-tight);
+  }
+  .notice p:not(.notice__tag) { margin: 0 0 10px; line-height: 1.55; }
+  .notice p:last-child { margin-bottom: 0; }
   .apphead__actions .btn__label { display: grid; gap: 2px; text-align: left; }
 
   .apphead__links {

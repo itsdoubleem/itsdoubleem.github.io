@@ -37,18 +37,18 @@ screenshots:
     caption: Vocabulary, grouped by where you will hear it. Every word and sentence has a play button.
 platformNotes:
   - platform: android
-    note: Installs from the file itself, with no store account. Your phone will warn you about installing from outside the store — that warning is normal for anything distributed this way. The Android app speaks Korean through the phone's own speech engine, so it can use a better voice than a browser can, and Settings lets you pick which engine and which of the installed Korean voices reads to you. Your progress lives in the app's own storage, so it survives an update — except this once. This version (1.0.1) is signed with a new key, so Android will not install it over version 1.0; App info shows which one you have. On 1.0, open Settings (설정) and tap Save a backup first. If a place to save the file opens, save it, uninstall HANGIL, install this APK, then Restore a backup. If nothing opens, your copy is from before 23 September and cannot make a backup — uninstalling it erases your progress, so you may prefer to keep it until you are ready to start again. Updates after this one install over the top.
+    note: Installs from the file itself, with no store account. Your phone will warn you about installing from outside the store — that warning is normal for anything distributed this way. The Android app speaks Korean through the phone's own speech engine, so it can use a better voice than a browser can, and Settings lets you pick which engine and which of the installed Korean voices reads to you. Your progress lives in the app's own storage, so it survives an update.
   - platform: web
     note: It opens in any browser and there is nothing to install, but it is meant to be added to your home screen — on Android, Chrome's menu › Add to Home screen; on iPhone, Safari's share button › Add to Home Screen. After that it opens full screen like any other app and works with no connection. In a browser the app picks the best Korean voice available, with nothing to set. In Safari, and in the browser on an Android phone or tablet, that is a voice on the device itself. In Chrome and Edge on a computer the on-device Korean voices are poor, so the app uses the browser's online voice instead — which works by sending the sentence being spoken to Google or Microsoft. It is only ever the app's own Korean, never your answers or your progress. With no connection a voice on the device takes over, and Settings lets you choose an on-device voice permanently if you would rather nothing went out at all. Your progress lives in that browser's storage for this address, so it does not follow you to another phone or another browser — take a backup from Settings before you switch.
 verify:
   - claim: It works with no connection.
-    how: Open it once with a connection, then turn airplane mode on and open it again. The course, the vocabulary, the exam papers and the review deck all still work. The whole app is 899 KB and your browser keeps a copy after the first visit.
+    how: Open it once with a connection, then turn airplane mode on and open it again. The course, the vocabulary, the exam papers and the review deck all still work. The whole app is {webSize} and your browser keeps a copy after the first visit.
   - claim: It cannot send your progress anywhere.
     how: Open your browser's network panel and use the app. Every request it makes is for its own files, and once it has loaded it makes none at all — answering a question sends nothing. The one thing that can leave is a sentence being read aloud in Chrome or Edge, which use an online voice — the browser sends that sentence to Google or Microsoft to be spoken. Your progress is never part of it. There is no account to sign into, no analytics, and no third-party script on the page.
   - claim: The Android app cannot reach the internet at all.
     how: It asks for no internet permission. Unzip the APK and read its manifest — with that permission absent, Android will not let the app use the network, whatever anybody claims about it. The trade-off is real and worth knowing — it also rules out the speech engines' online voices, which are better than the offline ones, so the app is limited to the Korean voices already on your phone.
   - claim: The APK you download is the file I built.
-    how: Hash it before you install it — shasum -a 256 hangil.apk on macOS or Linux, certutil -hashfile hangil.apk SHA256 on Windows. It must print 3846f5c0552d45d79bdd47818819be7486751a61d23fa193de740119df7fff75. One character out and it is not my build, so delete it.
+    how: Hash it before you install it — shasum -a 256 hangil.apk on macOS or Linux, certutil -hashfile hangil.apk SHA256 on Windows. It must print {sha256}. One character out and it is not my build, so delete it.
   - claim: The Korean audio is your own phone speaking, not a download.
     how: Turn airplane mode on and press any play button. It still speaks, because the app hands the sentence to the phone's own text-to-speech engine. That is why there is no audio to wait for — and why, if your phone has no Korean voice installed, the app says so on the first screen instead of playing you something wrong.
 wrong:
@@ -59,10 +59,30 @@ sourceUrl: ""
 downloads:
   - label: Download for Android
     href: /downloads/hangil.apk
-    note: APK, 1.6 MB — install directly, no store account
+    note: Version {version} · APK, {apkSize} — install directly, no store account
   - label: Open in browser
     href: /hangil/
     note: Works offline after the first load — add it to your home screen
+release:
+  version: 1.0.1
+  apk: /downloads/hangil.apk
+  sha256: 3846f5c0552d45d79bdd47818819be7486751a61d23fa193de740119df7fff75
+  web: /hangil/
+# 1.0 and 1.0.1 are signed with different keys, so this update cannot install over the
+# top. `version` ties the notice to this release: the build fails when release.version
+# moves on, and the notice has to be rewritten or deleted rather than left to go stale.
+notice:
+  badge: Had 1.0? Read first
+  heading: Had version 1.0? Take a backup before you update
+  version: 1.0.1
+  body: |
+    Version {version} is signed with a new key, so Android will not install it over version 1.0. App info on your phone shows which one you have.
+
+    On 1.0, open Settings (설정) and tap Save a backup first. If a place to save the file opens, save it, uninstall HANGIL, install this APK, then Restore a backup.
+
+    If nothing opens, your copy is from before 23 September and cannot make a backup. Uninstalling it erases your progress, so you may prefer to keep it until you are ready to start again.
+
+    Updates after this one install over the top.
 ---
 
 ## What it does

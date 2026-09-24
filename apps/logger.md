@@ -40,7 +40,7 @@ verify:
   - claim: This page is not watching you either.
     how: It loads two scripts from this domain — /motion.js, which tilts the phone on the front page, and /globe.js, which checks whether your screen can draw 3D. If your screen is wide enough to be a laptop or a tablet, /globe.js fetches /three.min.js and /globe-scene.js — a globe on the front page, a drift of lit specks behind every other one. On a phone it fetches /sky-mobile.js instead, about 20 KB, which draws the same specks in a plain 2D canvas, so a handset never downloads the 589 KB library. Nothing is fetched from another domain — three.js is vendored here under its MIT licence. No cookies, no analytics. Open your browser's network panel and count the requests, then read the files — that is the whole of what runs here.
   - claim: The APK you download is the file I built.
-    how: Hash it before you install it — shasum -a 256 logger.apk on macOS or Linux, certutil -hashfile logger.apk SHA256 on Windows. It must print c180c7398240e4a1b0f1ef572418238253d373ce8d967ab314f3a32f37698dc7. One character out and it is not my build, so delete it. The same hash is on the repo's front page on GitHub, and that is the copy worth trusting — anyone able to swap the file on this site could swap the hash beside it just as easily.
+    how: Hash it before you install it — shasum -a 256 logger.apk on macOS or Linux, certutil -hashfile logger.apk SHA256 on Windows. It must print {sha256}. One character out and it is not my build, so delete it. The same hash is on the repo's front page on GitHub, and that is the copy worth trusting — anyone able to swap the file on this site could swap the hash beside it just as easily.
 wrong:
   heading: If a number here looks wrong
   body: Tell me. You do not need to be sure it is a bug — "this does not match my payslip" is enough. A wage figure that is quietly wrong is worse than no figure, so this is the most useful thing you can send me.
@@ -49,10 +49,15 @@ sourceUrl: ""
 downloads:
   - label: Download for Android
     href: /downloads/logger.apk
-    note: APK, 3.8 MB — install directly, no store account
+    note: Version {version} · APK, {apkSize} — install directly, no store account
   - label: Open in browser
     href: /logger/
     note: Works offline after the first load
+release:
+  version: '1.0'
+  apk: /downloads/logger.apk
+  sha256: c180c7398240e4a1b0f1ef572418238253d373ce8d967ab314f3a32f37698dc7
+  web: /logger/
 ---
 
 ## What it does

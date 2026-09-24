@@ -1,5 +1,7 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
+import { existsSync } from 'node:fs';
+import { servable, sha256Of, unknownTokens } from './release';
 
 // The apps live in /apps at the repo root, not under src/ — they are the content
 // source of truth and are meant to be editable without opening the site code.
@@ -97,6 +99,89 @@ const apps = defineCollection({
         }),
       )
       .nonempty('An app with no way to get it does not belong on the site.'),
+    // The one place a release is described. See src/release.ts: the size is measured
+    // from the file, the hash is checked against it, and prose elsewhere in this file
+    // writes {version}, {apkSize}, {sha256} or {webSize} instead of typing the value.
+    release: z
+      .object({
+        version: z.string(),
+        apk: z.string().startsWith('/downloads/'),
+        sha256: z.string().regex(/^[0-9a-f]{64}$/, 'sha256 is 64 lowercase hex characters.'),
+        web: z.string().optional(),
+      })
+      .optional(),
+    // A time-limited note for people updating — a key change, a backup to take first. It
+    // renders as its own section near the top of the page, with a red badge on the
+    // download button that links to it. README.md § Update notices has the how-to.
+    notice: z
+      .object({
+        // The section's id, so the badge (and anyone else) can link to #<id>.
+        id: z.string().regex(/^[a-z][a-z0-9-]*$/).default('update-notice'),
+        badge: z.string().max(28, 'The badge sits on a button — keep it to a few words.'),
+        heading: z.string(),
+        // Paragraphs separated by a blank line. May use the release tokens.
+        body: z.string(),
+        // The href of the download whose button wears the badge. Defaults to the
+        // release APK, else the first download.
+        download: z.string().optional(),
+        // The release this notice was written for. When `release.version` moves on the
+        // build fails, so the notice is rewritten or deleted rather than left to go stale.
+        version: z.string().optional(),
+        // The last day it shows. Optional — leave it out for "until I remove it".
+        until: z.coerce.date().optional(),
+      })
+      .optional(),
+  })
+  // Checks that need the disk. Each one is a mistake that used to ship silently: a
+  // broken image, a download link to nothing, a hash that is not the file's.
+  .superRefine((d, ctx) => {
+    const fail = (message: string) => ctx.addIssue({ code: 'custom', message });
+
+    const assets = [d.icon, d.card, ...d.screenshots.map((s) => s.src)].filter(Boolean) as string[];
+    for (const href of assets) if (!servable(href)) fail(`${href} is not in public/`);
+    for (const dl of d.downloads) {
+      if (dl.href.startsWith('/') && !servable(dl.href)) fail(`download ${dl.href} is not in public/`);
+    }
+
+    const r = d.release;
+    if (r) {
+      if (!servable(r.apk)) fail(`release.apk ${r.apk} is not in public/`);
+      else if (sha256Of(r.apk) !== r.sha256) {
+        fail(`release.sha256 is not the hash of ${r.apk} — it is ${sha256Of(r.apk)}`);
+      }
+      if (!d.downloads.some((dl) => dl.href === r.apk)) {
+        fail(`release.apk ${r.apk} is not one of the downloads, so its size is printed nowhere`);
+      }
+      if (r.web && !servable(r.web)) fail(`release.web ${r.web} is not in public/`);
+    }
+
+    const n = d.notice;
+    if (n) {
+      if (n.download && !d.downloads.some((dl) => dl.href === n.download)) {
+        fail(`notice.download ${n.download} is not one of the downloads`);
+      }
+      if (n.version && n.version !== r?.version) {
+        fail(
+          `notice was written for ${n.version} but release.version is ${r?.version ?? 'unset'} — ` +
+            'rewrite the notice for this release or delete it',
+        );
+      }
+    }
+
+    // Every token must be one this app can fill, or the page would print "{sha256}".
+    const known = [
+      ...(r ? ['version', 'apkSize', 'sha256'] : []),
+      ...(r?.web ? ['webSize'] : []),
+    ];
+    const prose = [
+      ...d.downloads.map((dl) => dl.note ?? ''),
+      ...d.platformNotes.map((p) => p.note),
+      ...d.verify.flatMap((v) => [v.claim, v.how]),
+      ...(n ? [n.heading, n.body] : []),
+    ];
+    for (const text of prose) {
+      for (const t of unknownTokens(text, known)) fail(`{${t}} cannot be filled for this app`);
+    }
   }),
 });
 
@@ -124,6 +209,18 @@ const guides = defineCollection({
     }),
     steps: z.array(stepSchema).nonempty(),
     after: z.array(stepSchema).default([]),
+  })
+  // A guide whose `app` names nothing used to vanish without a word — guide.astro drops
+  // it — and a mistyped step image shipped as a broken picture. Both fail here now.
+  .superRefine((g, ctx) => {
+    const fail = (message: string) => ctx.addIssue({ code: 'custom', message });
+    if (!existsSync(new URL(`../apps/${g.app}.md`, import.meta.url))) {
+      fail(`app: ${g.app} — there is no apps/${g.app}.md`);
+    }
+    for (const s of [...g.steps, ...g.after]) {
+      const href = `/assets/${g.app}/guide/${s.image}.png`;
+      if (!servable(href)) fail(`step image ${href} is not in public/`);
+    }
   }),
 });
 
