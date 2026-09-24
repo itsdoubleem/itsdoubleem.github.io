@@ -1,7 +1,7 @@
 ---
 app: logger
 title: How to use LOGGER
-lead: Setup takes about two minutes. After that it is one tap when you arrive and one when you leave.
+lead: Set it up once. After that it is one tap when you arrive and one when you leave.
 before:
   heading: Before you start
   body: You do not need anything to begin — the app works straight away and asks for each figure at the moment it matters. But two papers make it exact, so have them nearby if you can.
