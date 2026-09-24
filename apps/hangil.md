@@ -37,7 +37,7 @@ screenshots:
     caption: Vocabulary, grouped by where you will hear it. Every word and sentence has a play button.
 platformNotes:
   - platform: android
-    note: Installs from the file itself, with no store account. Your phone will warn you about installing from outside the store — that warning is normal for anything distributed this way. The Android app speaks Korean through the phone's own speech engine, so it can use a better voice than a browser can, and Settings lets you pick which engine and which of the installed Korean voices reads to you. Your progress lives in the app's own storage, so it survives an update.
+    note: Installs from the file itself, with no store account. Your phone will warn you about installing from outside the store — that warning is normal for anything distributed this way. The Android app speaks Korean through the phone's own speech engine, so it can use a better voice than a browser can, and Settings lets you pick which engine and which of the installed Korean voices reads to you. Your progress lives in the app's own storage, so it survives an update — except the one from 1.0, which the note at the top of this page covers.
   - platform: web
     note: It opens in any browser and there is nothing to install, but it is meant to be added to your home screen — on Android, Chrome's menu › Add to Home screen; on iPhone, Safari's share button › Add to Home Screen. After that it opens full screen like any other app and works with no connection. In a browser the app picks the best Korean voice available, with nothing to set. In Safari, and in the browser on an Android phone or tablet, that is a voice on the device itself. In Chrome and Edge on a computer the on-device Korean voices are poor, so the app uses the browser's online voice instead — which works by sending the sentence being spoken to Google or Microsoft. It is only ever the app's own Korean, never your answers or your progress. With no connection a voice on the device takes over, and Settings lets you choose an on-device voice permanently if you would rather nothing went out at all. Your progress lives in that browser's storage for this address, so it does not follow you to another phone or another browser — take a backup from Settings before you switch.
 verify:
@@ -71,6 +71,7 @@ release:
 # 1.0 and 1.0.1 are signed with different keys, so this update cannot install over the
 # top. `version` ties the notice to this release: the build fails when release.version
 # moves on, and the notice has to be rewritten or deleted rather than left to go stale.
+# When you delete it, also delete "except the one from 1.0 …" from the Android note above.
 notice:
   badge: Had 1.0? Read first
   heading: Had version 1.0? Take a backup before you update
