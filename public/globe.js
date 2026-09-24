@@ -30,7 +30,7 @@
  * A PHONE STILL NEVER FETCHES /three.min.js. That is not politeness, it is the whole
  * reason this file exists separately from the scene: the library is 589KB, and a
  * handset should never spend that on decoration. What it fetches instead is
- * /sky-mobile.js, about 7KB over the wire, which draws the same drifting motes with a
+ * /sky-mobile.js, about 20KB on disk and 8KB over the wire, which draws the same drifting motes with a
  * pre-rendered sprite and a divide.
  *
  * That branch is new. This file used to load nothing at all on a phone, on the grounds

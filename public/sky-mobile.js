@@ -14,7 +14,7 @@
  * would be dead code on a handset. What is left is motes drifting in perspective, which
  * a 2D canvas draws with one pre-rendered sprite and a divide.
  *
- * So a phone now downloads this — 17 KB on disk, about 7 KB over the wire, and most of
+ * So a phone now downloads this — about 20 KB on disk, about 8 KB over the wire, and most of
  * both is the commentary you are reading — and still never downloads three.js. That is
  * the whole trade, and the four claim sites in rule 4 below say so in those words.
  *
