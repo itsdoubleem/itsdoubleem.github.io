@@ -152,13 +152,21 @@
   --accent-2:   #18D770;   /* 10.6:1 — gradient partner only, never text by itself */
   --accent-ink: #010704;   /* 11.7:1 as a label on --accent */
   /* ── The alert ──
-     Red, with one job: an app's update notice — the badge on its download button and
-     the edge of the section the badge links to. It is not a second accent and it never
-     marks a link, a heading or a state. If a page has no notice, there is no red on it.
-     Measured: 6.6:1 as text on --ground and 6.1:1 on --surface; --accent-ink on it as a
-     label is 6.6:1. Against --accent it is only 1.77:1, which is why the badge wears a
-     ring of --ground where it sits on the mint button. */
-  --alert:      #FF5A4E;
+     Red, with one job: an app's update notice — the badge on its download button, the
+     tag at the top of the notice, and the notice's left edge. It is not a second accent
+     and it never marks a link, a heading or a state. If a page has no notice, there is
+     no red on it.
+
+     It is a FILL that carries white, never text on the dark ground. White on it
+     measures 5.3:1, which clears AA for the 12px labels it holds. As text on the ground
+     it would only be 3.8:1 (3.5:1 on --surface), fine for the 3px edge and too faint
+     for small type — so wherever the notice names itself, it is white on red.
+
+     Was #FF5A4E with --accent-ink on it until 2026-09-24. The owner asked for white
+     type and a white stroke instead, and a red that suits them: #FF5A4E is too light
+     to carry white (3.1:1), so it went deeper. */
+  --alert:      #CC2B2B;
+  --alert-ink:  #FFFFFF;   /* 5.3:1 on --alert */
   --glow:       rgba(8, 223, 156, 0.30);
   --glow-soft:  rgba(8, 223, 156, 0.08);
   /* The grid was 0.055, which measured 1.072:1 against the ground. At 0.035 it is

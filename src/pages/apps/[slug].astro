@@ -435,18 +435,19 @@ const heroScreen = d.card
   /* ---------- the update notice ---------- */
   /* The badge is a second link pinned to the button's corner, not a part of it — the
      button downloads and the badge goes to the notice, and a link inside a link is
-     invalid HTML that browsers untangle unpredictably. The ring in the ground colour is
-     what separates it from the mint: red on mint measures 1.77:1, and without the ring
-     the two read as one smudge. The corner offset is kept inside .getit's padding so the
-     badge never overlaps the button beside it when the row wraps on a phone. */
-  .getit { position: relative; display: inline-flex; padding: 10px 10px 0 0; margin: -10px -10px 0 0; }
+     invalid HTML that browsers untangle unpredictably. White type on the red, and a
+     white stroke round it — the stroke is what lifts it off the mint button and off
+     the dark ground alike. The badge pokes 8px past the button's corner and the stroke
+     2px more: 10px in all, inside the 12px gap of .apphead__actions, so it never
+     touches the button beside it. Measure again if either number moves. */
+  .getit { position: relative; display: inline-flex; padding: 10px 8px 0 0; margin: -10px -8px 0 0; }
   .getit__badge {
     position: absolute; top: 0; right: 0;
     display: inline-flex; align-items: center;
     min-height: 24px; padding: 0 9px;
     border-radius: 999px;
-    background: var(--alert); color: var(--accent-ink);
-    box-shadow: 0 0 0 2px var(--ground);
+    background: var(--alert); color: var(--alert-ink);
+    box-shadow: 0 0 0 2px var(--alert-ink);
     font-size: 12px; font-weight: 700; line-height: 1; white-space: nowrap;
     text-decoration: none;
   }
@@ -460,7 +461,14 @@ const heroScreen = d.card
     border-radius: var(--r-md);
     scroll-margin-top: calc(var(--head-h) + 14px);
   }
-  .notice__tag { margin: 0 0 8px; font-size: 12.5px; font-weight: 700; color: var(--alert); }
+  /* The same pill as the badge, so the reader who followed it sees it again here. */
+  .notice__tag {
+    display: inline-flex; align-items: center;
+    min-height: 24px; margin: 0 0 12px; padding: 0 9px;
+    border-radius: 999px;
+    background: var(--alert); color: var(--alert-ink);
+    font-size: 12.5px; font-weight: 700; line-height: 1;
+  }
   .notice__head {
     margin: 0 0 10px; font-family: var(--font-display); font-weight: 400; font-size: 22px;
     letter-spacing: var(--track-tight);
