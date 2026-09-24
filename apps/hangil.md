@@ -182,8 +182,8 @@ internet permission at all, so the guarantee is enforced by Android rather than
 merely stated here. Your progress, your review schedule and your exam
 scores are in your browser's own storage and nowhere else — not because a setting
 is switched on, but because the app has no code that sends anything anywhere.
-Once it has loaded, the app itself makes no network requests. The one thing that
-can go out is not the app's doing, and it is below.
+Once it has loaded, the app makes no network requests of its own. The one thing
+that can go out is a sentence being read aloud, explained below.
 
 One thing to know about the audio in a browser. In Chrome and Edge the app reads
 Korean with the browser's online voice, because it is far better than the voices
