@@ -38,8 +38,8 @@ platforms:   [android, web]      # android | ios | web | macos | windows
 price:       free                # the only value the schema accepts today — see the note
                                  # below before adding a second one
 privacy:     on-device           # on-device | account-required
-                                 # "on-device" is a factual claim — verify against the
-                                 # app's source before writing it — verify on screen.
+                                 # "on-device" is a factual claim — check it on the
+                                 # running app before writing it (rule 3 in README.md).
 languages:   [ko, en, vi, zh, th, id, ne, km]   # optional, ISO 639-1
 icon:        /assets/logger/icon.png
 screenshots:                     # optional but strongly preferred
@@ -103,11 +103,11 @@ are easy to write without noticing, because each of them *feels* like it is help
    "workers pass this app between themselves" — presented as a fact, observed by nobody,
    and impossible for a reader to check. The design reason was available and true
    without it: a pay record is sensitive, so the app does not keep a copy. **If you
-   cannot point at where a statement came from, it is hard rule 1 whether or not it has
-   a number in it.**
+   cannot point at where a statement came from, it breaks rule 1 (README.md § The rules)
+   whether or not it has a number in it.**
 
-3. **The builder.** Not just the name and the email that CLAUDE.md § The traps already
-   bans — the biography too. "It was built with and for one E-9 factory worker in Korea"
+3. **The builder.** Not just the developer's name and email, which never go on an app
+   page — the biography too. "It was built with and for one E-9 factory worker in Korea"
    and "it is one person's study app" both went. The origin story belongs on the about
    page, once; on an app page it reads as an appeal to authenticity in place of a fact
    about the software. First person is still fine where the author is genuinely the
@@ -139,7 +139,7 @@ Korean study app with no payslip and no wage figures anywhere in it, spent its c
 paragraph asking readers to report a mismatched payslip. It shipped, and it was only
 caught by reading the page on a phone.
 
-CLAUDE.md § How to add an app already says nothing in `src/` may name an app. **Copy
+README.md § Adding a piece of work already says nothing in `src/` names an app. **Copy
 that is only true of one app is naming it**, even when the app's name does not appear.
 If you find yourself writing a sentence in a shared template that you could not say
 about the next piece of work, it belongs in `/apps`.
@@ -170,7 +170,7 @@ homepage uses for kinds. Leave them out and the page is simply shorter.
 `price` accepts exactly one value, `free`, because `src/content.config.ts` declares it
 `z.literal('free')`. That is a fact about the schema today, not a promise about every
 app that will ever be listed — the site stopped making that promise on 2026-09-20, and
-CLAUDE.md hard rule 2 records why.
+rule 2 in README.md § The rules says why.
 
 If you ever add something that is not free, widening the literal is the small half of
 the job. The word "Free" is also hardcoded in four places that never read this field:

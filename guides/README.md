@@ -10,7 +10,8 @@ the same shape and the build should reject a half-written one rather than render
 app:   logger            # must match an app slug in apps/
 title: How to use LOGGER
 lead:  One sentence setting expectations — what happens after. Never a time: nobody has
-       measured how long it takes, and inventing it is hard rule 1.
+       measured how long it takes, and inventing it breaks rule 1
+       in README.md § The rules.
 outcome: What the reader has at the end, in this app's terms — say whether it needs a
        connection or an account. Shown in the "What you end up with" card; the template
        adds Cost (from the app's price) and Account (from its privacy) itself.
