@@ -44,7 +44,7 @@ verify:
   - claim: It works with no connection.
     how: Open it once with a connection, then turn airplane mode on and open it again. The course, the vocabulary, the exam papers and the review deck all still work. The whole app is {webSize} and your browser keeps a copy after the first visit.
   - claim: It cannot send your progress anywhere.
-    how: Open your browser's network panel and use the app. Every request it makes is for its own files, and once it has loaded it makes none at all — answering a question sends nothing. The one thing that can leave is a sentence being read aloud in Chrome or Edge, which use an online voice — the browser sends that sentence to Google or Microsoft to be spoken. Your progress is never part of it. There is no account to sign into, no analytics, and no third-party script on the page.
+    how: Open your browser's network panel and use the app. Every request it makes is for its own files, and once it has loaded it makes none at all — answering a question sends nothing. The only exception is the online voice in Chrome and Edge, described under Your data, and your progress is never part of it. There is no account to sign into, no analytics, and no third-party script on the page.
   - claim: The Android app cannot reach the internet at all.
     how: It asks for no internet permission. Unzip the APK and read its manifest — with that permission absent, Android will not let the app use the network, whatever anybody claims about it. The trade-off is real and worth knowing — it also rules out the speech engines' online voices, which are better than the offline ones, so the app is limited to the Korean voices already on your phone.
   - claim: The APK you download is the file I built.
@@ -182,7 +182,8 @@ internet permission at all, so the guarantee is enforced by Android rather than
 merely stated here. Your progress, your review schedule and your exam
 scores are in your browser's own storage and nowhere else — not because a setting
 is switched on, but because the app has no code that sends anything anywhere.
-Once it has loaded, it makes no network requests at all.
+Once it has loaded, the app itself makes no network requests. The one thing that
+can go out is not the app's doing, and it is below.
 
 One thing to know about the audio in a browser. In Chrome and Edge the app reads
 Korean with the browser's online voice, because it is far better than the voices
