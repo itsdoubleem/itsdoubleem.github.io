@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build --force",
     "preview": "astro preview",
     "check": "node tools/check-downloads.mjs && node tools/check-anchors.mjs"
   },
