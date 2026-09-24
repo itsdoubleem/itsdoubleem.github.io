@@ -21,7 +21,7 @@
  *
  * ── The screenshots are real ──
  * They come straight from each app's frontmatter, captured from the shipping build by
- * tools/capture-guide.mjs. Nothing here is drawn — see DESIGN.md § The app card.
+ * each app's capture script in tools/. Nothing here is drawn — see DESIGN.md § The app card.
  * `shape: page` captures are excluded: those are pictures of a sheet of paper, and this
  * strip is sized for phone screens. They still appear on the app's own page.
  */
@@ -195,8 +195,8 @@ const swipeCss = panels
      This was a horizontal scroll-snap track with both panels side by side in one grid
      row. It worked, and it had a defect that only became obvious once the page got
      wider: **a grid row is as tall as its tallest item**, so the section always
-     reserved the height of HANGIL's five captions. With LOGGER showing — two
-     screenshots — that left about 300px of empty page under it. No amount of tuning
+     reserved the height of HANGIL's captions (five then, six now). With LOGGER
+     showing — two screenshots — that left about 300px of empty page under it. No amount of tuning
      the track fixes that; it is what a shared row does.
 
      So only one panel is in flow at a time. The container is then exactly as tall as
@@ -343,8 +343,10 @@ const swipeCss = panels
          the container and every panel shows its captures at exactly the same size.
 
          200px is chosen so that at the 1258px measure this resolves to five 229px
-         tracks — HANGIL's five fill the row exactly, and a panel with fewer simply
-         leaves the remaining tracks empty rather than growing to fill them. */
+         tracks, which HANGIL's five captures filled exactly when this was written. A
+         panel with fewer leaves the remaining tracks empty rather than growing. HANGIL
+         has six since 2026-09-23, so its sixth now starts a second row (measured at
+         1024, 1280 and 1440px); change the 200px, not the count, if that should go. */
       grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr));
       grid-auto-columns: auto;
       overflow-x: visible;
