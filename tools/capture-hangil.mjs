@@ -29,8 +29,9 @@ const page = await b.newPage({
 
 /* ── Math.random is seeded, and it has to be ──
  * HANGIL shuffles: which exercise a unit opens on, and the order of a question's
- * options. Re-run the capture and 04-practice came back as a fill-the-gap question where
- * it had been a matching one, and 08-picture's four drawings came back in a different
+ * options. Re-run the capture and the g01 practice screen (captured as 04-practice until
+ * 2026-09-24) came back as a fill-the-gap question where it had been a matching one, and
+ * 08-picture's four drawings came back in a different
  * order. Both are true screens of the real app — and both mean the file on disk changes
  * every run, so no diff of a capture set ever means anything, and an `alt` written
  * against one order quietly stops describing the picture.

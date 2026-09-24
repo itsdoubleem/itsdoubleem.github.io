@@ -4,9 +4,9 @@ import '../styles/global.css';
 interface Props {
   title: string;
   description: string;
-  // A square picture for link previews. App pages pass their icon; everything else
-  // gets the mark. Square because a chat app crops a preview to its own shape, and a
-  // phone screenshot cropped to a square is a strip of status bar.
+  // A squarish picture for link previews. App pages pass their icon (512×512);
+  // everything else gets the mark (256×245). Squarish because a chat app crops a preview
+  // to its own shape, and a phone screenshot cropped that way is a strip of status bar.
   image?: string;
 }
 const { title, description, image = '/assets/mark-256.png' } = Astro.props;
