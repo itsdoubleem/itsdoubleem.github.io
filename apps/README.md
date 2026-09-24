@@ -106,8 +106,8 @@ are easy to write without noticing, because each of them *feels* like it is help
    cannot point at where a statement came from, it breaks rule 1 (README.md § The rules)
    whether or not it has a number in it.**
 
-3. **The builder.** Not just the developer's name and email, which never go on an app
-   page — the biography too. "It was built with and for one E-9 factory worker in Korea"
+3. **The builder.** Not just the developer's name and email, which stay off app pages
+   unless the owner asks for them — the biography too. "It was built with and for one E-9 factory worker in Korea"
    and "it is one person's study app" both went. The origin story belongs on the about
    page, once; on an app page it reads as an appeal to authenticity in place of a fact
    about the software. First person is still fine where the author is genuinely the
