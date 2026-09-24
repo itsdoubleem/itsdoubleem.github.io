@@ -37,7 +37,7 @@ screenshots:
     caption: Vocabulary, grouped by where you will hear it. Every word and sentence has a play button.
 platformNotes:
   - platform: android
-    note: Installs from the file itself, with no store account. Your phone will warn you about installing from outside the store — that warning is normal for anything distributed this way. The Android app speaks Korean through the phone's own speech engine, so it can use a better voice than a browser can, and Settings lets you pick which engine and which of the installed Korean voices reads to you. Your progress lives in the app's own storage, so it survives an update.
+    note: Installs from the file itself, with no store account. Your phone will warn you about installing from outside the store — that warning is normal for anything distributed this way. The Android app speaks Korean through the phone's own speech engine, so it can use a better voice than a browser can, and Settings lets you pick which engine and which of the installed Korean voices reads to you. Your progress lives in the app's own storage, so it survives an update — with one exception, once. Copies downloaded before 24 September 2026 were signed with a development key, and this one is signed with the key every future update will use, so Android will not install it over the old one. If you have the old one, open Settings and tap Save a backup, uninstall HANGIL, install this APK, then Settings › Restore a backup. Every update after this one installs over the top as normal.
   - platform: web
     note: It opens in any browser and there is nothing to install, but it is meant to be added to your home screen — on Android, Chrome's menu › Add to Home screen; on iPhone, Safari's share button › Add to Home Screen. After that it opens full screen like any other app and works with no connection. In a browser the app picks the best Korean voice available, with nothing to set. In Safari, and in the browser on an Android phone or tablet, that is a voice on the device itself. In Chrome and Edge on a computer the on-device Korean voices are poor, so the app uses the browser's online voice instead — which works by sending the sentence being spoken to Google or Microsoft. It is only ever the app's own Korean, never your answers or your progress. With no connection a voice on the device takes over, and Settings lets you choose an on-device voice permanently if you would rather nothing went out at all. Your progress lives in that browser's storage for this address, so it does not follow you to another phone or another browser — take a backup from Settings before you switch.
 verify:
@@ -48,7 +48,7 @@ verify:
   - claim: The Android app cannot reach the internet at all.
     how: It asks for no internet permission. Unzip the APK and read its manifest — with that permission absent, Android will not let the app use the network, whatever anybody claims about it. The trade-off is real and worth knowing — it also rules out the speech engines' online voices, which are better than the offline ones, so the app is limited to the Korean voices already on your phone.
   - claim: The APK you download is the file I built.
-    how: Hash it before you install it — shasum -a 256 hangil.apk on macOS or Linux, certutil -hashfile hangil.apk SHA256 on Windows. It must print 7aba8a2e822bd03193bdb6466c379ce848737cd4669ab13523d4a28aa5fc822a. One character out and it is not my build, so delete it.
+    how: Hash it before you install it — shasum -a 256 hangil.apk on macOS or Linux, certutil -hashfile hangil.apk SHA256 on Windows. It must print 3846f5c0552d45d79bdd47818819be7486751a61d23fa193de740119df7fff75. One character out and it is not my build, so delete it.
   - claim: The Korean audio is your own phone speaking, not a download.
     how: Turn airplane mode on and press any play button. It still speaks, because the app hands the sentence to the phone's own text-to-speech engine. That is why there is no audio to wait for — and why, if your phone has no Korean voice installed, the app says so on the first screen instead of playing you something wrong.
 wrong:
@@ -59,7 +59,7 @@ sourceUrl: ""
 downloads:
   - label: Download for Android
     href: /downloads/hangil.apk
-    note: APK, 1.9 MB — install directly, no store account
+    note: APK, 1.6 MB — install directly, no store account
   - label: Open in browser
     href: /hangil/
     note: Works offline after the first load — add it to your home screen
