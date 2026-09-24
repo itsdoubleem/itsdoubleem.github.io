@@ -4,6 +4,12 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # Once a day, so an app's update notice with an `until:` date comes down within a day
+  # of it (src/release.ts). The site is static — a notice past its date is only gone once
+  # something rebuilds the page. GitHub pauses scheduled runs after 60 days with no
+  # commits; if notices ever stop expiring, that is the first thing to look at.
+  schedule:
+    - cron: '17 0 * * *'
 
 # No permissions by default. Each job asks for exactly what it needs below, so the job
 # that runs third-party code (npm ci, which executes package lifecycle scripts) holds no
@@ -48,6 +54,10 @@ jobs:
       # install time. Astro needs no install script to build.
       - run: npm ci --ignore-scripts
       - run: npm run build
+      # Every APK matches its release: block and the hash in README.md, no hash or size
+      # is typed into a page by hand, and every #link in the built pages has somewhere to
+      # land. Needs no network. A failure here stops the deploy.
+      - run: npm run check
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: ./dist

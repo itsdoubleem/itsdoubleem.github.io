@@ -4,7 +4,8 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "check": "node tools/check-downloads.mjs && node tools/check-anchors.mjs"
   },
   "author": "DOUBLEEM",
   "license": "MIT",
