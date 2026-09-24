@@ -4,8 +4,17 @@ import '../styles/global.css';
 interface Props {
   title: string;
   description: string;
+  // A square picture for link previews. App pages pass their icon; everything else
+  // gets the mark. Square because a chat app crops a preview to its own shape, and a
+  // phone screenshot cropped to a square is a strip of status bar.
+  image?: string;
 }
-const { title, description } = Astro.props;
+const { title, description, image = '/assets/mark-256.png' } = Astro.props;
+// Absolute, because a preview is fetched by somebody else's server that has no idea
+// which site the path belonged to.
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const imageUrl = new URL(image, Astro.site).href;
+const isNotFound = Astro.url.pathname.startsWith('/404');
 const year = new Date().getFullYear();
 // "Work" is a real page now, not an anchor. It was "/#work" back when the catalogue
 // sat under the hero on the homepage — a link that, pressed from the homepage, scrolled
@@ -94,6 +103,12 @@ const nav = [
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
+    <meta property="og:image" content={imageUrl} />
+    <meta name="twitter:card" content="summary" />
+    {/* No canonical on the 404: it is served at every missing address, and a canonical
+        would tell a search engine that all of them are one real page. */}
+    {!isNotFound && <link rel="canonical" href={canonical} />}
+    {!isNotFound && <meta property="og:url" content={canonical} />}
     {/* PNG rather than SVG, because the mark is artwork rather than a drawn glyph now.
         32px is what a browser tab uses; 180px covers bookmarks and an iOS home screen.
         Be aware the cube is not legible at 16px — see DESIGN.md § The wordmark. */}

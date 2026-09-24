@@ -51,7 +51,7 @@ const stepCount = g.steps.length + g.after.length;
 const cost = a.price === 'free' ? 'Free' : a.price;
 const account = a.privacy === 'account-required' ? 'Required' : 'None';
 ---
-<Base title={`${g.title} — doubleem`} description={g.lead}>
+<Base title={`${g.title} — doubleem`} description={g.lead} image={a.icon}>
   <header class="top wrap">
     <nav class="trail" aria-label="Breadcrumb">
       <a href="/apps/">All work</a>

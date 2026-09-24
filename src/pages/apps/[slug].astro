@@ -93,7 +93,7 @@ const heroScreen = d.card
   ? [{ src: d.card, alt: `${d.name} running on a phone`, statusColor: themeColor(d.slug) }]
   : [];
 ---
-<Base title={`${d.name} — doubleem`} description={d.audience ? `${d.tagline} ${d.audience}` : d.tagline}>
+<Base title={`${d.name} — doubleem`} description={d.audience ? `${d.tagline} ${d.audience}` : d.tagline} image={d.icon}>
   <article>
     {/* ── The head ──
         The backdrop is this app's OWN capture, blurred past legibility and dimmed — the
