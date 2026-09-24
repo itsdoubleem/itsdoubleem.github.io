@@ -95,16 +95,6 @@ const heroScreen = d.card
 ---
 <Base title={`${d.name} — doubleem`} description={d.audience ? `${d.tagline} ${d.audience}` : d.tagline} image={d.icon}>
   <article>
-    {/* ── The head ──
-        The backdrop is this app's OWN capture, blurred past legibility and dimmed — the
-        one trick of publik's app page that is worth the most. It is decoration and
-        carries no meaning, like the glow and the grid: it holds no text, it takes no
-        pointer, and the page is complete without it.
-
-        It is deliberately faint. Both apps here are LIGHT on screen, so their captures
-        blur into a pale wash rather than publik's dark one; at any real opacity the top
-        of the page turns milky and the headline loses contrast. Measured on the built
-        page, not guessed — if you raise --shot-a, measure it again. */}
     {/* ── The hero ──
         The device is the real one: the same CSS Galaxy the homepage uses, with the
         tilt, the idle float and the ambient bloom, showing this app's own capture. It
@@ -116,17 +106,11 @@ const heroScreen = d.card
         The backdrop under it is this app's capture blurred past reading and dimmed. It
         is decoration and carries no meaning, like the glow and the grid: no text, no
         pointer, and the page is complete without it. Deliberately faint — both apps
-        here are LIGHT on screen, so their captures blur to a pale wash rather than a
-        dark one and turn the top of the page milky at any real opacity.
+        here are LIGHT on screen, so their captures blur to a pale wash and turn the top
+        of the page milky at any real opacity. Measured on the built page, not guessed:
+        if you raise --shot-a, measure the headline's contrast again.
 
-        ── What publik puts here that this page must not ──
-         · `by @mann` with an avatar. CLAUDE.md § The traps: the developer's name does
-           not go on app pages. Logger keeps it off the documents it produces too.
-         · `✓ PUBLIK VERIFIED`. There is no verifier here, and a badge implying one
-           audited this would be the most damaging thing on the page. The pill carries
-           `status`, which is a field rather than a claim about who checked it.
-         · `Vote on Ghost ▲ 51 ▼` and `Compared with GhostMe $12.95/mo` — a score and a
-           rival's price. Hard rule 1, twice. */}
+        What publik puts here and this page must not is listed at the top of the file. */}
     <div class="apphead" data-tilt-area>
       {d.card && (
         <div class="apphead__bg" aria-hidden="true" style={`--shot: url('${d.card}')`}></div>
