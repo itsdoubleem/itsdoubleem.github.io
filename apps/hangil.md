@@ -96,8 +96,8 @@ actually uses — including the **picture questions the paper opens with**, both
 directions: see a drawing and choose the Korean word, or hear a sentence and
 choose which of four drawings it describes. Alongside those it drills what a sign
 means, which word fills the gap, which sentence says the same thing, and what the
-two people in the conversation just agreed. Then there is a full forty-question
-paper with a fifty-minute clock that does not stop. You find out what you got
+two people in the conversation just agreed. Then there are two full practice
+papers, forty questions each, with a fifty-minute clock that does not stop. You find out what you got
 wrong at the end, with the reason, one question at a time.
 
 **The course side** is twenty-four grammar units that start at *this is a
@@ -180,7 +180,8 @@ published free; the app leaves a shelf for each and ships them empty.
 analytics and no telemetry. The Android app goes further and ships with no
 internet permission at all, so the guarantee is enforced by Android rather than
 merely stated here. Your progress, your review schedule and your exam
-scores are in your browser's own storage and nowhere else — not because a setting
+scores are in the app's own storage on your device — the Android app's, or your
+browser's — and nowhere else — not because a setting
 is switched on, but because the app has no code that sends anything anywhere.
 Once it has loaded, the app makes no network requests of its own. The one thing
 that can go out is a sentence being read aloud, explained below.
