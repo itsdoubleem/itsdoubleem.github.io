@@ -10,16 +10,14 @@ dist/
 !.env.example
 
 # Project documentation, kept on disk and out of the repo. None of it is read by the
-# build: astro reads src/, apps/logger.md and guides/logger.md, and the content glob
-# excludes every README.md. A fresh clone without these loses the signing-key warning
-# and the longer notes on schema and voice, so keep your copies. The root README.md is
-# the exception — it is the repo's front page and is committed.
+# build. A fresh clone without these loses the signing-key procedure and the longer
+# notes on design and voice, so keep your copies. The exceptions are committed: the root
+# README.md is the repo's front page, and apps/README.md and guides/README.md are the
+# schema and writing rules for the content beside them (the content glob skips both).
 BRIEF.md
 DEPLOY.md
 DESIGN.md
 ROADMAP.md
-apps/README.md
-guides/README.md
 tools/sample-output/README.md
 
 # Working material for whoever is art-directing the globe. Same reasoning as the block
