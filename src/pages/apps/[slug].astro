@@ -32,6 +32,7 @@ import PhoneDevice from '../../components/PhoneDevice.astro';
 import { themeColor } from '../../theme-color';
 import { contact, siteClaim } from '../../site';
 import { fill, noticeIsLive, releaseFacts } from '../../release';
+import { languageNames as langNames, platformLong as platformNames } from '../../labels';
 
 export async function getStaticPaths() {
   const [apps, guides] = await Promise.all([getCollection('apps'), getCollection('guides')]);
@@ -66,14 +67,6 @@ const notice = noticeIsLive(d.notice) ? d.notice : undefined;
 const badgeOn = notice && (notice.download ?? d.release?.apk ?? d.downloads[0].href);
 const noticeParas = notice ? notice.body.split(/\n\s*\n/).map((p: string) => f(p.trim())) : [];
 
-const langNames: Record<string, string> = {
-  ko: '한국어', en: 'English', vi: 'Tiếng Việt', zh: '中文',
-  th: 'ไทย', id: 'Bahasa Indonesia', ne: 'नेपाली', km: 'ភាសាខ្មែរ',
-};
-const platformNames: Record<string, string> = {
-  android: 'Android', ios: 'iPhone', web: 'Any web browser',
-  macos: 'macOS', windows: 'Windows',
-};
 const privacyLine =
   d.privacy === 'on-device'
     ? 'Stays on your device — no account, no server'

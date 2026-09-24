@@ -19,21 +19,18 @@
  * hard rule 1. What fills the same slot is the facts the frontmatter actually holds.
  */
 import Preview from './Preview.astro';
+import { platformShort } from '../labels';
 
 interface Props { app: any; }
 const { app } = Astro.props;
 const d = app.data;
 
-/* One line, assembled from real fields. The platform words are the same ones the hero
- * pill uses; if that mapping ever moves somewhere shared, move both. */
-const PLATFORM_WORDS: Record<string, string> = {
-  android: 'Android', ios: 'iPhone', web: 'Web', macos: 'macOS', windows: 'Windows',
-};
+/* One line, assembled from real fields, in the short platform words (src/labels.ts). */
 const meta = [
   d.category,
   d.status === 'beta' ? 'Beta' : 'Live',
   'Free',
-  d.platforms.map((p: string) => PLATFORM_WORDS[p] ?? p).join(', '),
+  d.platforms.map((p: string) => platformShort[p] ?? p).join(', '),
 ];
 ---
 <article class="card glass reveal" data-glow>
