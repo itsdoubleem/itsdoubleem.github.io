@@ -43,6 +43,13 @@ const primary = a.downloads[0];
 // Both of these are read off the content, not typed. See the note above about the
 // third fact publik prints here and this page does not.
 const stepCount = g.steps.length + g.after.length;
+
+// Cost and Account come from the app's own fields and the sentence above them from the
+// guide, because this template is shared. They used to be typed here in LOGGER's terms —
+// free, no connection, no account, "on your own phone" — which the first guide for an app
+// that needs a connection or an account would have printed as fact.
+const cost = a.price === 'free' ? 'Free' : a.price;
+const account = a.privacy === 'account-required' ? 'Required' : 'None';
 ---
 <Base title={`${g.title} — doubleem`} description={g.lead}>
   <header class="top wrap">
@@ -63,10 +70,7 @@ const stepCount = g.steps.length + g.after.length;
         row of facts under a rule. Only facts that can be counted go in that row. */}
     <section class="outcome glass reveal" data-glow>
       <h2 class="outcome__head">What you end up with</h2>
-      <p class="outcome__body">
-        {a.name} set up on your own phone. It is free, it works with no connection, and
-        there is no account at any point.
-      </p>
+      <p class="outcome__body">{g.outcome}</p>
       <dl class="outcome__facts">
         <div>
           <dt>Steps</dt>
@@ -74,11 +78,11 @@ const stepCount = g.steps.length + g.after.length;
         </div>
         <div>
           <dt>Cost</dt>
-          <dd>Free</dd>
+          <dd>{cost}</dd>
         </div>
         <div>
           <dt>Account</dt>
-          <dd>None</dd>
+          <dd>{account}</dd>
         </div>
       </dl>
     </section>

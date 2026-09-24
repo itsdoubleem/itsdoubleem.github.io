@@ -203,6 +203,9 @@ const guides = defineCollection({
     app: z.string(),
     title: z.string(),
     lead: z.string(),
+    // The "What you end up with" sentence. It lives here, not in the template, because
+    // only the guide knows what is true of its app — connection, account, device.
+    outcome: z.string(),
     before: z.object({
       heading: z.string(),
       body: z.string(),
