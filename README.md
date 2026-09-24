@@ -73,8 +73,11 @@ guide: the reader assumes they are the one who is lost.
 ```bash
 npm install
 npm run dev      # http://localhost:4321
-npm run build    # → ./dist
+npm run build    # → ./dist, and fails on a missing asset or a hash that is not the file's
+npm run check    # downloads match their release: block and README; every #link lands
 ```
+
+CI runs `npm run build` and then `npm run check`, and a failure in either stops the deploy.
 
 Astro, static output, no client framework and no adapter. The content is markdown, it
 builds to plain HTML that works with JavaScript switched off, and GitHub Pages serves the
@@ -120,4 +123,77 @@ shasum -a 256 public/downloads/*.apk
 ```
 
 A hash here that does not match the file is worse than no hash at all — it teaches the one
-reader who bothered to check that checking is pointless.
+reader who bothered to check that checking is pointless. `npm run check` fails if the line
+for an APK is missing or wrong.
+
+### Shipping an app update
+
+Every fact about a release lives in one place: the `release:` block in `apps/<slug>.md`.
+
+```yaml
+release:
+  version: 1.0.1                  # typed once; the build cannot read it out of the APK
+  apk: /downloads/hangil.apk      # must also be one of the page's downloads
+  sha256: 3846f5c0…df7fff75       # the build fails if this is not the file's hash
+  web: /hangil/                   # optional: the offline web build, measured at build time
+```
+
+The page never types these values into prose. It writes a token, and the build fills it in:
+
+| Token | Prints | From |
+|---|---|---|
+| `{version}` | `1.0.1` | `release.version` |
+| `{apkSize}` | `1.6 MB` | measured from the APK |
+| `{sha256}` | the full hash | `release.sha256`, checked against the APK |
+| `{webSize}` | `897 KB` | measured from the `release.web` folder, READMEs left out |
+
+Tokens work in download notes, platform notes, verify entries and the update notice. An
+unknown token fails the build, and so does a hash or an APK size typed out by hand
+(`npm run check`). Sizes are binary units written as KB and MB, which is what a phone's
+file manager shows.
+
+So an update is:
+
+1. Copy the new build into `public/downloads/<slug>.apk` (and `public/<slug>/` for the web
+   build).
+2. `shasum -a 256 public/downloads/<slug>.apk`. Put the hash in `release.sha256` **and** on
+   that APK's line in the list above, in the same commit.
+3. Set `release.version`.
+4. If the app has an update notice with a `version:`, the build now fails until you rewrite
+   it for this release or delete it (see below).
+5. `npm run build && npm run check`.
+
+### Update notices
+
+When an update needs the reader to do something first, such as take a backup before a key
+change, give the app a `notice:`. The page then shows:
+
+- a **red badge** on the corner of one download button, which links to the notice. It is a
+  separate link beside the button rather than part of it, so the button still downloads.
+- a **notice section** at the top of the reading column, with an anchor the badge jumps to.
+
+```yaml
+notice:
+  badge: Had 1.0? Read first      # on the button; 28 characters at most
+  heading: Had version 1.0? Take a backup before you update
+  body: |                         # paragraphs, separated by a blank line; tokens allowed
+    Version {version} is signed with a new key, so Android will not install it over 1.0.
+
+    Updates after this one install over the top.
+  version: 1.0.1                  # optional: the release this was written for
+  until: 2026-12-31               # optional: the last day it shows
+  download: /downloads/hangil.apk # optional: which button wears the badge
+  id: update-notice               # optional: the anchor; this is the default
+```
+
+- **`version`** ties the notice to one release. When `release.version` changes, the build
+  fails with "notice was written for 1.0.1 but release.version is 1.0.2", so a notice
+  about one update can never sit silently on the next one.
+- **`until`** takes the notice down after that date. The site is static, so the notice goes
+  at the next build after the date. The deploy workflow rebuilds once a day for this
+  reason, so it is gone within a day.
+- **`download`** defaults to the `release.apk` button, or the first download if the app
+  has no release.
+
+Only one notice per app. The red (`--alert` in `global.css`) is used for nothing else, so
+a page with no notice has no red on it. To remove a notice, delete the `notice:` block.
