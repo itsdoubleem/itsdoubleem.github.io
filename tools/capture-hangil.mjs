@@ -86,12 +86,16 @@ await page.waitForTimeout(600);
 
 // Today and the card image come first, before any other screen has a chance to
 // write "carry on where you left off" to something the capture did not intend.
-await shot('01-today');
 await page.screenshot({ path: `${OUT}/card.png` });
 
-await go('#/course');               await shot('02-course');
+// The course list and the g01 practice screen are still VISITED but no longer saved.
+// Their captures (and 01-today, which is card.png) were used nowhere and cost 888 KB in
+// the repo. The visits stay because Math.random is seeded: skip one and every screen
+// after it draws different numbers, 08-picture's drawings reorder, and its `alt` stops
+// describing it. Numbering is left as it was so apps/hangil.md needs no change.
+await go('#/course');
 await go('#/course/g19');           await shot('03-lesson');
-await go('#/course/g01/practice');  await shot('04-practice');
+await go('#/course/g01/practice');
 await go('#/exam');                 await shot('05-exam');
 await go('#/exam/drill/d01');       await shot('06-sign');
 await go('#/vocab/v04');            await shot('07-vocab');
