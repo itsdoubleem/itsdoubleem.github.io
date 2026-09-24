@@ -34,7 +34,13 @@ try {
 for await (const file of html(dist)) {
   pages++;
   const page = await readFile(file, 'utf8');
-  const ids = new Set([...page.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+  const all = [...page.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]);
+  const ids = new Set(all);
+  // Two elements with one id and a #link lands on whichever comes first — a notice id
+  // of "main" did exactly that, and nothing looked wrong.
+  for (const id of new Set(all.filter((id, i) => all.indexOf(id) !== i))) {
+    problems.push(`${file.pathname.slice(dist.pathname.length)}: id="${id}" is used more than once`);
+  }
   for (const [, target] of page.matchAll(/\shref="#([^"]+)"/g)) {
     if (!ids.has(decodeURIComponent(target))) {
       problems.push(`${file.pathname.slice(dist.pathname.length)}: links to #${target}, which is not on the page`);
@@ -46,4 +52,4 @@ if (problems.length) {
   console.error(`check-anchors: ${problems.length} problem(s)\n  - ${problems.join('\n  - ')}`);
   process.exit(1);
 }
-console.log(`check-anchors: ${pages} page(s), every #link has somewhere to land`);
+console.log(`check-anchors: ${pages} page(s), every #link lands on exactly one element`);

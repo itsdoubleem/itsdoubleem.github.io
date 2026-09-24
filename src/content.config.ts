@@ -1,7 +1,7 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { existsSync } from 'node:fs';
-import { servable, sha256Of, unknownTokens } from './release';
+import { fill, releaseFacts, servable, sha256Of, unknownTokens } from './release';
 
 // The apps live in /apps at the repo root, not under src/ — they are the content
 // source of truth and are meant to be editable without opening the site code.
@@ -182,6 +182,13 @@ const apps = defineCollection({
     ];
     for (const text of prose) {
       for (const t of unknownTokens(text, known)) fail(`{${t}} cannot be filled for this app`);
+    }
+
+    // The 28-character limit above counts the badge as typed. Count it as printed too,
+    // or `badge: {sha256}` would pass and put 64 characters on a button.
+    if (n && r && servable(r.apk) && unknownTokens(n.badge, known).length === 0) {
+      const printed = fill(n.badge, releaseFacts(r));
+      if (printed.length > 28) fail(`notice.badge prints as ${printed.length} characters — keep it to 28`);
     }
   }),
 });
