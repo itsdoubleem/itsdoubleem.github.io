@@ -30,7 +30,7 @@ import { getCollection, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import PhoneDevice from '../../components/PhoneDevice.astro';
 import { themeColor } from '../../theme-color';
-import { contact } from '../../site';
+import { contact, siteClaim } from '../../site';
 import { fill, noticeIsLive, releaseFacts } from '../../release';
 
 export async function getStaticPaths() {
@@ -284,9 +284,9 @@ const heroScreen = d.card
       {/* Where a marketplace would put an install counter or a star rating, this site
           puts the claim and the way to check it. Counters and ratings are numbers a
           visitor has to believe; these are things they can confirm. Never add an entry
-          here that has not been checked on the shipping build. */}
-      {d.verify.length > 0 && (
-        <section class="block">
+          here that has not been checked on the shipping build. The section always
+          renders now, because the site's own claim closes it on every app page. */}
+      <section class="block">
           <h2 class="sec__head reveal">Don't take my word for it</h2>
           <p class="sec__lead">
             What this page claims, and how to check each one yourself.
@@ -298,9 +298,13 @@ const heroScreen = d.card
                 <p class="verify__how">{f(v.how)}</p>
               </li>
             ))}
+            {/* The site's own claim, last, on every app page — see src/site.ts. */}
+            <li class="verify__item reveal">
+              <p class="verify__claim">{siteClaim.claim}</p>
+              <p class="verify__how">{siteClaim.how}</p>
+            </li>
           </ul>
-        </section>
-      )}
+      </section>
 
       {/* The words come from the app, not from here. This aside used to carry LOGGER's —
           "this does not match my payslip", "a wage figure that is quietly wrong" — on

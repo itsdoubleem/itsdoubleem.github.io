@@ -331,7 +331,7 @@ main,
 
    ── Why there is still no scrambling text, now that there IS a script ──
    This site shipped zero JavaScript until /motion.js arrived, and the argument for that
-   was never "scripts are bad" — it was that `apps/logger.md` publishes a claim a visitor
+   was never "scripts are bad" — it was that the site publishes a claim a visitor
    can check in fifteen seconds, so the page has to be worth whatever the claim costs.
    The script exists because two effects genuinely cannot be done without a pointer
    position: the device's tilt, and the mouse-follow edge on a panel. It writes CSS
@@ -344,7 +344,7 @@ main,
 
    The budget is the discipline now that the number is not zero: /motion.js is under
    2 KB, it is first-party, it sets no cookies and it reads nothing about the visitor.
-   Anything that would grow it past "moves things" needs the claims in apps/logger.md,
+   Anything that would grow it past "moves things" needs the claims in src/site.ts,
    apps/hangil.md, the about page and the homepage band changed in the same commit —
    which is exactly what was done to add it.
 

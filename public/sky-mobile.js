@@ -8,7 +8,7 @@
  *
  * ── Why this exists at all, rather than reusing the real scene ──
  * The WebGL field is 589 KB of library plus 52 KB of scene, and the about page,
- * README.md and apps/logger.md all tell the reader that a phone fetches neither. It is
+ * README.md and src/site.ts all tell the reader that a phone fetches neither. It is
  * also more machine than a phone needs for this: with no cursor there is nothing for the
  * proximity term in the dust shader to answer, so two thirds of what that shader does
  * would be dead code on a handset. What is left is motes drifting in perspective, which
@@ -42,7 +42,7 @@
  *  3. It reads nothing about the visitor and stores nothing. No pointer listener (there
  *     is no pointer), no sensors, no cookies, no storage, no network of any kind.
  *  4. It is a named file in /public, not a bundled /_astro hash, because the about page,
- *     README.md and apps/logger.md invite the reader to open their network panel and
+ *     README.md and src/site.ts invite the reader to open their network panel and
  *     count the requests. Those three and src/layouts/Base.astro name this file by path;
  *     it arrived on 2026-09-22 and all four changed in that commit.
  *

@@ -54,7 +54,7 @@ const nav = [
 
                                     They are deliberately real files in /public rather
                                     than bundled /_astro hashes, because the about page,
-                                    README.md and apps/logger.md invite the reader to
+                                    README.md and src/site.ts invite the reader to
                                     open their network panel and count the requests — so
                                     every script has to be findable and named.
         img-src   'self' data:      favicon, screenshots, and inline SVG data URIs
@@ -110,7 +110,7 @@ const nav = [
 
     {/* The first script. `is:inline` keeps Astro's hands off it: left to
         itself Astro would bundle it into /_astro/<hash>.js, and the copy on the about
-        page and in apps/logger.md tells the reader to count the requests in their
+        page and in src/site.ts tells the reader to count the requests in their
         network panel — a named file at a stable path is what makes that check easy
         rather than a puzzle.
 
@@ -149,7 +149,7 @@ const nav = [
         and nothing else did, and the owner asked for the orbs alone.
 
         Named files at stable paths for the same reason /motion.js is one: the about
-        page, README.md and apps/logger.md all invite the reader to count the requests
+        page, README.md and src/site.ts all invite the reader to count the requests
         in their network panel, so every script has to be findable. Adding a sixth means
         editing those three in the same commit. */}
     <script is:inline src="/globe.js" defer></script>

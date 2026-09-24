@@ -24,7 +24,7 @@
  * The cost of that is the whole of what changed here, and it is real: /three.min.js is
  * now fetched on any wide screen, not only on the front page. It is one request, cached
  * across the site after the first page, and the gate below still keeps it away from
- * every handset. The about page, README.md and apps/logger.md say so in those words.
+ * every handset. The about page, README.md and src/site.ts say so in those words.
  *
  * ── The phone branch, and what it does and does not cost ──
  * A PHONE STILL NEVER FETCHES /three.min.js. That is not politeness, it is the whole
@@ -89,7 +89,7 @@
      Because the thing this has to keep out is a PHONE in Chrome's "Desktop site" mode,
      which reports a viewport around 980 CSS px and would sail through a 901 test — and
      then a handset downloads the 589KB library, which the about page, README.md and
-     apps/logger.md all promise it does not. 1200 sits above that and a long way below
+     src/site.ts all promise it does not. 1200 sits above that and a long way below
      the tablet's 1691, with room on both sides.
 
      ── What is deliberately NOT used ──

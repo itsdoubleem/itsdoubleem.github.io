@@ -42,8 +42,8 @@ field that globe sits in — that covers laptops, desktops and tablets. A phone 
 and no library, so a handset still never downloads the 589 KB one even when it asks for
 the desktop site. three.js is vendored into `/public` under its MIT licence rather than
 loaded from a CDN, so there are still no third-party requests, no analytics and no
-cookies. Keep both true. All five are named in the about page's prose and in LOGGER's
-claim table; a sixth one means editing those in the same commit.
+cookies. Keep both true. All five are named in the about page's prose and in the claim every
+app page carries (`siteClaim` in `src/site.ts`); a sixth one means editing those in the same commit.
 
 ## Adding a piece of work
 

@@ -19,7 +19,7 @@
  *     correct, finished appearance — JavaScript off, touch screen, or a blocked request
  *     all give a page that looks deliberate rather than broken.
  *  3. It reads nothing about the visitor and stores nothing. No cookies, no storage, no
- *     network. The claims on the about page and in apps/logger.md say so, and a visitor
+ *     network. The claims on the about page and in src/site.ts say so, and a visitor
  *     is invited to check them in the network panel.
  *  4. It is served from /public as its own file rather than bundled into an /_astro
  *     hash. That is on purpose: the copy tells people to open the network panel and

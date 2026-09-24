@@ -37,8 +37,6 @@ verify:
     how: The Android app asks for no internet permission at all. Unzip the APK and read its manifest — with that permission absent, Android will not let the app use the network, whatever anybody claims about it.
   - claim: The browser version is the same app as the download.
     how: Both are built from one source in the same step, and the copy inside the APK is byte-for-byte the file this site serves at /logger/ — the two hash identically.
-  - claim: This page is not watching you either.
-    how: It loads two scripts from this domain — /motion.js, which tilts the phone on the front page, and /globe.js, which checks whether your screen can draw 3D. If your screen is wide enough to be a laptop or a tablet, /globe.js fetches /three.min.js and /globe-scene.js — a globe on the front page, a drift of lit specks behind every other one. On a phone it fetches /sky-mobile.js instead, about 20 KB, which draws the same specks in a plain 2D canvas, so a handset never downloads the 589 KB library. Nothing is fetched from another domain — three.js is vendored here under its MIT licence. No cookies, no analytics. Open your browser's network panel and count the requests, then read the files — that is the whole of what runs here.
   - claim: The APK you download is the file I built.
     how: Hash it before you install it — shasum -a 256 logger.apk on macOS or Linux, certutil -hashfile logger.apk SHA256 on Windows. It must print {sha256}. One character out and it is not my build, so delete it. The same hash is on the repo's front page on GitHub, and that is the copy worth trusting — anyone able to swap the file on this site could swap the hash beside it just as easily.
 wrong:
