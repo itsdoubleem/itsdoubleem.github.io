@@ -147,7 +147,8 @@ The page never types these values into prose. It writes a token, and the build f
 | `{sha256}` | the full hash | `release.sha256`, checked against the APK |
 | `{webSize}` | `897 KB` | measured from the `release.web` folder, READMEs left out |
 
-Tokens work in download notes, platform notes, verify entries and the update notice. An
+Tokens work in download notes, platform notes, verify entries, the update notice (badge
+included) and the `wrong` aside. An
 unknown token fails the build, and so does a hash or an APK size typed out by hand
 (`npm run check`). Sizes are binary units written as KB and MB, which is what a phone's
 file manager shows.
@@ -196,4 +197,5 @@ notice:
   has no release.
 
 Only one notice per app. The red (`--alert` in `global.css`) is used for nothing else, so
-a page with no notice has no red on it. To remove a notice, delete the `notice:` block.
+a page with no notice has no red on it. To remove a notice, delete the `notice:` block, and
+any sentence elsewhere on the page that points to it.

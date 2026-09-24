@@ -160,7 +160,7 @@ const heroScreen = d.card
                   </span>
                 </a>
                 {notice && dl.href === badgeOn && (
-                  <a class="getit__badge" href={`#${notice.id}`}>{notice.badge}</a>
+                  <a class="getit__badge" href={`#${notice.id}`}>{f(notice.badge)}</a>
                 )}
               </span>
             ))}
@@ -213,7 +213,7 @@ const heroScreen = d.card
           who arrives by the anchor must see it at once, not watch it fade in. */}
       {notice && (
         <section class="notice block" id={notice.id} aria-labelledby={`${notice.id}-head`}>
-          <p class="notice__tag">{notice.badge}</p>
+          <p class="notice__tag">{f(notice.badge)}</p>
           <h2 class="notice__head" id={`${notice.id}-head`}>{f(notice.heading)}</h2>
           {noticeParas.map((p: string) => <p>{p}</p>)}
         </section>
@@ -315,9 +315,9 @@ const heroScreen = d.card
           is a compile error, not a warning. */}
       {(contact.formUrl || contact.issuesUrl) && (
         <aside class="wrong reveal">
-          <h2>{d.wrong?.heading ?? 'If something here is wrong'}</h2>
+          <h2>{d.wrong ? f(d.wrong.heading) : 'If something here is wrong'}</h2>
           <p>
-            {d.wrong?.body ??
+            {(d.wrong && f(d.wrong.body)) ??
               'Tell me. You do not need to be sure it is a bug — noticing that something does not match what you expected is enough, and it is the most useful thing you can send me.'}
           </p>
           <p class="wrong__links">

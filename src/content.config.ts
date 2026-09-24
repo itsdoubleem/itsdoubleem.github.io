@@ -177,7 +177,8 @@ const apps = defineCollection({
       ...d.downloads.map((dl) => dl.note ?? ''),
       ...d.platformNotes.map((p) => p.note),
       ...d.verify.flatMap((v) => [v.claim, v.how]),
-      ...(n ? [n.heading, n.body] : []),
+      ...(n ? [n.badge, n.heading, n.body] : []),
+      ...(d.wrong ? [d.wrong.heading, d.wrong.body] : []),
     ];
     for (const text of prose) {
       for (const t of unknownTokens(text, known)) fail(`{${t}} cannot be filled for this app`);
