@@ -5,7 +5,8 @@
     "dev": "astro dev",
     "build": "astro build --force",
     "preview": "astro preview",
-    "check": "node tools/check-downloads.mjs && node tools/check-anchors.mjs"
+    "check": "node tools/check-downloads.mjs && node tools/check-anchors.mjs",
+    "test": "node --test \"tests/*.test.ts\""
   },
   "author": "DOUBLEEM",
   "license": "MIT",

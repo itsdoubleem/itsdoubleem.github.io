@@ -56,13 +56,24 @@ export function webIcons(web: string): Record<number, string> {
   const dir = web.split(/[?#]/)[0].replace(/\/?$/, '/');
   const file = publicPath(`${dir}manifest.webmanifest`);
   if (!existsSync(file)) return {};
-  const icons: { src: string; sizes?: string; purpose?: string }[] =
-    JSON.parse(readFileSync(file, 'utf8')).icons ?? [];
+  return manifestIcons(JSON.parse(readFileSync(file, 'utf8')), dir);
+}
+
+/** The parsing half of webIcons, kept apart from the disk so it can be tested. `dir` is
+ *  the site folder the manifest sits in, with a trailing slash. */
+export function manifestIcons(manifest: any, dir: string): Record<number, string> {
+  const icons: { src: string; sizes?: string; purpose?: string }[] = manifest.icons ?? [];
   const out: Record<number, string> = {};
   for (const icon of icons) {
-    if (icon.purpose && !icon.purpose.split(/\s+/).includes('any')) continue;
+    // "any maskable" is one padded file offered for both uses, and it looks shrunken on
+    // a page just the same, so any mention of maskable (or monochrome) rules it out.
+    const purposes = icon.purpose?.split(/\s+/) ?? ['any'];
+    if (!purposes.includes('any') || purposes.some((p) => p === 'maskable' || p === 'monochrome')) continue;
     const m = icon.sizes?.match(/^(\d+)x\1$/);
-    if (m) out[Number(m[1])] = icon.src.startsWith('/') ? icon.src : dir + icon.src.replace(/^\.\//, '');
+    // The first entry of a size wins, as it does for a browser choosing among equals.
+    if (m && !(Number(m[1]) in out)) {
+      out[Number(m[1])] = icon.src.startsWith('/') ? icon.src : dir + icon.src.replace(/^\.\//, '');
+    }
   }
   return out;
 }
