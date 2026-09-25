@@ -6,6 +6,8 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+## [1.1.2] — 2026-09-26
+
 ### Added
 - `npm test`: unit tests for how an app's icons are read from its web build, run by Node's
   own test runner (no new dependency). CI runs them before building.
@@ -65,7 +67,8 @@ All notable changes to this site are recorded here. The format follows
 - HANGIL's page describes its trade section: eight manufacturing job groups, each with 26
   words and 20 questions.
 
-[Unreleased]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.1.1...HEAD
+[Unreleased]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.1.2...HEAD
+[1.1.2]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/itsdoubleem/itsdoubleem.github.io/releases/tag/v1.0.1
