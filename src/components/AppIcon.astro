@@ -28,10 +28,12 @@ interface Props {
   sizes?: string;
 }
 const { src, size, alt = '', class: className, loading, small, sizes } = Astro.props;
-const srcset = small ? `${small} 192w, ${src} 512w` : undefined;
-// The file's real pixels, so width/height tell the truth about an icon of any accepted
-// size. The build has already refused anything that is not a square PNG.
+// The file's real pixels, so width/height and the srcset widths tell the truth about an
+// icon of any accepted size. The build has already refused anything that is not a
+// square PNG.
 const px = pngSize(src)?.width ?? 512;
+const smallPx = small ? (pngSize(small)?.width ?? 192) : 0;
+const srcset = small ? `${small} ${smallPx}w, ${src} ${px}w` : undefined;
 ---
 <img class:list={['appicon', className]} src={src} srcset={srcset} sizes={small ? sizes : undefined}
      alt={alt} width={px} height={px}
