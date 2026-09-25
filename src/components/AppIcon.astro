@@ -10,6 +10,8 @@
    alt is empty by default because the name is always printed beside it — a screen
    reader would otherwise say the name twice. The build checks that the file is a square
    PNG big enough for the largest place it is drawn; see src/content.config.ts. */
+import { pngSize } from '../release';
+
 interface Props {
   src: string;
   /** Any CSS length. `em` sizes it to the text it sits in. */
@@ -27,9 +29,12 @@ interface Props {
 }
 const { src, size, alt = '', class: className, loading, small, sizes } = Astro.props;
 const srcset = small ? `${small} 192w, ${src} 512w` : undefined;
+// The file's real pixels, so width/height tell the truth about an icon of any accepted
+// size. The build has already refused anything that is not a square PNG.
+const px = pngSize(src)?.width ?? 512;
 ---
 <img class:list={['appicon', className]} src={src} srcset={srcset} sizes={small ? sizes : undefined}
-     alt={alt} width="512" height="512"
+     alt={alt} width={px} height={px}
      style={`--appicon-size: ${size}`} loading={loading} decoding="async" />
 
 <style>
