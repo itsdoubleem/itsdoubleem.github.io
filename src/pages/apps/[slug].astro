@@ -82,8 +82,9 @@ const phoneShots = d.screenshots.filter((s: any) => s.shape !== 'page');
 const pageShots = d.screenshots.filter((s: any) => s.shape === 'page');
 
 // The app's own 192px icon, when its web build declares one. The heading draws the icon
-// at 59px at most, so 192 covers a 3x screen; the build has already checked that the
-// 512 in the same manifest is byte-identical to `icon:`, so both are the same artwork.
+// at 59px at most, so 192 covers a 3x screen. The build checks that the manifest's 512
+// is byte-identical to `icon:` and that this file is a real 192px PNG; that it shows
+// the same artwork is trusted, not proven — the app's own build writes the two together.
 const smallIcon = d.release?.web ? webIcons(d.release.web)[192] : undefined;
 
 // The hero device shows this app's own capture, in the real handset — see the note on

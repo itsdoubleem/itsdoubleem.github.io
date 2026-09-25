@@ -178,8 +178,16 @@ const apps = defineCollection({
         } else if (servable(d.icon) && sha256Of(shipped) !== sha256Of(d.icon)) {
           fail(`icon ${d.icon} is not the icon the app ships — copy ${shipped} over it`);
         }
-        if (icons[192] && !servable(icons[192])) {
-          fail(`${r.web}manifest.webmanifest names ${icons[192]}, which is not in public/`);
+        // The page draws this one on most screens, so it gets the same checks as `icon:`
+        // bar the hash — it is a different file, and proving it is the same artwork would
+        // take a pixel compare. It is trusted because the app's own build writes it
+        // beside the 512 that was just checked.
+        if (icons[192]) {
+          const s = servable(icons[192]) && pngSize(icons[192]);
+          if (!servable(icons[192])) fail(`${r.web}manifest.webmanifest names ${icons[192]}, which is not in public/`);
+          else if (!s || s.width !== 192 || s.height !== 192) {
+            fail(`${icons[192]} is declared as 192x192 but is ${s ? `${s.width}×${s.height}` : 'not a PNG'}`);
+          }
         }
       }
     }
