@@ -419,11 +419,11 @@ const heroScreen = d.card
   /* ---------- the update notice ---------- */
   /* The badge is a second link pinned to the button's corner, not a part of it — the
      button downloads and the badge goes to the notice, and a link inside a link is
-     invalid HTML that browsers untangle unpredictably. White type on the red, and a
-     white stroke round it — the stroke is what lifts it off the mint button and off
-     the dark ground alike. The badge pokes 8px past the button's corner and the stroke
-     2px more: 10px in all, inside the 12px gap of .apphead__actions, so it never
-     touches the button beside it. Measure again if either number moves. */
+     invalid HTML that browsers untangle unpredictably. White type on the red, and no
+     stroke — the owner had the 2px white ring taken off on 2026-09-26; the red is
+     loud enough against the mint on its own. The badge pokes 8px past the button's
+     corner, inside the 12px gap of .apphead__actions, so it never touches the button
+     beside it. Measure again if either number moves. */
   .getit { position: relative; display: inline-flex; padding: 10px 8px 0 0; margin: -10px -8px 0 0; }
   .getit__badge {
     position: absolute; top: 0; right: 0;
@@ -431,7 +431,6 @@ const heroScreen = d.card
     min-height: 24px; padding: 0 9px;
     border-radius: 999px;
     background: var(--alert); color: var(--alert-ink);
-    box-shadow: 0 0 0 2px var(--alert-ink);
     font-size: 12px; font-weight: 700; line-height: 1; white-space: nowrap;
     text-decoration: none;
   }
