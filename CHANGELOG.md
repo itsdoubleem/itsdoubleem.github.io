@@ -11,6 +11,9 @@ All notable changes to this site are recorded here. The format follows
   app added later without further work. The build refuses an icon that is not a square PNG
   of at least 192px.
 
+### Changed
+- The red update-notice badge on a download button no longer has a white ring round it.
+
 ## [1.0.1] — 2026-09-26
 
 ### Fixed
