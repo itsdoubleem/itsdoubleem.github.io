@@ -19,7 +19,7 @@ screenshots:
   # app works out, the one button that turns it into a document, and the document itself.
   - src: /assets/logger/guide/08-pay.png
     alt: The PAY tab showing an estimated take-home of ₩1,939,950 for the 09.01 to 09.30 pay period, above an earnings list beginning with basic salary of ₩2,156,880 for 209 hours
-    caption: The month, worked out from your 기본금 and shown line by line before payday. The figures are from invented shifts.
+    caption: The month, worked out from your 기본급 and shown line by line before payday. The figures are from invented shifts.
   - src: /assets/logger/guide/10-document.png
     alt: The foot of the PAY tab, with a red button reading CREATE A WORK RECORD (evidence) and a line confirming the file 근무내역서-09010930.html was created
     caption: Making the 근무내역서. It asks for your name first, and tells you the document still works without one.
@@ -60,24 +60,29 @@ release:
 
 ## What it does
 
-LOGGER records when you clock in and when you clock out. It works out on its own whether
-a shift was a day shift or a night shift, applies Korean overtime and night-premium rules
-from the 근로기준법, and shows you what your month should come to — before the company
-hands you a 급여명세서, so you have something to hold it up against.
+Payday comes with a 급여명세서 (payslip) in Korean, and a number you cannot easily check.
+LOGGER gives you your own number to hold it up against.
+
+You tap in when you arrive and out when you leave. LOGGER works out on its own whether
+each shift was a day shift or a night shift, applies the overtime and night-premium rules
+of the 근로기준법 (Labour Standards Act), and shows you what your month should come to —
+before payday. It assumes a workplace with five or more employees, because that is where
+those rules apply by law.
 
 It shows you the arithmetic, not just a total — basic pay, 잔업 overtime, 야간 night
 premium, tax and insurance, line by line, so you can check it against the payslip rather
 than take its word for it.
 
-From the 급여 PAY tab it also makes a **근무내역서**: a one-page Korean document covering
+From the 급여 PAY tab it also makes a **근무내역서** (work record): a one-page Korean document covering
 every day of the pay period — your punches, hours, rate, the arithmetic, and any 52-hour
 breach or unpaid holiday premium. It is written in Korean whatever language you read the
-app in, so you can hand it straight to your company, a 노무사 or 고용노동부. Each pay period
-keeps the 기본금 and rates that were in force while you worked it, so a raise today does
+app in, so you can hand it straight to your company, a 노무사 (licensed labour attorney) or
+고용노동부 (the Ministry of Employment and Labor). Each pay period keeps the 기본급 (basic
+salary) and rates that were in force while you worked it, so a raise today does
 not rewrite an old document.
 
 There is a **CSV** export beside it for a spreadsheet, and a backup file you can save at
-any time from 설정 › Backup.
+any time from 설정 (Settings) › Backup.
 
 It runs entirely on the phone. No account, no sign-up, no internet connection needed after
 you install it.
@@ -90,21 +95,18 @@ translation, so the words on your screen match the words on the company's paperw
 
 **Foreign workers in Korea, and above all people on an EPS E-9 visa** — factory, farm,
 fishing and construction work, paid by the hour, with a payslip written in a language you
-are still learning. The eight languages the app speaks are the ones E-9 workers arrive
-with.
+are still learning. The app speaks eight of the languages E-9 workers arrive with, so
+you do not need to read Korean to use it.
 
 It is not tied to a visa or an employer. If you work shifts in Korea, are paid by the
 hour, and want to check the number on your payslip yourself, it is for you.
-
-You do not need to read Korean to use it: every screen is available in all eight
-languages.
 
 ## What it is not
 
 **It is a calculator, not a lawyer and not a 공인노무사.**
 
 It applies the law to a record you keep yourself and shows you the arithmetic. It does not
-tell you what to do about the result, it does not draft or file a 진정 for you, it gives no
+tell you what to do about the result, it does not draft or file a 진정 (a formal complaint to the ministry) for you, it gives no
 legal advice, and it is free, which is part of what keeps it a calculator rather than
 labour consulting.
 
@@ -116,7 +118,7 @@ written by the worker themselves — not a certificate issued by a company or an
 
 **If you need real help, it is free:** 고용노동부 고객상담센터 ☎ **1350**, weekdays
 09:00–18:00, with interpreters. Also the 노동포털 at labor.moel.go.kr, and any
-외국인노동자지원센터.
+외국인노동자지원센터 (support centre for foreign workers).
 
 ## Your data
 
