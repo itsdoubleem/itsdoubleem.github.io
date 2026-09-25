@@ -1,7 +1,7 @@
 # DOUBLEEM
 
-One person's work, in one place. Apps, tools, and whatever else turns out to be worth
-sharing. All of it free.
+One person's work, in one place. Apps so far, and whatever else turns out to be worth
+sharing. Each app says on its own page what it costs.
 
 **Live at [itsdoubleem.github.io](https://itsdoubleem.github.io)** — deploys on push to
 `main`.
