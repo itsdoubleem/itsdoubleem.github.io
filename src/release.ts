@@ -78,7 +78,12 @@ export function manifestIcons(manifest: any, dir: string): Record<number, string
     // a page just the same, so any mention of maskable (or monochrome) rules it out.
     const purposes = icon.purpose?.split(/\s+/) ?? ['any'];
     if (!purposes.includes('any') || purposes.some((p) => p === 'maskable' || p === 'monochrome')) continue;
-    const href = src.startsWith('/') ? src : dir + src.replace(/^\.\//, '');
+    // Resolved the way a browser would — ./, ../ and a leading / all work. An icon on
+    // another site is not a file this build can check, so it does not count.
+    const base = new URL(dir, 'https://site.invalid');
+    const url = new URL(src, base);
+    if (url.origin !== base.origin) continue;
+    const href = url.pathname;
     // `sizes` may list several ("192x192 512x512") and the x may be capital.
     for (const token of icon.sizes?.split(/\s+/) ?? []) {
       const m = token.match(/^(\d+)[xX]\1$/);

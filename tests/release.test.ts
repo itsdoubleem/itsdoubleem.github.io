@@ -51,3 +51,17 @@ test('sizes may be written with a capital X or list several sizes', () => {
     512: '/app/b.png',
   });
 });
+
+test('src resolves as a browser would, and an icon on another site does not count', () => {
+  const icons = manifestIcons(
+    {
+      icons: [
+        { src: 'https://cdn.example/icon-512.png', sizes: '512x512' },
+        { src: '../shared/icon-512.png', sizes: '512x512' },
+        { src: '/abs/icon-192.png', sizes: '192x192' },
+      ],
+    },
+    '/app/',
+  );
+  assert.deepEqual(icons, { 192: '/abs/icon-192.png', 512: '/shared/icon-512.png' });
+});
