@@ -6,6 +6,11 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+### Added
+- Every app page shows the app's icon before its name — LOGGER and HANGIL today, and any
+  app added later without further work. The build refuses an icon that is not a square PNG
+  of at least 192px.
+
 ## [1.0.1] — 2026-09-26
 
 ### Fixed

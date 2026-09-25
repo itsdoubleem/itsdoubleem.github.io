@@ -6,6 +6,7 @@
    missing). Do not reintroduce that. An app with no screenshot falls back to its icon. */
 interface Props { name: string; icon: string; card?: string; }
 const { name, icon, card } = Astro.props;
+import AppIcon from './AppIcon.astro';
 ---
 <div class="preview">
   {card ? (
@@ -13,7 +14,7 @@ const { name, icon, card } = Astro.props;
          width="390" height="844" loading="lazy" decoding="async" />
   ) : (
     <div class="preview__fallback">
-      <img src={icon} alt="" width="56" height="56" loading="lazy" decoding="async" />
+      <AppIcon src={icon} size="56px" />
       <span>{name}</span>
     </div>
   )}
@@ -50,5 +51,4 @@ const { name, icon, card } = Astro.props;
     gap: 10px;
     font-weight: 700; letter-spacing: -0.01em;
   }
-  .preview__fallback img { border-radius: 12px; }
 </style>

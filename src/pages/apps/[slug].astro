@@ -29,6 +29,7 @@
 import { getCollection, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import PhoneDevice from '../../components/PhoneDevice.astro';
+import AppIcon from '../../components/AppIcon.astro';
 import { themeColor } from '../../theme-color';
 import { contact, siteClaim } from '../../site';
 import { fill, noticeIsLive, releaseFacts } from '../../release';
@@ -118,6 +119,7 @@ const heroScreen = d.card
           </p>
 
           <h1 class="apphead__name">
+            <AppIcon src={d.icon} size="0.78em" />
             {d.name}
             {d.nativeName && <span class="apphead__native">{d.nativeName}</span>}
           </h1>
@@ -368,6 +370,11 @@ const heroScreen = d.card
     font-weight: 400; letter-spacing: var(--track-display); line-height: 0.98;
     display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap;
   }
+  /* The icon is sized to the name's cap height (the 0.78em above) and centred on it:
+     the row aligns on the baseline, which would sit the icon's foot on the line and
+     leave it overshooting the capitals. Shape and radius live in AppIcon; :global
+     because a page's scoped styles stop at a child component's elements. */
+  .apphead__name :global(.appicon) { align-self: center; }
   .apphead__native {
     font-family: var(--font);
     font-size: clamp(15px, 1.6vw, 20px); font-weight: 500; color: var(--ink-soft);

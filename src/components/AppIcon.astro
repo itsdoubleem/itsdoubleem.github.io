@@ -1,0 +1,31 @@
+---
+/* An app's own icon, the file named by `icon:` in apps/<slug>.md. Every place that draws
+   one goes through here, so the shape is decided once: the launcher's rounded square,
+   which is how a phone shows it and how a stranger recognises it as an app.
+
+   Icons arrive in two forms and both come out the same. LOGGER's is a full-bleed square;
+   HANGIL's is already rounded, with transparent corners. Clipping both to one radius
+   makes the first match the second and leaves the second as it was.
+
+   alt is empty by default because the name is always printed beside it — a screen
+   reader would otherwise say the name twice. The build checks that the file is a square
+   PNG big enough for the largest place it is drawn; see src/content.config.ts. */
+interface Props {
+  src: string;
+  /** Any CSS length. `em` sizes it to the text it sits in. */
+  size: string;
+  alt?: string;
+  class?: string;
+}
+const { src, size, alt = '', class: className } = Astro.props;
+---
+<img class:list={['appicon', className]} src={src} alt={alt} width="512" height="512"
+     style={`--appicon-size: ${size}`} decoding="async" />
+
+<style>
+  .appicon {
+    width: var(--appicon-size); height: var(--appicon-size);
+    flex: none;
+    border-radius: 22%;
+  }
+</style>
