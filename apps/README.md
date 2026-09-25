@@ -41,7 +41,11 @@ privacy:     on-device           # on-device | account-required
                                  # "on-device" is a factual claim — check it on the
                                  # running app before writing it (rule 3 in README.md).
 languages:   [ko, en, vi, zh, th, id, ne, km]   # optional, ISO 639-1
-icon:        /assets/logger/icon.png
+icon:        /assets/logger/icon.png   # square PNG, at least 192px — the build checks.
+                                 # Shown before the name on the app page and wherever
+                                 # there is no card; drawn by src/components/AppIcon.astro,
+                                 # which rounds the corners, so full-bleed or pre-rounded
+                                 # artwork both work. Never add a second icon field.
 screenshots:                     # optional but strongly preferred
   - src: /assets/logger/guide/08-pay.png     # must exist in public/ — the build checks
     alt: What the screen shows, for someone who cannot see it

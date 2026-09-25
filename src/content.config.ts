@@ -1,7 +1,7 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { existsSync } from 'node:fs';
-import { fill, releaseFacts, servable, sha256Of, unknownTokens } from './release';
+import { fill, pngSize, releaseFacts, servable, sha256Of, unknownTokens } from './release';
 
 // The apps live in /apps at the repo root, not under src/ — they are the content
 // source of truth and are meant to be editable without opening the site code.
@@ -139,6 +139,15 @@ const apps = defineCollection({
 
     const assets = [d.icon, d.card, ...d.screenshots.map((s) => s.src)].filter(Boolean) as string[];
     for (const href of assets) if (!servable(href)) fail(`${href} is not in public/`);
+
+    // The icon is drawn beside the name at up to ~60px, so up to 180 device pixels on a
+    // 3x phone, and clipped to a rounded square — a wide one would be squashed.
+    if (servable(d.icon)) {
+      const s = pngSize(d.icon);
+      if (!s) fail(`icon ${d.icon} must be a PNG`);
+      else if (s.width !== s.height) fail(`icon ${d.icon} is ${s.width}×${s.height} — it must be square`);
+      else if (s.width < 192) fail(`icon ${d.icon} is ${s.width}px — it must be at least 192px`);
+    }
     for (const dl of d.downloads) {
       if (dl.href.startsWith('/') && !servable(dl.href)) fail(`download ${dl.href} is not in public/`);
     }
