@@ -1,7 +1,7 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { existsSync } from 'node:fs';
-import { fill, pngSize, releaseFacts, servable, sha256Of, unknownTokens } from './release';
+import { fill, pngSize, releaseFacts, servable, sha256Of, unknownTokens, webIcons } from './release';
 
 // The apps live in /apps at the repo root, not under src/ — they are the content
 // source of truth and are meant to be editable without opening the site code.
@@ -165,11 +165,22 @@ const apps = defineCollection({
 
       // The page's icon must be the one the app itself ships. HANGIL's artwork changed
       // in its own repo and the build here kept serving the old one for a week, because
-      // the copy in public/assets/ is made by hand. The web build carries the real icon,
-      // so compare against it.
-      const shipped = r.web && `${r.web.replace(/\/?$/, '/')}icon-512.png`;
-      if (shipped && servable(shipped) && servable(d.icon) && sha256Of(shipped) !== sha256Of(d.icon)) {
-        fail(`icon ${d.icon} is not the icon the app ships — copy ${shipped} over it`);
+      // the copy in public/assets/ is made by hand. The web build's manifest names the
+      // real icon, so compare against it — and fail, not skip, when it cannot be found,
+      // or a renamed file would switch the check off without anyone noticing.
+      if (r.web && servable(r.web)) {
+        const icons = webIcons(r.web);
+        const shipped = icons[512];
+        if (!shipped) {
+          fail(`release.web ${r.web} has no manifest.webmanifest declaring a 512x512 icon to check the page icon against`);
+        } else if (!servable(shipped)) {
+          fail(`${r.web}manifest.webmanifest names ${shipped}, which is not in public/`);
+        } else if (servable(d.icon) && sha256Of(shipped) !== sha256Of(d.icon)) {
+          fail(`icon ${d.icon} is not the icon the app ships — copy ${shipped} over it`);
+        }
+        if (icons[192] && !servable(icons[192])) {
+          fail(`${r.web}manifest.webmanifest names ${icons[192]}, which is not in public/`);
+        }
       }
     }
 

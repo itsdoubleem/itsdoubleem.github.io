@@ -47,6 +47,26 @@ export function pngSize(href: string): { width: number; height: number } | null 
   return { width: b.readUInt32BE(16), height: b.readUInt32BE(20) };
 }
 
+/** The icons a web build declares for ordinary use, by pixel size — e.g.
+ *  { 192: '/hangil/icon-192.png', 512: '/hangil/icon-512.png' }. Read from the build's
+ *  manifest.webmanifest rather than guessed from file names, so a build that renames
+ *  its icons is still found. Maskable icons are left out: they are padded for a
+ *  launcher's mask and look shrunken anywhere else. Empty when there is no manifest. */
+export function webIcons(web: string): Record<number, string> {
+  const dir = web.split(/[?#]/)[0].replace(/\/?$/, '/');
+  const file = publicPath(`${dir}manifest.webmanifest`);
+  if (!existsSync(file)) return {};
+  const icons: { src: string; sizes?: string; purpose?: string }[] =
+    JSON.parse(readFileSync(file, 'utf8')).icons ?? [];
+  const out: Record<number, string> = {};
+  for (const icon of icons) {
+    if (icon.purpose && !icon.purpose.split(/\s+/).includes('any')) continue;
+    const m = icon.sizes?.match(/^(\d+)x\1$/);
+    if (m) out[Number(m[1])] = icon.src.startsWith('/') ? icon.src : dir + icon.src.replace(/^\.\//, '');
+  }
+  return out;
+}
+
 export const sha256Of = (href: string) =>
   createHash('sha256').update(readFileSync(publicPath(href))).digest('hex');
 
