@@ -37,3 +37,9 @@ test('maskable-only and monochrome icons are left out', () => {
   );
   assert.deepEqual(icons, {});
 });
+
+test('a manifest with no icons, a null one, or an icon with no src gives nothing, not a crash', () => {
+  assert.deepEqual(manifestIcons(null, '/app/'), {});
+  assert.deepEqual(manifestIcons({}, '/app/'), {});
+  assert.deepEqual(manifestIcons({ icons: [{ sizes: '512x512' }] }, '/app/'), {});
+});
