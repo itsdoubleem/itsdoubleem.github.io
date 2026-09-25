@@ -162,6 +162,15 @@ const apps = defineCollection({
         fail(`release.apk ${r.apk} is not one of the downloads, so its size is printed nowhere`);
       }
       if (r.web && !servable(r.web)) fail(`release.web ${r.web} is not in public/`);
+
+      // The page's icon must be the one the app itself ships. HANGIL's artwork changed
+      // in its own repo and the build here kept serving the old one for a week, because
+      // the copy in public/assets/ is made by hand. The web build carries the real icon,
+      // so compare against it.
+      const shipped = r.web && `${r.web.replace(/\/?$/, '/')}icon-512.png`;
+      if (shipped && servable(shipped) && servable(d.icon) && sha256Of(shipped) !== sha256Of(d.icon)) {
+        fail(`icon ${d.icon} is not the icon the app ships — copy ${shipped} over it`);
+      }
     }
 
     const n = d.notice;

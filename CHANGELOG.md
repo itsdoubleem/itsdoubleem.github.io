@@ -14,6 +14,11 @@ All notable changes to this site are recorded here. The format follows
 ### Changed
 - The red update-notice badge on a download button no longer has a white ring round it.
 
+### Fixed
+- HANGIL's page showed an older icon with a beige ground; it now shows the approved white
+  one the app ships. The build now fails if an app's page icon differs from the icon in its
+  web build.
+
 ## [1.0.1] — 2026-09-26
 
 ### Fixed

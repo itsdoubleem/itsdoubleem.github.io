@@ -46,6 +46,8 @@ icon:        /assets/logger/icon.png   # square PNG, at least 192px — the buil
                                  # there is no card; drawn by src/components/AppIcon.astro,
                                  # which rounds the corners, so full-bleed or pre-rounded
                                  # artwork both work. Never add a second icon field.
+                                 # With release.web set, it must be byte-identical to
+                                 # that build's icon-512.png — copy it from there.
 screenshots:                     # optional but strongly preferred
   - src: /assets/logger/guide/08-pay.png     # must exist in public/ — the build checks
     alt: What the screen shows, for someone who cannot see it
