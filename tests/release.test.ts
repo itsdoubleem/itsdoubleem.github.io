@@ -2,7 +2,7 @@
 // which reads TypeScript directly, so there is nothing to install.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { manifestIcons } from '../src/release.ts';
+import { manifestIcons, webDir } from '../src/release.ts';
 
 test('reads 192 and 512 icons, resolving relative src against the folder', () => {
   const icons = manifestIcons(
@@ -64,4 +64,8 @@ test('src resolves as a browser would, and an icon on another site does not coun
     '/app/',
   );
   assert.deepEqual(icons, { 192: '/abs/icon-192.png', 512: '/shared/icon-512.png' });
+});
+
+test('webDir normalises a release.web value to its folder', () => {
+  for (const web of ['/hangil', '/hangil/', '/hangil/?v=2', '/hangil#top']) assert.equal(webDir(web), '/hangil/');
 });

@@ -1,7 +1,7 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { existsSync } from 'node:fs';
-import { fill, pngSize, releaseFacts, servable, sha256Of, unknownTokens, webIcons } from './release';
+import { fill, pngSize, releaseFacts, servable, sha256Of, unknownTokens, webDir, webIcons } from './release';
 
 // The apps live in /apps at the repo root, not under src/ — they are the content
 // source of truth and are meant to be editable without opening the site code.
@@ -170,11 +170,12 @@ const apps = defineCollection({
       // or a renamed file would switch the check off without anyone noticing.
       if (r.web && servable(r.web)) {
         const icons = webIcons(r.web);
+        const manifest = `${webDir(r.web)}manifest.webmanifest`;
         const shipped = icons[512];
         if (!shipped) {
-          fail(`release.web ${r.web} has no manifest.webmanifest declaring a 512x512 icon to check the page icon against`);
+          fail(`${manifest} is missing or declares no 512x512 icon on this site to check the page icon against`);
         } else if (!servable(shipped)) {
-          fail(`${r.web}manifest.webmanifest names ${shipped}, which is not in public/`);
+          fail(`${manifest} names ${shipped}, which is not in public/`);
         } else if (servable(d.icon) && sha256Of(shipped) !== sha256Of(d.icon)) {
           fail(`icon ${d.icon} is not the icon the app ships — copy ${shipped} over it`);
         }
@@ -184,7 +185,7 @@ const apps = defineCollection({
         // beside the 512 that was just checked.
         if (icons[192]) {
           const s = servable(icons[192]) && pngSize(icons[192]);
-          if (!servable(icons[192])) fail(`${r.web}manifest.webmanifest names ${icons[192]}, which is not in public/`);
+          if (!servable(icons[192])) fail(`${manifest} names ${icons[192]}, which is not in public/`);
           else if (!s || s.width !== 192 || s.height !== 192) {
             fail(`${icons[192]} is declared as 192x192 but is ${s ? `${s.width}×${s.height}` : 'not a PNG'}`);
           }
