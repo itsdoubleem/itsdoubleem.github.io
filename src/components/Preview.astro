@@ -14,7 +14,7 @@ import AppIcon from './AppIcon.astro';
          width="390" height="844" loading="lazy" decoding="async" />
   ) : (
     <div class="preview__fallback">
-      <AppIcon src={icon} size="56px" />
+      <AppIcon src={icon} size="56px" loading="lazy" />
       <span>{name}</span>
     </div>
   )}

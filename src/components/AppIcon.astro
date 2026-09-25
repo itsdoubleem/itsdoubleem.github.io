@@ -16,11 +16,13 @@ interface Props {
   size: string;
   alt?: string;
   class?: string;
+  /** "lazy" where the icon may start below the fold, as in a grid of cards. */
+  loading?: 'eager' | 'lazy';
 }
-const { src, size, alt = '', class: className } = Astro.props;
+const { src, size, alt = '', class: className, loading } = Astro.props;
 ---
 <img class:list={['appicon', className]} src={src} alt={alt} width="512" height="512"
-     style={`--appicon-size: ${size}`} decoding="async" />
+     style={`--appicon-size: ${size}`} loading={loading} decoding="async" />
 
 <style>
   .appicon {
