@@ -75,7 +75,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The Primordial Soup',
     reveal:
-      'The universe began 13.8 billion years ago as a ball of energy too hot for anything solid to hold together. What filled it was a soup of loose quarks, gluons, and photons — the smallest pieces of matter and light, with nothing yet built from them.',
+      'The universe began 13.8 billion years ago hot and dense — far too hot for anything solid to hold together. What filled it was a soup of loose quarks, gluons, and photons — the smallest pieces of matter and light, with nothing yet built from them.',
     source: 'RocketSTEM, Unravelling the mystery behind the Big Bang birth of the universe',
     sourceUrl:
       'https://www.rocketstem.org/2025/06/23/quest-to-unravel-the-mystery-behind-the-big-bang-birth-of-the-universe/',
@@ -117,7 +117,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The Forge of Complex Elements',
     reveal:
-      'A star fuses hydrogen into heavier and heavier elements until it runs out of fuel. When the biggest ones die they explode as supernovae, and the heat and pressure of that death forge heavier elements still — iron, gold, iodine — scattering them across space.',
+      'A star fuses hydrogen into heavier elements, up to iron, until it runs out of fuel. The biggest then explode as supernovae and scatter what they made across space. Heavier elements still, like gold, need something more violent — most likely the collapse or collision of dead stars.',
     source: 'Columbia News, A Cosmic Explosion Forged Heavy Elements Like Gold and Platinum',
     sourceUrl:
       'https://news.columbia.edu/news/cosmic-explosion-forged-heavy-elements-gold-and-platinum',
@@ -161,7 +161,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The Origin of Earth’s Water',
     reveal:
-      'Much of Earth’s water probably arrived from outside — carried in by comets and water-rich asteroids striking the young planet. Each impact flashed its ice into steam, the steam built up in the air, and once Earth cooled it fell back as rain and filled the oceans.',
+      'Where Earth’s water came from is still argued over. Comets and water-rich asteroids brought some, but the rock Earth was built from may have held much of it from the start. Either way, once Earth cooled, steam in the air fell as rain and filled the oceans.',
     source: 'Earth How, Did Earth’s First Water Come from Comets, Volcanoes or Asteroids?',
     sourceUrl: 'https://earthhow.com/origin-of-water-comets-volcanoes-outgassing/',
   },
@@ -169,7 +169,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The Seeds of Life',
     reveal:
-      'The early air would poison anything alive today, but the new oceans could dissolve carbon-based chemicals and hold them together. At hot vents on the sea floor, fed by heat from inside the Earth, some combined into molecules that could copy themselves — the first life, 3.8 billion years ago.',
+      'The early air would poison anything alive today, but the new oceans could dissolve carbon-based chemicals and hold them together. Somewhere — perhaps at hot vents on the sea floor — some combined into molecules that could copy themselves. The oldest likely signs of life are about 3.8 billion years old.',
     source: 'Smithsonian Magazine, LUCA, the Ancestor of All Life on Earth',
     sourceUrl:
       'https://www.smithsonianmag.com/air-space-magazine/luca-ancestor-all-life-earth-180959980/',
@@ -194,7 +194,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The Rise of Complex Life',
     reveal:
-      'Cells got more complicated: the eukaryotic cell keeps its DNA in a nucleus and runs on structures that were once separate microbes it absorbed. Cells like that could stick together and take on different jobs, and the first animal bodies appeared in a rush — the Cambrian Explosion.',
+      'Cells got more complicated: the eukaryotic cell keeps its DNA in a nucleus and runs on structures that were once separate microbes it absorbed. Cells like that could stick together and take on different jobs, and much later animal body plans multiplied in a rush — the Cambrian Explosion.',
     source: 'Exploring Our Fluid Earth (University of Hawaiʻi), Change Over Time',
     sourceUrl:
       'https://manoa.hawaii.edu/exploringourfluidearth/physical/ocean-floor/change-over-time',
@@ -220,7 +220,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'Walking Upright',
     reveal:
-      'Around 6 million years ago in Africa the climate dried and grassland opened between the shrinking forests. Primates that crossed that open ground on two legs did better, and walking upright left their hands free to carry food and young — the start of the hominin line, which leads to us.',
+      'Around 6 million years ago in Africa, some primates began walking on two legs. Why is still argued: the earliest upright walkers lived among trees, not on open grassland as once thought. Walking freed their hands to carry food and young — the start of the hominin line, leading to us.',
     source: 'Smithsonian’s Human Origins Program, Walking Upright',
     sourceUrl: 'https://humanorigins.si.edu/human-characteristics/walking-upright',
   },
@@ -228,7 +228,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The First Toolmakers',
     reveal:
-      'Around 2.6 million years ago, Homo habilis — “handy man” — began knocking flakes off stones to make a cutting edge. These Oldowan tools did what teeth and nails could not: open a carcass, strip meat from bone, and crack the bone for the fatty marrow inside.',
+      'Stone tools from Lomekwi in Kenya are 3.3 million years old, older than any known member of our genus. From 2.6 million years ago, Oldowan flakes, later linked to Homo habilis, became common. They did what teeth and nails could not: open a carcass, strip meat, crack bone for marrow.',
     source: 'Smithsonian’s Human Origins Program, Homo habilis',
     sourceUrl: 'https://humanorigins.si.edu/evidence/human-fossils/species/homo-habilis',
   },
@@ -305,7 +305,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The Dawn of History',
     reveal:
-      'Around 3,200 BCE the Sumerians of Mesopotamia pressed wedge-shaped marks into wet clay: cuneiform, the oldest writing we know of. It started as accounting — who owed what — and ended up holding laws, letters and stories, which is why historians date recorded history from here.',
+      'Around 3200 BCE the Sumerians of Mesopotamia pressed wedge-shaped marks into wet clay: cuneiform, one of the two oldest writing systems we know of, with Egypt’s. It started as accounting — who owed what — and ended up holding laws, letters and stories. Recorded history starts here.',
     source: 'Britannica, Cuneiform',
     sourceUrl: 'https://www.britannica.com/topic/cuneiform',
   },
@@ -321,7 +321,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'The First Empires',
     reveal:
-      'Around 2,334 BCE Sargon of Akkad took the Mesopotamian city-states one at a time and ruled them as one state — the Akkadian Empire, usually counted as the first. The new part was not conquering but holding: one army, one law, one tax, over people who had never been one people.',
+      'Around 2334 BCE Sargon of Akkad took the Mesopotamian city-states one at a time and ruled them as one state — the Akkadian Empire, usually counted as the first. The new part was not conquering but holding: one army, one law, one tax, over people who had never been one people.',
     source: 'Britannica, Sargon',
     sourceUrl: 'https://www.britannica.com/biography/Sargon',
   },
@@ -329,7 +329,7 @@ export const curios: Curio[] = [
     kind: 'Science',
     lead: 'Law Written in Stone',
     reveal:
-      'Around 1,754 BCE the Babylonian king Hammurabi had 282 laws cut into a stone pillar and set it up in public — theft, wages, marriage, medicine, all of it. Putting the penalties where anyone could read them is the point: the rule stops being whatever a judge feels that day.',
+      'Around 1754 BCE the Babylonian king Hammurabi had 282 laws cut into a stone pillar and set it up in public — theft, wages, marriage, medicine, all of it. Putting the penalties where anyone could read them is the point: the rule stops being whatever a judge feels that day.',
     source:
       'World History Encyclopedia, Code of Hammurabi: The Most Influential Law Code of the Ancient World',
     sourceUrl: 'https://www.worldhistory.org/Code_of_Hammurabi/',
