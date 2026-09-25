@@ -75,9 +75,11 @@ npm install
 npm run dev      # http://localhost:4321
 npm run build    # → ./dist, and fails on a missing asset or a hash that is not the file's
 npm run check    # downloads match their release: block and README; every #link lands
+npm test         # unit tests in tests/ — Node's own runner, nothing to install
 ```
 
-CI runs `npm run build` and then `npm run check`, and a failure in either stops the deploy.
+CI runs `npm test`, `npm run build` and then `npm run check`, and a failure in any of them
+stops the deploy.
 
 Astro, static output, no client framework and no adapter. The content is markdown, it
 builds to plain HTML that works with JavaScript switched off, and GitHub Pages serves the

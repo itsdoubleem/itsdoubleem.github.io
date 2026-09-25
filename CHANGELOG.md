@@ -6,6 +6,17 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+### Added
+- `npm test`: unit tests for how an app's icons are read from its web build, run by Node's
+  own test runner (no new dependency). CI runs them before building.
+
+### Fixed
+- An icon the web build marks "any maskable" is never taken as the page icon.
+- The 192px icon the page draws is checked to be a real 192×192 PNG.
+- An unreadable web manifest is named in the error; `512X512`, multi-size entries and
+  `./`, `../` or `/` icon paths are all read correctly; icon error messages print the
+  manifest's real path.
+
 ## [1.1.1] — 2026-09-26
 
 ### Fixed
