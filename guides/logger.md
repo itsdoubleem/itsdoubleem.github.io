@@ -5,8 +5,9 @@ lead: Set it up once. After that it is one tap when you arrive and one when you 
 outcome: LOGGER set up on your own phone. It is free, it works with no connection, and there is no account at any point.
 before:
   heading: Before you start
-  body: You do not need anything to begin — the app works straight away and asks for each figure at the moment it matters. But two papers make it exact, so have them nearby if you can.
+  body: Apart from the app, you do not need anything to begin — it works straight away and asks for each figure at the moment it matters. But two papers make it exact, so have them nearby if you can.
   items:
+    - The app. Download it for Android from the LOGGER page, or open it in your browser. Android warns you about installing a file from outside the store — that is normal for an app shared this way, and you can allow it for this one file.
     - Your 급여명세서 payslip, for the 기본급 basic salary figure.
     - Your 근로계약서 contract, which says which days go on one payslip.
     - Nothing else. No account, no email, no signal.
@@ -21,14 +22,14 @@ steps:
     alt: A screen asking which shift you work, with Day only, Night only and Rotating, and a time wheel set to 09:00.
     kicker: Step 2
     title: Say which shift you work, and when it starts
-    body: Day only, night only, or rotating — then the time your shift begins. This is the one thing the app cannot work out by itself. Everything else is set by law or calculated.
-    note: You never set a finishing time. The moment you clock out is your 퇴근. The app shows where eight hours are reached; anything past that pays 잔업 overtime ×1.5.
+    body: Day only, night only, or rotating — then the time your shift begins. The app cannot guess this, so it asks.
+    note: You never set a finishing time. The moment you clock out is your 퇴근 (clock-out). The app shows where eight hours are reached, and counts anything past that as 잔업 overtime at ×1.5. That rate is the law at a workplace with five or more employees. At a smaller one it is not required — if yours is small, check with ☎ 1350.
   - image: 03-breaks
     alt: A screen for unpaid meal breaks, showing one break from 11:30 to 12:30 lasting 60 minutes.
     kicker: Step 3
     title: Enter your unpaid breaks
     body: Lunch, dinner, or any break you are not paid for. Add one for each — the app takes them off your hours every shift. There are quick buttons for "It is 30 minutes" and "There is no meal break".
-    note: Only put a break here if it is genuinely unpaid. If the company pays your ten-minute coffee break, leaving it out is correct — put it in and you lose that time every single day. 근로기준법 §54 says only a real break, where you are free to leave your post, is unpaid.
+    note: Only put a break here if it is genuinely unpaid. If the company pays your ten-minute coffee break, leaving it out is correct — put it in and you lose that time every single day. 근로기준법 §54 says only a real break, where you are free to use the time as you like, is unpaid.
   - image: 04-wage
     alt: A screen asking for your basic salary, pre-filled with 2,156,880 won.
     kicker: Step 4
@@ -52,7 +53,7 @@ after:
     kicker: Every day
     title: One tap when you arrive, one when you leave
     body: Press the pad with your fingerprint. The app decides on its own whether it was a day or a night shift and takes your breaks off. Nothing to fill in.
-    note: Forgot to punch at the start? Tap "I clocked in earlier today" and type the real time. There is also a calendar for adding a whole shift you already worked — pick the date, set the hours, confirm.
+    note: No fingerprint sensor? The pad says so, and you press and hold it instead. Forgot to punch at the start? Tap "I clocked in earlier today" and type the real time. There is also a calendar for adding a whole shift you already worked — pick the date, set the hours, confirm.
   - image: 08-pay
     alt: The pay screen showing an estimated take-home figure with a breakdown of earnings below it.
     kicker: Any time
@@ -64,7 +65,7 @@ after:
     kicker: The document
     title: Make a record you can hand to someone
     body: At the foot of the 급여 PAY tab, "CREATE A WORK RECORD" makes a one-page Korean document covering every day of that pay period — your punches, hours, rate, the arithmetic, and any 52-hour breach or unpaid holiday premium. There is a CSV export beside it for a spreadsheet.
-    note: It is written in Korean whatever language you read the app in, so your company, a 노무사 or a 근로감독관 can read it. Your name is the one thing only you can add — it is the only place the document prints it, and without it the page says «성명 미기재». Each pay period keeps the rates that were in force while you worked it, so a raise today does not rewrite an old document.
+    note: It is written in Korean whatever language you read the app in, so your company, a 노무사 or a 근로감독관 (labour inspector) can read it. Your name is the one thing only you can add — it is the only place the document prints it, and without it the page says «성명 미기재». Each pay period keeps the rates that were in force while you worked it, so a raise today does not rewrite an old document.
   - image: 12-record
     alt: The work record document — worker name, company, the rate basis, a table of every day worked, totals, and a notice stating it is a record the worker wrote themselves.
     kicker: What comes out
@@ -75,7 +76,7 @@ after:
     alt: The CSV file's contents — a header row of Korean column names, then one line per day with the worker name, date, shift type, punches and hours.
     kicker: What comes out
     title: Or a CSV, for someone who wants the numbers
-    body: Every day the app has, with Korean column headings, as a plain spreadsheet file. It opens in Excel or Google Sheets — the file to hand a 노무사 or a 상담소 who wants to add it up themselves.
+    body: Every day the app has, with Korean column headings, as a plain spreadsheet file. It opens in Excel or Google Sheets — the file to hand a 노무사 or a 상담소 (counselling centre) who wants to add it up themselves.
     note: This example is invented data too. Nothing on this site is made from a real worker's records — a shift pattern and a 52-hour breach identify a real employer even after the name is changed.
   - image: 11-setup
     alt: The settings screen, with a required section and an optional "make it more exact" section.

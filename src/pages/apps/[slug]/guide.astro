@@ -147,9 +147,6 @@ const account = a.privacy === 'account-required' ? 'Required' : 'None';
 
     <section class="end glass reveal" data-glow>
       <h2 class="end__head">Get it</h2>
-      <p class="end__body">
-        {a.name} is free, works offline, and keeps everything on your own phone.
-      </p>
       <div class="end__actions">
         <a class="btn btn--primary" href={primary.href}>{primary.label}</a>
         <a class="btn btn--ghost" href={`/apps/${a.slug}/`}>Read more about {a.name}</a>
@@ -338,6 +335,5 @@ const account = a.privacy === 'account-required' ? 'Required' : 'None';
     font-size: clamp(22px, 2.6vw, 28px);
     font-weight: 400; letter-spacing: var(--track-tight);
   }
-  .end__body { margin: 10px 0 0; max-width: 54ch; color: var(--ink-soft); }
   .end__actions { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 12px; }
 </style>
