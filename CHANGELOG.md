@@ -6,6 +6,15 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+- The check that an app page's icon is the one the app ships now fails when the web build's
+  icon cannot be found, instead of passing without comparing anything. It reads the icon
+  from the build's `manifest.webmanifest` rather than assuming a file name.
+- The icon beside an app's name loads the app's 192px file (25 KB for HANGIL) instead of
+  the 512px one (156 KB).
+- A `?` or `#` in an asset path no longer crashes the build; a file that is not a real PNG
+  is reported as such; the fallback card icon loads lazily again.
+
 ## [1.1.0] — 2026-09-26
 
 ### Added

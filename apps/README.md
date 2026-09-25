@@ -47,7 +47,9 @@ icon:        /assets/logger/icon.png   # square PNG, at least 192px — the buil
                                  # which rounds the corners, so full-bleed or pre-rounded
                                  # artwork both work. Never add a second icon field.
                                  # With release.web set, it must be byte-identical to
-                                 # that build's icon-512.png — copy it from there.
+                                 # the 512x512 icon that build's manifest.webmanifest
+                                 # names — copy it from there. The page then draws the
+                                 # manifest's 192x192 icon, so keep both in the build.
 screenshots:                     # optional but strongly preferred
   - src: /assets/logger/guide/08-pay.png     # must exist in public/ — the build checks
     alt: What the screen shows, for someone who cannot see it
