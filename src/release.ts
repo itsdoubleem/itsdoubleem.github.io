@@ -26,12 +26,14 @@ import { join } from 'node:path';
 
 const PUBLIC = join(process.cwd(), 'public');
 
-/** Where a site path like /downloads/x.apk or /hangil/ lives on disk. */
-export const publicPath = (href: string) => join(PUBLIC, href.replace(/^\//, ''));
+/** Where a site path like /downloads/x.apk or /hangil/ lives on disk. A query or hash
+ *  is not part of the file's name, so it is dropped. */
+export const publicPath = (href: string) =>
+  join(PUBLIC, href.split(/[?#]/)[0].replace(/^\//, ''));
 
 /** A site path the build can serve: a file, or a folder with an index.html. */
 export function servable(href: string): boolean {
-  const p = publicPath(href.split(/[?#]/)[0]);
+  const p = publicPath(href);
   if (!existsSync(p)) return false;
   return statSync(p).isDirectory() ? existsSync(join(p, 'index.html')) : true;
 }
