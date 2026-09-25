@@ -41,7 +41,9 @@ export function servable(href: string): boolean {
 /** A PNG's width and height from its header, or null if the file is not a PNG. */
 export function pngSize(href: string): { width: number; height: number } | null {
   const b = readFileSync(publicPath(href));
-  if (b.length < 24 || b.toString('latin1', 1, 4) !== 'PNG') return null;
+  if (b.length < 24 || b.toString('latin1', 1, 4) !== 'PNG' || b.toString('latin1', 12, 16) !== 'IHDR') {
+    return null;
+  }
   return { width: b.readUInt32BE(16), height: b.readUInt32BE(20) };
 }
 
