@@ -53,6 +53,10 @@ jobs:
       # --ignore-scripts flag drops the other half: no dependency gets to run code at
       # install time. Astro needs no install script to build.
       - run: npm ci --ignore-scripts
+      # Node's own test runner on tests/*.test.ts. It reads TypeScript directly, which
+      # Node 22 does by default from 22.18 — setup-node's `22` resolves to a later one.
+      # A failure here stops the deploy.
+      - run: npm test
       - run: npm run build
       # Every APK matches its release: block and the hash in README.md, no hash or size
       # is typed into a page by hand, and every #link in the built pages has somewhere to
