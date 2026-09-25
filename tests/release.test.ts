@@ -43,3 +43,11 @@ test('a manifest with no icons, a null one, or an icon with no src gives nothing
   assert.deepEqual(manifestIcons({}, '/app/'), {});
   assert.deepEqual(manifestIcons({ icons: [{ sizes: '512x512' }] }, '/app/'), {});
 });
+
+test('sizes may be written with a capital X or list several sizes', () => {
+  assert.deepEqual(manifestIcons({ icons: [{ src: 'a.png', sizes: '512X512' }] }, '/app/'), { 512: '/app/a.png' });
+  assert.deepEqual(manifestIcons({ icons: [{ src: 'b.png', sizes: '192x192 512x512' }] }, '/app/'), {
+    192: '/app/b.png',
+    512: '/app/b.png',
+  });
+});

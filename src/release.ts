@@ -78,10 +78,12 @@ export function manifestIcons(manifest: any, dir: string): Record<number, string
     // a page just the same, so any mention of maskable (or monochrome) rules it out.
     const purposes = icon.purpose?.split(/\s+/) ?? ['any'];
     if (!purposes.includes('any') || purposes.some((p) => p === 'maskable' || p === 'monochrome')) continue;
-    const m = icon.sizes?.match(/^(\d+)x\1$/);
-    // The first entry of a size wins, as it does for a browser choosing among equals.
-    if (m && !(Number(m[1]) in out)) {
-      out[Number(m[1])] = src.startsWith('/') ? src : dir + src.replace(/^\.\//, '');
+    const href = src.startsWith('/') ? src : dir + src.replace(/^\.\//, '');
+    // `sizes` may list several ("192x192 512x512") and the x may be capital.
+    for (const token of icon.sizes?.split(/\s+/) ?? []) {
+      const m = token.match(/^(\d+)[xX]\1$/);
+      // The first entry of a size wins, as it does for a browser choosing among equals.
+      if (m && !(Number(m[1]) in out)) out[Number(m[1])] = href;
     }
   }
   return out;
