@@ -23,7 +23,7 @@ steps:
     kicker: Step 2
     title: Say which shift you work, and when it starts
     body: Day only, night only, or rotating — then the time your shift begins. The app cannot guess this, so it asks.
-    note: You never set a finishing time. The moment you clock out is your 퇴근 (clock-out). The app shows where eight hours are reached, and counts anything past that as 잔업 overtime at ×1.5. That rate is the law at a workplace with five or more employees. At a smaller one it is not required — if yours is small, check with ☎ 1350.
+    note: You never set a finishing time. The moment you clock out is your 퇴근 (clock-out). The app shows where eight hours are reached, and counts anything past that as 잔업 overtime at ×1.5. That is the usual legal rate, but not everywhere. It is not required at a workplace with fewer than five employees, or in farming, livestock and fishing work (근로기준법 §63). If either is you, check with ☎ 1350.
   - image: 03-breaks
     alt: A screen for unpaid meal breaks, showing one break from 11:30 to 12:30 lasting 60 minutes.
     kicker: Step 3

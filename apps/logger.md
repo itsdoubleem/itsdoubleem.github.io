@@ -66,8 +66,11 @@ LOGGER gives you your own number to hold it up against.
 You tap in when you arrive and out when you leave. LOGGER works out on its own whether
 each shift was a day shift or a night shift, applies the overtime and night-premium rules
 of the 근로기준법 (Labour Standards Act), and shows you what your month should come to —
-before payday. It assumes a workplace with five or more employees, because that is where
-those rules apply by law.
+before payday. It applies these rules the way the law does in the usual case. Two cases
+differ. At a workplace with fewer than five employees, the law does not require the
+overtime and night premiums or the 52-hour limit. In farming, livestock and fishing work,
+the rules on working hours, breaks and holidays do not apply at any size (근로기준법 §63).
+If either is you, check with ☎ 1350.
 
 It shows you the arithmetic, not just a total — basic pay, 잔업 overtime, 야간 night
 premium, tax and insurance, line by line, so you can check it against the payslip rather
