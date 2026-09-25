@@ -39,7 +39,7 @@ platformNotes:
   - platform: android
     note: Installs from the file itself, with no store account. Your phone will warn you about installing from outside the store — that warning is normal for anything distributed this way. The Android app speaks Korean through the phone's own speech engine, so it can use a better voice than a browser can, and Settings lets you pick which engine and which of the installed Korean voices reads to you. Your progress lives in the app's own storage, so it survives an update — except the one from 1.0, which the note at the top of this page covers.
   - platform: web
-    note: It opens in any browser and there is nothing to install, but it is meant to be added to your home screen — on Android, Chrome's menu › Add to Home screen; on iPhone, Safari's share button › Add to Home Screen. After that it opens full screen like any other app and works with no connection. In a browser the app picks the best Korean voice available, with nothing to set. In Safari, and in the browser on an Android phone or tablet, that is a voice on the device itself. In Chrome and Edge on a computer the on-device Korean voices are poor, so the app uses the browser's online voice instead — which works by sending the sentence being spoken to Google or Microsoft. It is only ever the app's own Korean, never your answers or your progress. With no connection a voice on the device takes over, and Settings lets you choose an on-device voice permanently if you would rather nothing went out at all. Your progress lives in that browser's storage for this address, so it does not follow you to another phone or another browser — take a backup from Settings before you switch.
+    note: It opens in any browser and there is nothing to install, but it is meant to be added to your home screen — on Android, Chrome's menu › Add to Home screen; on iPhone, Safari's share button › Add to Home Screen. After that it opens full screen like any other app and works with no connection. The app picks the best Korean voice the browser has, with nothing to set. In Chrome and Edge on a computer that is an online voice — see Your data for what that sends. Your progress lives in that browser's storage for this address, so it does not follow you to another phone or another browser — take a backup from Settings before you switch.
 verify:
   - claim: It works with no connection.
     how: Open it once with a connection, then turn airplane mode on and open it again. The course, the vocabulary, the exam papers and the review deck all still work. The whole app is {webSize} and your browser keeps a copy after the first visit.
@@ -91,7 +91,8 @@ notice:
 HANGIL teaches Korean in two directions at once, because the people who need the
 first one usually want the second.
 
-**The exam side** covers the EPS-TOPIK. It drills the question types the paper
+**The exam side** covers the EPS-TOPIK — the Korean test you sit to work in Korea
+under the Employment Permit System, the route to an E-9 visa. It drills the question types the paper
 actually uses — including the **picture questions the paper opens with**, both
 directions: see a drawing and choose the Korean word, or hear a sentence and
 choose which of four drawings it describes. Alongside those it drills what a sign
@@ -100,26 +101,31 @@ two people in the conversation just agreed. Then there are two full practice
 papers, forty questions each, with a fifty-minute clock that does not stop. You find out what you got
 wrong at the end, with the reason, one question at a time.
 
+If you are applying for manufacturing work, there is also a section for your trade:
+eight job groups, from rubber and plastic to food processing, each with 26 words and
+20 questions.
+
 **The course side** is twenty-four grammar units that start at *this is a
 passport* and end at reading the sentence in your contract that says wages shall
 be paid on a fixed date at least once a month. Each unit is a written
-explanation, a table, five real sentences with audio, the mistakes people
+explanation, a table, five or six real sentences with audio, the mistakes people
 actually make, and a mixed exercise set — multiple choice, word order, listening,
 matching.
 
-Everything you answer comes back at a widening gap — a day, three days, a week,
-a fortnight — and something you get wrong starts again from today. A word you
+Everything you answer comes back at a widening gap — a day, then three days, then
+about a week, then about three weeks, and further apart after that. Something you
+get wrong starts again from today. A word you
 fumbled in unit three will find you again while you are in unit eleven, which
 is the whole point. There are **two review decks**, because there are two jobs:
 the Korean itself (the alphabet, the course, the vocabulary) is reviewed on its
 own tab, and exam questions you missed are gone over inside the exam side.
 
-Every Korean sentence in the app has a play button, and the voice is your own
-phone's. Nothing is downloaded and nothing is streamed, so the audio works in
-airplane mode on a factory floor with no signal. On Android you choose which
-speech engine and which of its Korean voices reads to you — most phones have
-four or five installed and they do not sound alike, so it is worth a minute in
-Settings to find the one you can listen to for an hour.
+Every Korean sentence in the app has a play button. On a phone the voice is your
+own phone's. Nothing is downloaded or streamed, so the audio works in airplane
+mode on a factory floor with no signal. On Android you choose which speech engine
+and which of its Korean voices reads to you. Phones often have several installed
+and they do not sound alike, so it is worth a minute in Settings to find the one
+you can listen to for an hour.
 
 **It starts with the alphabet.** Eight short lessons take you from the six
 plain vowels to reading any block, and the last one covers how blocks change
@@ -129,8 +135,8 @@ pick the one you heard from four that differ by a single letter. Alongside the
 course there are **197 words** grouped by where you will hear them — the shop floor, the safety
 notice, the payslip, the clinic, the farm.
 
-Two shelves sit empty on purpose, for material published free by HRD Korea that
-you download yourself. One takes the official **listening files**; the other takes
+Two shelves sit empty on purpose, for material published free by HRD Korea — the
+government agency that runs the EPS-TOPIK — that you download yourself. One takes the official **listening files**; the other takes
 the official **pictures**, and a picture named after one of the app's own drawings
 quietly takes its place in every question that used it.
 
@@ -177,22 +183,23 @@ published free; the app leaves a shelf for each and ships them empty.
 ## Your data
 
 **Nothing about you leaves the device.** There is no server, no account, no sign-up, no
-analytics and no telemetry. The Android app goes further and ships with no
-internet permission at all, so the guarantee is enforced by Android rather than
-merely stated here. Your progress, your review schedule and your exam
-scores are in the app's own storage on your device — the Android app's, or your
-browser's — and nowhere else — not because a setting
-is switched on, but because the app has no code that sends anything anywhere.
-Once it has loaded, the app makes no network requests of its own. The one thing
-that can go out is a sentence being read aloud, explained below.
+analytics and no telemetry. Your progress, your review schedule and your exam scores
+stay in the app's own storage on your device — the Android app's, or your browser's.
+That is not a setting you switch on. The app has no code that sends them anywhere.
 
-One thing to know about the audio in a browser. In Chrome and Edge the app reads
-Korean with the browser's online voice, because it is far better than the voices
-those browsers have on the device — and an online voice works by sending the
-sentence being spoken to Google or Microsoft. That sentence is the app's own
-Korean and nothing else. If you would rather even that stayed put, pick an
-on-device voice in Settings. Safari, phone and tablet browsers, and the Android
-app all speak on the device.
+The Android app goes further: it has no internet permission at all, so Android
+itself enforces this. The web app makes no network requests of its own once it has
+loaded. The one thing that can go out is a sentence being read aloud in Chrome or
+Edge on a computer, explained below.
+
+One thing to know about the audio in a browser. In Chrome and Edge on a computer
+the app reads Korean with the browser's online voice, because it is far better
+than the voices those browsers have on the device. An online voice works by
+sending the sentence being spoken to Google or Microsoft. That sentence is the
+app's own Korean and nothing else — never your answers or your progress. With no
+connection, a voice on the device takes over. If you would rather nothing went out
+at all, pick an on-device voice in Settings. Safari, phone and tablet browsers,
+and the Android app all speak on the device.
 
 The trade-off is real: clear the browser's data and your progress goes with it.
 Settings has a backup you can save to a file and restore later, and it is worth
