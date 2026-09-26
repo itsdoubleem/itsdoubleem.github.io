@@ -34,9 +34,14 @@ import { themeColor } from '../../theme-color';
 import { contact, siteClaim } from '../../site';
 import { fill, noticeIsLive, releaseFacts, webIcons } from '../../release';
 import { languageNames as langNames, platformLong as platformNames } from '../../labels';
+import { installOrder, installProblems } from '../../install';
 
 export async function getStaticPaths() {
-  const [apps, guides] = await Promise.all([getCollection('apps'), getCollection('guides')]);
+  const [apps, guides, installs] = await Promise.all([
+    getCollection('apps'),
+    getCollection('guides'),
+    getCollection('install'),
+  ]);
   // The slug is the URL and the filename is what a person edits; if they disagree, the
   // page for apps/foo.md quietly appears at /apps/bar/. One rule, checked here.
   // (Not app.id — the glob loader takes the id FROM `slug`, so the two always agree.)
@@ -48,11 +53,15 @@ export async function getStaticPaths() {
   }
   return apps.map((app) => ({
     params: { slug: app.data.slug },
-    props: { app, hasGuide: guides.some((g) => g.data.app === app.data.slug) },
+    props: {
+      app,
+      hasGuide: guides.some((g) => g.data.app === app.data.slug),
+      install: installs.find((i) => i.data.app === app.data.slug)?.data.languages,
+    },
   }));
 }
 
-const { app, hasGuide } = Astro.props;
+const { app, hasGuide, install } = Astro.props;
 const d = app.data;
 const { Content } = await render(app);
 
@@ -60,6 +69,15 @@ const { Content } = await render(app);
 // prose asks for them by token. See src/release.ts.
 const facts = releaseFacts(d.release);
 const f = (text: string) => fill(text, facts);
+
+// The install steps in the app's own languages, if install/<slug>.md exists. Its rules
+// need this app's `languages:` and tokens, so they are checked here rather than in the
+// collection schema — see src/install.ts.
+if (install) {
+  const problems = installProblems(install, d.languages, Object.keys(facts));
+  if (problems.length) throw new Error(`install/${d.slug}.md:\n  ${problems.join('\n  ')}`);
+}
+const installLangs = install ? installOrder(install, d.languages) : [];
 
 // The update notice, if there is one and its last day has not passed. Its badge goes on
 // one download button, and links to the section rather than wrapping it: a link cannot
@@ -159,6 +177,18 @@ const heroScreen = d.card
               {d.sourceUrl && (
                 <a href={d.sourceUrl}>Read the source <span aria-hidden="true">↗</span></a>
               )}
+            </p>
+          )}
+
+          {/* Beside the buttons, because the person who cannot read the English under
+              them is deciding right here whether to tap. Each name is in its own script,
+              so the reader finds theirs without knowing the English word for it. */}
+          {installLangs.length > 0 && (
+            <p class="apphead__langs">
+              <span>How to install it:</span>
+              {installLangs.map((l) => (
+                <a href={`#install-${l.code}`} lang={l.code} hreflang={l.code}>{langNames[l.code] ?? l.code}</a>
+              ))}
             </p>
           )}
         </div>
@@ -263,6 +293,47 @@ const heroScreen = d.card
               </div>
             ))}
           </dl>
+        </section>
+      )}
+
+      {/* The install steps in each language the app speaks — src/install.ts says why.
+          Each language is a row that opens when the address points at it (:target), so
+          eight languages do not bury the page and the hero links open the one they name.
+          Not a <details>: a link to a closed <details> scrolls to it and leaves it shut
+          (checked in Chromium 2026-09-26), and opening it would take a script the site
+          claim in src/site.ts does not list. This works with JavaScript off.
+          `lang` is set on each so a screen reader speaks it in the right voice and the
+          phone picks a font that has the script — the site's own faces are latin only. */}
+      {installLangs.length > 0 && (
+        <section class="block" id="install" aria-labelledby="install-head">
+          <h2 class="sec__head reveal" id="install-head">How to install it, in your language</h2>
+          <p class="sec__lead">
+            Step by step, in each language the app speaks. A translation says so at the
+            top if a native speaker has not yet checked it.
+          </p>
+          <div class="inst__list">
+            {installLangs.map((l) => (
+              <section class="inst" id={`install-${l.code}`} lang={l.code}>
+                <h3 class="inst__row">
+                  <a href={`#install-${l.code}`}>
+                    <span class="inst__lang">{langNames[l.code] ?? l.code}</span>
+                    <span class="inst__title">{f(l.title)}</span>
+                  </a>
+                </h3>
+                <div class="inst__body">
+                  {l.unchecked && <p class="inst__unchecked">{f(l.unchecked)}</p>}
+                  {l.sections.map((s) => (
+                    <>
+                      <h4 class="inst__head">{f(s.heading)}</h4>
+                      <ol class="inst__steps">
+                        {s.steps.map((step) => <li>{f(step)}</li>)}
+                      </ol>
+                    </>
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
         </section>
       )}
 
@@ -479,6 +550,21 @@ const heroScreen = d.card
   }
   .apphead__links a:hover { color: var(--accent); border-bottom-color: var(--accent); }
 
+  /* Quieter than the links above it: a list of names, most of which the reader skips. */
+  .apphead__langs {
+    margin: 14px 0 0;
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px;
+    font-size: 14px; color: var(--ink-soft);
+  }
+  .apphead__langs a {
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 1px;
+    transition: color 160ms var(--ease), border-color 160ms var(--ease);
+  }
+  .apphead__langs a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
   /* ---------- the facts band ---------- */
   /* Across the measure rather than stacked in a sidebar. Rules above and below make it
      a band, which gives the page a beat between the hero and the prose and stops the
@@ -623,6 +709,35 @@ const heroScreen = d.card
   .where__row:last-child { border-bottom: 1px solid var(--hairline); }
   .where__row dt { font-weight: 700; }
   .where__row dd { margin: 0; color: var(--ink-soft); line-height: 1.55; }
+
+  /* One row per language, ruled like the rows above so the two sections read as a pair.
+     The name leads, in its own script; the title beside it is in the same language. */
+  .inst__list { margin: 22px 0 0; }
+  .inst { border-top: 1px solid var(--hairline); }
+  .inst:last-child { border-bottom: 1px solid var(--hairline); }
+  .inst__row { margin: 0; font-size: inherit; font-weight: inherit; }
+  .inst__row a {
+    padding: 16px 0;
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px;
+    text-decoration: none;
+  }
+  .inst__row a:hover .inst__lang, .inst:target .inst__lang { color: var(--accent); }
+  .inst__lang { font-weight: 700; transition: color 160ms var(--ease); }
+  .inst__title { color: var(--ink-soft); }
+  .inst__body { padding: 0 0 20px; line-height: 1.6; }
+  .inst:not(:target) .inst__body { display: none; }
+  /* The fixed bar would otherwise sit over the row the link just jumped to. */
+  .inst { scroll-margin-top: calc(var(--head-h) + 14px); }
+  .inst__unchecked {
+    margin: 0 0 14px; padding: 10px 14px;
+    border-left: 3px solid var(--accent);
+    background: var(--surface);
+    color: var(--ink-soft); font-size: 14.5px;
+  }
+  .inst__head { margin: 16px 0 6px; font-size: 16px; font-weight: 700; }
+  .inst__head:first-of-type { margin-top: 0; }
+  .inst__steps { margin: 0; padding-left: 1.4em; color: var(--ink-soft); }
+  .inst__steps li + li { margin-top: 6px; }
 
   /* ---------- verify ---------- */
   /* minmax(0, 1fr), not the default `auto`: an auto column sizes itself to the widest

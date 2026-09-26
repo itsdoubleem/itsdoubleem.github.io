@@ -273,4 +273,32 @@ const guides = defineCollection({
   }),
 });
 
-export const collections = { apps, guides };
+// How to install an app, in the languages the app speaks — optional, keyed by slug like a
+// guide. The shape is checked here; the rules that need the app's own frontmatter (its
+// languages, its tokens) are checked by the app page, from src/install.ts. See
+// install/README.md.
+const install = defineCollection({
+  loader: glob({ pattern: ['*.md', '!README.md'], base: './install' }),
+  schema: z
+    .object({
+      app: z.string(),
+      languages: z.record(
+        z.string(),
+        z.object({
+          checked: z.boolean(),
+          unchecked: z.string().optional(),
+          title: z.string(),
+          sections: z
+            .array(z.object({ heading: z.string(), steps: z.array(z.string()).nonempty() }))
+            .nonempty(),
+        }),
+      ),
+    })
+    .superRefine((i, ctx) => {
+      if (!existsSync(new URL(`../apps/${i.app}.md`, import.meta.url))) {
+        ctx.addIssue({ code: 'custom', message: `app: ${i.app} — there is no apps/${i.app}.md` });
+      }
+    }),
+});
+
+export const collections = { apps, guides, install };

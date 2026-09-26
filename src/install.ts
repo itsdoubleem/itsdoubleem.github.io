@@ -5,6 +5,7 @@
  * people get stuck on is Android's warning about installing a file from outside the
  * store, and that is exactly the step a stranger reading English is least able to judge.
  *
+ * The English steps sit in the same file as the reference the others are translated from.
  * This translates one block, not the site. BRIEF.md put a translated site off until four
  * apps; the owner approved this narrower piece on 2026-09-26.
  *
@@ -35,10 +36,9 @@ export function installProblems(
 ): string[] {
   const out: string[] = [];
   for (const [code, l] of Object.entries(langs)) {
-    if (code === 'en') {
-      out.push('en: the page itself is the English version — do not translate it into English');
-      continue;
-    }
+    // English is the version the others are translated from, and the one the owner can
+    // read to know what every other language is meant to say. Its author wrote it.
+    if (code === 'en' && !l.checked) out.push('en: the English is the source — it is checked: true');
     if (!appLanguages?.includes(code)) {
       out.push(`${code}: the app does not list ${code} in languages:, so the page cannot offer it`);
     }
@@ -59,5 +59,5 @@ export function installProblems(
 /** The languages to show, in the order the app lists them — the same order as the
  *  Languages fact on the page, so the two read as one list. */
 export function installOrder(langs: Record<string, InstallLanguage>, appLanguages: string[] = []) {
-  return appLanguages.filter((c) => c !== 'en' && c in langs).map((code) => ({ code, ...langs[code] }));
+  return appLanguages.filter((c) => c in langs).map((code) => ({ code, ...langs[code] }));
 }

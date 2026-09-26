@@ -29,11 +29,16 @@ test('a checked translation must drop the warning', () => {
   assert.deepEqual(installProblems({ vi: lang({ checked: true, unchecked: undefined }) }, appLangs, known), []);
 });
 
-test('a language the app does not speak is refused, and so is English', () => {
-  const p = installProblems({ km: lang(), en: lang() }, appLangs, known);
-  assert.equal(p.length, 2);
-  assert.ok(p.some((m) => m.startsWith('km: the app does not list km')));
-  assert.ok(p.some((m) => m.startsWith('en: the page itself')));
+test('a language the app does not speak is refused', () => {
+  const p = installProblems({ km: lang() }, appLangs, known);
+  assert.equal(p.length, 1);
+  assert.match(p[0], /^km: the app does not list km/);
+});
+
+test('English is the source, so it must be marked checked', () => {
+  const en = { checked: true, title: 'How to install', sections: [{ heading: 'Android', steps: ['Tap it.'] }] };
+  assert.deepEqual(installProblems({ en }, appLangs, known), []);
+  assert.ok(installProblems({ en: lang() }, appLangs, known).some((m) => m.startsWith('en: the English is the source')));
 });
 
 test('an app with no languages: list can offer none', () => {
@@ -49,9 +54,9 @@ test('a token the app cannot fill is caught, wherever it is', () => {
   assert.deepEqual(p, ['vi: {webSize} cannot be filled for this app', 'vi: {nope} cannot be filled for this app']);
 });
 
-test('languages come out in the app’s order, without English or missing ones', () => {
-  const out = installOrder({ zh: lang(), vi: lang() }, appLangs);
-  assert.deepEqual(out.map((l) => l.code), ['vi', 'zh']);
+test('languages come out in the app’s order, leaving out the missing ones', () => {
+  const out = installOrder({ zh: lang(), vi: lang(), en: lang() }, appLangs);
+  assert.deepEqual(out.map((l) => l.code), ['en', 'vi', 'zh']);
   assert.equal(out[0].title, 'Cách cài đặt');
   assert.deepEqual(installOrder({ vi: lang() }, undefined), []);
 });
