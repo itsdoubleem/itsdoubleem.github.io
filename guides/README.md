@@ -50,7 +50,8 @@ them from the shipping app:
 
 ```bash
 npm run dev                      # serves the app at /logger/
-node tools/capture-logger.mjs     # writes public/assets/<app>/guide/*.png
+node tools/capture-logger.mjs        # writes public/assets/logger/guide/*.png
+node tools/capture-hangil-guide.mjs  # writes public/assets/hangil/guide/*.png
 ```
 
 Re-run it whenever the app changes. A guide showing a screen the app no longer has is

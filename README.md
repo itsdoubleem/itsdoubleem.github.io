@@ -64,7 +64,8 @@ That last one is this site's answer to install counters: a number you are asked 
 believe, swapped for something you can confirm.
 
 A walkthrough is optional and lives in `guides/<slug>.md`. Its screenshots are captured
-from the shipping app by `tools/capture-logger.mjs`, never drawn — re-run it after any
+from the shipping app by that app's script — `tools/capture-logger.mjs`,
+`tools/capture-hangil-guide.mjs` — never drawn — re-run it after any
 change to the app, because a guide showing a screen that no longer exists is worse than no
 guide: the reader assumes they are the one who is lost.
 
@@ -106,8 +107,9 @@ files are committed deliberately, not by accident.
 | HANGIL | `~/Hangil_app` | `public/hangil/`, `public/downloads/hangil.apk` |
 
 Each has its own `DEPLOY.md` with the exact copy step, and its own `CLAUDE.md` that is the
-authority on what that app is. HANGIL's screenshots are captured from the shipping build by
-`tools/capture-hangil.mjs`, the same way LOGGER's guide is by `tools/capture-logger.mjs`.
+authority on what that app is. HANGIL's page screenshots are captured from the shipping build
+by `tools/capture-hangil.mjs` and its guide's by `tools/capture-hangil-guide.mjs`, the same
+way LOGGER's guide is by `tools/capture-logger.mjs`.
 
 ### Checking the downloads
 

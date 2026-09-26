@@ -6,6 +6,12 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+### Added
+- HANGIL has a guide at `/apps/hangil/guide/`, linked from its page. It has three setup
+  steps (follow the top card, set your trade, check the voice), then daily use: a
+  lesson, practice, Review, weak spots, the exam side, a timed paper and backups. All ten
+  screenshots are captured from the shipping app by `tools/capture-hangil-guide.mjs`.
+
 ## [1.2.0] — 2026-09-26
 
 ### Added
