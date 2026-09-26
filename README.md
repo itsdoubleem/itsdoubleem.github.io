@@ -68,6 +68,11 @@ from the shipping app by `tools/capture-logger.mjs`, never drawn — re-run it a
 change to the app, because a guide showing a screen that no longer exists is worse than no
 guide: the reader assumes they are the one who is lost.
 
+Install steps in the app's own languages are optional too, in `install/<slug>.md`. They
+add a line of language names under the download buttons and a section with one row per
+language. Every translation says on the page whether a native speaker has checked it. See
+`install/README.md`.
+
 ## Running it
 
 ```bash
