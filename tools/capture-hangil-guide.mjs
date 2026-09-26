@@ -38,6 +38,10 @@ const newPage = async () => {
     // 3, matching the other capture scripts — see the note in capture-logger.mjs.
     deviceScaleFactor: 3, hasTouch: true, isMobile: true,
     colorScheme: 'light',
+    // The app's "today" is the LOCAL date, so the pinned moment only means Monday in
+    // Korea if the browser is in Korea. Without this, a run elsewhere shifts the day and
+    // Review comes back empty.
+    timezoneId: 'Asia/Seoul',
   });
   await page.clock.install({ time: CAPTURE_TIME });
   await page.clock.resume();
@@ -97,7 +101,7 @@ await go(fresh, '#/course/g01/practice');
 // and the same option, and guides/hangil.md describes the screen that results.
 await fresh.locator('button', { hasText: /^A/ }).first().click();
 await fresh.waitForTimeout(600);
-await shot(fresh, '05-practice');              // answered, with the reason
+await shot(fresh, '05-practice');              // answered: wrong, with the right one shown
 
 // ── Pass 2: a learner with a little progress ──
 // Real entries in the app's own store, in its own shape (see Hangil_app/src/js/store.js),
