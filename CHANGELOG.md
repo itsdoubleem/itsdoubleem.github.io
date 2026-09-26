@@ -6,6 +6,8 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+## [1.3.0] — 2026-09-26
+
 ### Added
 - HANGIL has a guide at `/apps/hangil/guide/`, linked from its page. It has three setup
   steps (follow the top card, set your trade, check the voice), then daily use: a
@@ -81,7 +83,8 @@ All notable changes to this site are recorded here. The format follows
 - HANGIL's page describes its trade section: eight manufacturing job groups, each with 26
   words and 20 questions.
 
-[Unreleased]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.1.2...v1.2.0
 [1.1.2]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.1.0...v1.1.1
