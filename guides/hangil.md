@@ -7,7 +7,7 @@ before:
   heading: Before you start
   body: You need the app and a phone that can speak Korean. Nothing else, and nothing to fill in.
   items:
-    - The app. Download it for Android from the HANGIL page, or open it in your browser and add it to your home screen — on Android, Chrome's menu › Add to Home screen. Android warns you about installing a file from outside the store. That is normal for an app shared this way, and you can allow it for this one file.
+    - The app. Download it for Android from the HANGIL page, or open it in your browser and add it to your home screen — on Android, Chrome's menu › Add to Home screen. Android warns you about installing a file from outside the store, and asks you to allow installs from the app you downloaded it with, such as Chrome. That is normal for an app shared this way.
     - A Korean voice on your phone. If yours does not have one, the app says so on its first screen rather than staying silent.
     - Nothing else. No account, no email, and no signal once it has loaded.
 steps:
@@ -16,7 +16,7 @@ steps:
     kicker: Step 1
     title: Open it, and do what the top card says
     body: The first screen is Today. The big card at the top always names the next thing to do. The first time you open it, that is lesson 1 of the alphabet. Tap it and start.
-    note: Every screen after this one is written in 한글, the Korean alphabet, so the alphabet comes first. If you can already read 한글, go straight to Course — the app says to skip the alphabet lessons if you can already read it.
+    note: Every Korean word and sentence in the app is written in 한글, the Korean alphabet, so the alphabet comes first. If you can already read 한글, go straight to Course — the app says to skip the alphabet lessons if you can already read it.
   - image: 02-trade
     alt: Settings, with Trade — 업종 set to 식품가공 — Food processing, and the explanation beneath it that the job-related questions on your paper come from the group you chose on your application.
     kicker: Step 2
@@ -47,7 +47,7 @@ after:
     kicker: Every day
     title: Come back to Review
     body: Everything you answer in the alphabet, the course and the vocabulary comes back in Review at a widening gap. When something is due, the Review tab at the bottom shows how many. Clearing them is the few minutes a day that makes the rest stick.
-    note: The numbers in this picture come from sample progress made for the screenshot, not from anyone's study. Exam questions you miss are kept separately, on the EPS-TOPIK screen.
+    note: The numbers in this picture and the ones after it — including the 3 on the Review tab — come from sample progress made for the screenshots, not from anyone's study. Exam questions you miss are kept separately, on the EPS-TOPIK screen.
   - image: 07-weak
     alt: The Weak spots screen, saying 2 topics are costing you more than the rest, ordered worst first. The first is 에 against 에서, 3 of 12 right, 25%, with a Practise 6 of these button; the second is 있다 and 없다, 6 of 8 right.
     kicker: When you have answered a few
@@ -63,7 +63,7 @@ after:
     alt: Practice paper 1, 모의고사 1회 — forty questions in 50 minutes, nothing marked until you hand it in, and the clock does not stop — with a Start the paper button at the foot.
     kicker: When you are ready
     title: Sit a timed paper
-    body: There are two practice papers, forty questions each, fifty minutes, with a clock that does not stop. Nothing is marked until you hand it in. Then you go through what you got wrong, with the reason, one question at a time.
+    body: There are two practice papers, forty questions each, fifty minutes, with a clock that does not stop. Nothing is marked until you hand it in, and if the time runs out, what you have answered is scored.
     note: The questions were written for this app in the shape of the real paper. They are not a past paper, and the app cannot tell you whether you will pass — it scores you out of 200 and stops there.
   - image: 10-backup
     alt: The Your progress section of Settings, saying everything the app knows about you is on this device and that clearing the browser's data deletes your progress, with Save a backup, Restore a backup and Erase everything buttons.
