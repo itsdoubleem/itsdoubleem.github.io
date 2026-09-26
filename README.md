@@ -70,7 +70,7 @@ guide: the reader assumes they are the one who is lost.
 
 Install steps in the app's own languages are optional too, in `install/<slug>.md`. They
 add a line of language names under the download buttons and a section with one row per
-language. Every translation says on the page whether a native speaker has checked it. See
+language. A translation no native speaker has checked says so on the page. See
 `install/README.md`.
 
 ## Running it

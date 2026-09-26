@@ -33,7 +33,7 @@ languages:
           - Your records are kept only in that browser, on that phone. Before you change phone or browser, save a backup file — SETUP › Backup › EXPORT A FILE.
   ko:
     checked: false
-    unchecked: 이 안내는 개발자가 번역했고, 아직 한국어 원어민이 확인하지 않았습니다. 틀리거나 어색한 부분이 있으면 알려 주세요.
+    unchecked: 이 안내는 AI로 번역했고, 아직 한국어 원어민이 확인하지 않았습니다. 틀리거나 어색한 부분이 있으면 알려 주세요.
     title: LOGGER 설치 방법
     sections:
       - heading: Android에 설치
@@ -49,7 +49,7 @@ languages:
           - 기록은 그 휴대폰의 그 브라우저에만 저장됩니다. 휴대폰이나 브라우저를 바꾸기 전에 설정 › 백업 › 파일로 내보내기에서 백업 파일을 저장하세요.
   vi:
     checked: false
-    unchecked: Hướng dẫn này do người làm ứng dụng dịch và chưa được người nói tiếng Việt kiểm tra. Nếu có chỗ nào sai hoặc khó hiểu, hãy báo cho tôi.
+    unchecked: Hướng dẫn này được dịch bằng AI và chưa được người nói tiếng Việt kiểm tra. Nếu có chỗ nào sai hoặc khó hiểu, hãy báo cho tôi.
     title: Cách cài LOGGER
     sections:
       - heading: Trên Android
@@ -65,7 +65,7 @@ languages:
           - Dữ liệu chỉ được lưu trong trình duyệt đó, trên điện thoại đó. Trước khi đổi điện thoại hoặc trình duyệt, hãy lưu tệp sao lưu — CÀI ĐẶT › Sao lưu › XUẤT RA TỆP.
   zh:
     checked: false
-    unchecked: 本说明由开发者翻译，还没有经过中文母语者核对。如有错误或看不懂的地方，请告诉我。
+    unchecked: 本说明由 AI 翻译，还没有经过中文母语者核对。如有错误或看不懂的地方，请告诉我。
     title: 如何安装 LOGGER
     sections:
       - heading: 在安卓手机上安装
@@ -81,7 +81,7 @@ languages:
           - 记录只保存在这部手机的这个浏览器里。换手机或换浏览器之前，请保存备份文件：设置 › 备份 › 导出文件。
   th:
     checked: false
-    unchecked: คำแนะนำนี้ผู้ทำแอปเป็นคนแปล และยังไม่ได้ให้เจ้าของภาษาไทยตรวจ ถ้ามีตรงไหนผิดหรืออ่านไม่เข้าใจ โปรดบอกฉัน
+    unchecked: คำแนะนำนี้แปลด้วย AI และยังไม่ได้ให้เจ้าของภาษาไทยตรวจ ถ้ามีตรงไหนผิดหรืออ่านไม่เข้าใจ โปรดบอกฉัน
     title: วิธีติดตั้ง LOGGER
     sections:
       - heading: ติดตั้งบน Android
@@ -97,7 +97,7 @@ languages:
           - ข้อมูลจะเก็บไว้ในเบราว์เซอร์นั้น บนโทรศัพท์เครื่องนั้นเท่านั้น ก่อนเปลี่ยนโทรศัพท์หรือเบราว์เซอร์ ให้บันทึกไฟล์สำรองข้อมูลที่ ตั้งค่า › สำรองข้อมูล › ส่งออกเป็นไฟล์
   id:
     checked: false
-    unchecked: Petunjuk ini diterjemahkan oleh pembuat aplikasi dan belum diperiksa oleh penutur asli bahasa Indonesia. Jika ada yang salah atau sulit dipahami, beri tahu saya.
+    unchecked: Petunjuk ini diterjemahkan dengan AI dan belum diperiksa oleh penutur asli bahasa Indonesia. Jika ada yang salah atau sulit dipahami, beri tahu saya.
     title: Cara memasang LOGGER
     sections:
       - heading: Di Android
@@ -113,7 +113,7 @@ languages:
           - Catatan Anda hanya tersimpan di peramban itu, di ponsel itu. Sebelum ganti ponsel atau peramban, simpan berkas cadangan — PENGATURAN › Cadangan › EKSPOR BERKAS.
   ne:
     checked: false
-    unchecked: यो निर्देशन एप बनाउनेले अनुवाद गरेको हो, र नेपाली मातृभाषीले अझै जाँचेका छैनन्। कुनै कुरा गलत वा बुझ्न गाह्रो लागे मलाई भन्नुहोस्।
+    unchecked: यो निर्देशन AI ले अनुवाद गरेको हो, र नेपाली मातृभाषीले अझै जाँचेका छैनन्। कुनै कुरा गलत वा बुझ्न गाह्रो लागे मलाई भन्नुहोस्।
     title: LOGGER कसरी इन्स्टल गर्ने
     sections:
       - heading: Android मा
@@ -129,7 +129,7 @@ languages:
           - रेकर्ड त्यही फोनको त्यही ब्राउजरमा मात्र बस्छन्। फोन वा ब्राउजर फेर्नुअघि सेटिङ › ब्याकअप › फाइलमा निर्यात बाट ब्याकअप फाइल सेभ गर्नुहोस्।
   km:
     checked: false
-    unchecked: ការណែនាំនេះ អ្នកបង្កើតកម្មវិធីជាអ្នកបកប្រែ ហើយមិនទាន់មានអ្នកនិយាយភាសាខ្មែរពិនិត្យនៅឡើយទេ។ បើមានកន្លែងណាខុស ឬពិបាកយល់ សូមប្រាប់ខ្ញុំ។
+    unchecked: ការណែនាំនេះ ត្រូវបានបកប្រែដោយ AI ហើយមិនទាន់មានអ្នកនិយាយភាសាខ្មែរពិនិត្យនៅឡើយទេ។ បើមានកន្លែងណាខុស ឬពិបាកយល់ សូមប្រាប់ខ្ញុំ។
     title: របៀបដំឡើង LOGGER
     sections:
       - heading: លើ Android

@@ -61,6 +61,9 @@ Tests for these are in `tests/install.test.ts`.
 - **Name Android's own switches only where you have seen the wording.** LOGGER's file
   names "Allow from this source" in English and 이 출처 허용 in Korean, and *describes*
   the switch in the other languages, because nobody checked those on a phone.
+- **Say how it was translated.** The `unchecked:` line names the method truthfully, for
+  example "translated with AI". A reader deciding how far to trust an install warning
+  deserves to know.
 - **A translation is not finished when it is written.** It is finished when a native
   speaker has read it, and only then does `checked` become true.
 
@@ -68,4 +71,4 @@ Tests for these are in `tests/install.test.ts`.
 
 | App | Languages | Checked by a native speaker |
 |---|---|---|
-| LOGGER | en ko vi zh th id ne km | en only (the source). The other seven were translated by the developer on 2026-09-26 and are marked unchecked on the page. |
+| LOGGER | en ko vi zh th id ne km | en only (the source). The other seven were translated with AI on 2026-09-26, and each says so on the page. |

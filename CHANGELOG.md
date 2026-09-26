@@ -9,8 +9,8 @@ All notable changes to this site are recorded here. The format follows
 ### Added
 - LOGGER's page shows its install steps in all eight of the app's languages. A line of
   language names under the download buttons opens that language's steps, with no
-  JavaScript. The seven translations say on the page that a native speaker has not yet
-  checked them. Any app can have this by adding `install/<slug>.md`.
+  JavaScript. The seven translations were made with AI, and each says on the page that
+  no native speaker has checked it yet. Any app can have this by adding `install/<slug>.md`.
 
 ## [1.1.2] — 2026-09-26
 
