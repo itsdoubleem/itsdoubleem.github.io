@@ -6,8 +6,8 @@
  * and the guide shows it as 12-record.png. Nothing regenerates it when LOGGER is
  * updated, so it said "LOGGER v2" through 1.0 and into 1.2.8 without anyone noticing. This
  * compares the footer of tools/sample-output/record.html with release.version in
- * apps/logger.md. It cannot read the PNG, so README.md § Shipping an app update makes
- * them two halves of one step: regenerate the record, then render the PNG from it.
+ * apps/logger.md. It cannot read the PNG, but make-sample-record.mjs writes both in one run,
+ * rendering the PNG from the record it has just saved.
  */
 import { readFile } from 'node:fs/promises';
 
@@ -27,8 +27,7 @@ if (footer !== version) {
   console.error(`check-sample-record: the sample record was made by LOGGER ${footer}, the site serves ${version}.
   Regenerate it (README.md § Shipping an app update):
     npm run dev   (in another terminal)
-    node tools/make-sample-record.mjs
-    node tools/render-page.mjs "$PWD/tools/sample-output/record.html" public/assets/logger/guide/12-record.png`);
+    node tools/make-sample-record.mjs   (writes record.html and 12-record.png)`);
   process.exit(1);
 }
 console.log(`check-sample-record: the sample record was made by LOGGER ${version}, the version served`);

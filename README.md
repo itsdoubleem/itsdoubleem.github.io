@@ -176,8 +176,7 @@ So an update is:
    app's version. With `npm run dev` running:
 
    ```bash
-   node tools/make-sample-record.mjs
-   node tools/render-page.mjs "$PWD/tools/sample-output/record.html" public/assets/logger/guide/12-record.png
+   node tools/make-sample-record.mjs    # writes the record and 12-record.png, its picture
    ```
 
    Then re-run `node tools/capture-logger.mjs` (and HANGIL's two capture scripts for a

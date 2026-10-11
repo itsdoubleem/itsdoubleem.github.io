@@ -1,11 +1,11 @@
 /* Makes the invented work record the LOGGER guide shows, by driving the shipping app.
  *
  *   npm run dev                          (in one terminal)
- *   node tools/make-sample-record.mjs    # writes tools/sample-output/
- *   node tools/render-page.mjs "$PWD/tools/sample-output/record.html" out.png
+ *   node tools/make-sample-record.mjs    # writes tools/sample-output/ and 12-record.png
  *
- * The second step turns the record into a picture; read the note at the top of
- * render-page.mjs before letting it replace the guide's 12-record.png.
+ * It saves the record the app produces, then renders that same file as the guide's
+ * public/assets/logger/guide/12-record.png. One run makes both, so the picture cannot fall
+ * behind the HTML that `npm run check` reads (tools/check-sample-record.mjs).
  *
  * Every name, shift and figure is made up — see tools/sample-output/README.md for why a
  * real phone's export must never stand in for this.
@@ -16,10 +16,12 @@
  */
 import { chromium } from 'playwright';
 import { mkdir } from 'node:fs/promises';
+import { pathToFileURL } from 'node:url';
 
 const URL = process.env.LOGGER_URL || 'http://localhost:4321/logger/index.html';
 const APP = 'logger';
 const OUT = 'tools/sample-output';
+const PNG = 'public/assets/logger/guide/12-record.png';
 const NAME = 'Jane Doe';
 const COMPANY = '(주) 가나다산업';
 await mkdir(OUT, { recursive: true });
@@ -160,13 +162,27 @@ const period = await page.evaluate(() => {
   return i < 0 ? '?' : t.slice(i, i + 60).replace(/\n+/g, ' ');
 });
 console.log(`  ${period}`);
+const saved = [];
 for (const [label, file] of [['CREATE A WORK RECORD', 'record.html'], ['CSV', 'records.csv']]) {
   const dl = page.waitForEvent('download', { timeout: 15000 }).catch(() => null);
   await tap(label);
   const d = await dl;
   console.log(d ? `  → ${OUT}/${file}` : `  ✗ no download for ${label}`);
-  if (d) await d.saveAs(`${OUT}/${file}`);
+  if (d) { await d.saveAs(`${OUT}/${file}`); saved.push(file); }
   await page.waitForTimeout(800);
 }
+
+// Render the record this run just saved — never one left over from an earlier run.
+if (!saved.includes('record.html')) {
+  await b.close();
+  console.error(`\n✗ no record was saved, so ${PNG} was left as it was`);
+  process.exit(1);
+}
+// 860px at 2x, which is the 1720px width the guide's picture has always had.
+const doc = await b.newPage({ viewport: { width: 860, height: 1200 }, deviceScaleFactor: 2 });
+await doc.goto(pathToFileURL(`${OUT}/record.html`).href, { waitUntil: 'networkidle' });
+await doc.waitForTimeout(600);
+await doc.screenshot({ path: PNG, fullPage: true });
+console.log(`  → ${PNG}`);
 await b.close();
 console.log('\ndone');
