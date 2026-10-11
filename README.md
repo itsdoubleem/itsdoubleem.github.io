@@ -172,16 +172,13 @@ So an update is:
 3. Set `release.version`.
 4. If the app has an update notice with a `version:`, the build now fails until you rewrite
    it for this release or delete it (see below).
-5. **LOGGER only:** regenerate the sample work record in its guide, whose footer prints the
-   app's version. With `npm run dev` running:
-
-   ```bash
-   node tools/make-sample-record.mjs    # writes the record and 12-record.png, its picture
-   ```
-
-   Then re-run `node tools/capture-logger.mjs` (and HANGIL's two capture scripts for a
-   HANGIL update) and look at what changed.
-6. `npm run build && npm run check`. The check fails if the sample record's footer and
+5. Re-run the app's capture scripts with `npm run dev` running, and look at what changed:
+   `node tools/capture-logger.mjs` for LOGGER; `node tools/capture-hangil.mjs` and
+   `node tools/capture-hangil-guide.mjs` for HANGIL.
+6. **LOGGER only:** regenerate the sample work record in its guide, whose footer prints the
+   app's version. With `npm run dev` running, `node tools/make-sample-record.mjs` writes
+   both the record and `12-record.png`, the guide's picture of it.
+7. `npm run build && npm run check`. The check fails if the sample record's footer and
    LOGGER's `release.version` disagree.
 
 ### Update notices
