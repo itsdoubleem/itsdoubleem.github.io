@@ -33,6 +33,10 @@ const page = await b.newPage({
      390 x 844 and is never drawn above 390 CSS px. If you change this number, grep for
      "780" — PhoneDevice.astro and DESIGN.md both state the old arithmetic. */
   deviceScaleFactor: 3, hasTouch: true, isMobile: true,
+  // The app's days are LOCAL days, so the pinned moment below only means Monday morning in
+  // Korea if the browser is in Korea. Without this, a run on a machine elsewhere (or a UTC
+  // CI runner) records a different day.
+  timezoneId: 'Asia/Seoul',
 });
 
 /* ── The clock is pinned, and it has to be ──
@@ -51,7 +55,7 @@ const page = await b.newPage({
  *
  * `install` freezes time; `resume` lets it tick on from there, which the punch screen's
  * live clock needs. */
-const CAPTURE_TIME = new Date('2026-09-14T06:45:00');
+const CAPTURE_TIME = new Date('2026-09-14T06:45:00+09:00');
 await page.clock.install({ time: CAPTURE_TIME });
 await page.clock.resume();
 
