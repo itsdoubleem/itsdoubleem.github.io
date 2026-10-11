@@ -6,6 +6,14 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+- `tools/make-sample-record.mjs` now renders `12-record.png` from the record it has just
+  saved, so the picture in LOGGER's guide and the record `npm run check` reads always come
+  from the same run. It exits with an error, leaving the picture alone, if no record was
+  saved. `tools/render-page.mjs`, the separate second step, is gone.
+- README.md § Shipping an app update: re-running the capture scripts is now a step for
+  every app. It was filed under "LOGGER only", where a HANGIL update would skip it.
+
 ## [1.4.1] — 2026-10-11
 
 ### Fixed
