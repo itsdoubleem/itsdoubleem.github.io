@@ -6,6 +6,14 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+- `npm run check` fails when the sample work record in LOGGER's guide was made by a
+  different LOGGER than the one served, and README.md § Shipping an app update now says
+  to regenerate it. It said "LOGGER v2" through two releases because nothing did. (S1)
+- `tools/capture-logger.mjs` pins 2026-09-14 06:45 in Korean time, as the sample-record
+  generator does. Before, it pinned 06:45 in whatever zone the machine was in, so the two
+  only agreed on a Mac set to Korean time. (S2)
+
 ## [1.4.0] — 2026-10-11
 
 ### Changed
