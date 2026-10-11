@@ -15,7 +15,7 @@
  * visible element carrying a label and lets Playwright issue a real pointer sequence.
  */
 import { chromium } from 'playwright';
-import { mkdir } from 'node:fs/promises';
+import { mkdir, readFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 
 const URL = process.env.LOGGER_URL || 'http://localhost:4321/logger/index.html';
@@ -172,10 +172,21 @@ for (const [label, file] of [['CREATE A WORK RECORD', 'record.html'], ['CSV', 'r
   await page.waitForTimeout(800);
 }
 
-// Render the record this run just saved — never one left over from an earlier run.
-if (!saved.includes('record.html')) {
+// Render the record this run just saved — never one left over from an earlier run — and
+// only if it is the record the guide describes. A missed tap or fill above is logged and
+// the run carries on, so a broken run can still produce a record: no name, no shifts.
+// Check the outcome rather than the taps, some of which miss on every good run.
+const missing = ['record.html', 'records.csv'].filter((f) => !saved.includes(f))
+  .map((f) => `${f} was not saved`);
+if (saved.includes('record.html')) {
+  const html = await readFile(`${OUT}/record.html`, 'utf8');
+  const expect = [NAME, COMPANY, '급여기간 09.01 → 09.30', '09.08 (화)', '09.09 (수)',
+    '09.10 (목)', '09.11 (금)', '<td class="n">4일</td>'];
+  missing.push(...expect.filter((t) => !html.includes(t)).map((t) => `the record has no "${t}"`));
+}
+if (missing.length) {
   await b.close();
-  console.error(`\n✗ no record was saved, so ${PNG} was left as it was`);
+  console.error(`\n✗ ${missing.join('\n✗ ')}\n\n${PNG} was left as it was. Check the ✗ lines above.`);
   process.exit(1);
 }
 // 860px at 2x, which is the 1720px width the guide's picture has always had.

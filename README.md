@@ -177,7 +177,9 @@ So an update is:
    `node tools/capture-hangil-guide.mjs` for HANGIL.
 6. **LOGGER only:** regenerate the sample work record in its guide, whose footer prints the
    app's version. With `npm run dev` running, `node tools/make-sample-record.mjs` writes
-   both the record and `12-record.png`, the guide's picture of it.
+   both the record and `12-record.png`, the guide's picture of it. It exits 1 and leaves
+   the picture alone if the record is missing the invented worker, the shifts or the pay
+   period. Look at the picture before committing it.
 7. `npm run build && npm run check`. The check fails if the sample record's footer and
    LOGGER's `release.version` disagree.
 
