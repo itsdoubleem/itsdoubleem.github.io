@@ -28,8 +28,18 @@ const b = await chromium.launch();
 const ctx = await b.newContext({
   viewport: { width: 390, height: 844 },
   deviceScaleFactor: 2, hasTouch: true, isMobile: true, acceptDownloads: true,
+  timezoneId: 'Asia/Seoul',
 });
 const page = await ctx.newPage();
+
+/* The clock is pinned, to the same moment as capture-logger.mjs. The shifts below are days
+ * 8–11 of the current month, so an unpinned run records whatever those days happen to be:
+ * run in October 2026 they include 한글날 and a weekend, and the record fills with 특근 and
+ * different totals from the PAY screen the guide shows next to it. Pinned, the record is
+ * the 09.01 → 09.30 period that 08-pay.png and 10-document.png show. Nothing is mocked —
+ * the app is only told what day it is. */
+await page.clock.install({ time: new Date('2026-09-14T06:45:00+09:00') });
+await page.clock.resume();
 
 const tap = async (text) => {
   const found = await page.evaluate((t) => {

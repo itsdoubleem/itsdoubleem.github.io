@@ -6,6 +6,17 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+### Changed
+- LOGGER's download and browser version are 1.2.8, up from 1.0.
+- HANGIL's are 1.0.2, up from 1.0.1, with vocabulary sets v13–v24. The page now says
+  404 words, and the 1.0 key-change notice is rewritten for 1.0.2.
+
+### Fixed
+- The sample 근무내역서 in LOGGER's guide said "LOGGER v2" in its footer. It is
+  regenerated from 1.2.8 and now says "근무기록 LOGGER 1.2.8". `make-sample-record.mjs`
+  pins the clock to the same moment as `capture-logger.mjs`, so a re-run records the
+  09.01 → 09.30 period the guide shows instead of whatever days are current.
+
 ## [1.3.0] — 2026-09-26
 
 ### Added
