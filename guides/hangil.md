@@ -12,7 +12,7 @@ before:
     - Nothing else. No account, no email, and no signal once it has loaded.
 steps:
   - image: 01-today
-    alt: The Today screen, headed 어서 오세요 — welcome. A large card at the top reads Next, the alphabet, lesson 1 of 8, The six plain vowels. Below it are four tiles — The alphabet, 0 of 8 lessons; Course, 0 of 24 units; Vocabulary, 197 words; and EPS-TOPIK exam practice.
+    alt: The Today screen, headed 어서 오세요 — welcome. A large card at the top reads Next, the alphabet, lesson 1 of 8, The six plain vowels. Below it are four tiles — The alphabet, 0 of 8 lessons; Course, 0 of 24 units; Vocabulary, 404 words; and EPS-TOPIK exam practice.
     kicker: Step 1
     title: Open it, and do what the top card says
     body: The first screen is Today. The big card at the top always names the next thing to do. The first time you open it, that is lesson 1 of the alphabet. Tap it and start.

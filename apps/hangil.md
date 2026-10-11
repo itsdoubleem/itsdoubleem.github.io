@@ -64,26 +64,26 @@ downloads:
     href: /hangil/
     note: Works offline after the first load — add it to your home screen
 release:
-  version: 1.0.1
+  version: 1.0.2
   apk: /downloads/hangil.apk
-  sha256: 3846f5c0552d45d79bdd47818819be7486751a61d23fa193de740119df7fff75
+  sha256: 31c03f7cdd8da5a1579745c215707947757ce4fd7939f8caaadbc5732e4fac53
   web: /hangil/
-# 1.0 and 1.0.1 are signed with different keys, so this update cannot install over the
-# top. `version` ties the notice to this release: the build fails when release.version
+# 1.0 and 1.0.1 are signed with different keys, so an update from 1.0 cannot install over
+# the top. 1.0.2 is signed with the same key as 1.0.1. `version` ties the notice to this release: the build fails when release.version
 # moves on, and the notice has to be rewritten or deleted rather than left to go stale.
 # When you delete it, also delete "except the one from 1.0 …" from the Android note above.
 notice:
   badge: Had 1.0? Read first
   heading: Had version 1.0? Take a backup before you update
-  version: 1.0.1
+  version: 1.0.2
   body: |
-    Version {version} is signed with a new key, so Android will not install it over version 1.0. App info on your phone shows which one you have.
+    Version 1.0.1 moved to a new signing key, so Android will not install {version} over version 1.0. App info on your phone shows which one you have.
 
     On 1.0, open Settings (설정) and tap Save a backup first. If a place to save the file opens, save it, uninstall HANGIL, install this APK, then Restore a backup.
 
     If nothing opens, your copy is from before 23 September and cannot make a backup. Uninstalling it erases your progress, so you may prefer to keep it until you are ready to start again.
 
-    Updates after this one install over the top.
+    If you have 1.0.1 or later, none of this applies — {version} installs over the top and keeps your progress.
 ---
 
 ## What it does
@@ -132,7 +132,7 @@ plain vowels to reading any block, and the last one covers how blocks change
 each other when spoken — why 한국어 is said 한구거, and every 합니다 you hear is
 함니다. Each lesson walks through its letters, then asks you to read blocks and to
 pick the one you heard from four that differ by a single letter. Alongside the
-course there are **197 words** grouped by where you will hear them — the shop floor, the safety
+course there are **404 words** grouped by where you will hear them — the shop floor, the safety
 notice, the payslip, the clinic, the farm.
 
 Two shelves sit empty on purpose, for material published free by HRD Korea — the

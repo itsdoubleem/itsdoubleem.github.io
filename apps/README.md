@@ -126,7 +126,7 @@ are easy to write without noticing, because each of them *feels* like it is help
    is available in all eight languages.
 
 **Numbers in the body get the same treatment as numbers anywhere else.** HANGIL prints
-`197 words` and `twenty-four grammar units`; both were counted out of
+`404 words` and `twenty-four grammar units`; both were counted out of
 `public/hangil/data/*.json` before being left in, and both were exact. If you cannot
 count it from what ships, do not print it.
 
