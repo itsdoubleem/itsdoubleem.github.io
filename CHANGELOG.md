@@ -6,6 +6,8 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+## [1.4.0] — 2026-10-11
+
 ### Changed
 - LOGGER's download and browser version are 1.2.8, up from 1.0.
 - HANGIL's are 1.0.2, up from 1.0.1, with vocabulary sets v13–v24. The page now says
@@ -94,7 +96,8 @@ All notable changes to this site are recorded here. The format follows
 - HANGIL's page describes its trade section: eight manufacturing job groups, each with 26
   words and 20 questions.
 
-[Unreleased]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.1.2...v1.2.0
 [1.1.2]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.1.1...v1.1.2
