@@ -6,6 +6,8 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+## [1.4.2] — 2026-10-11
+
 ### Fixed
 - `tools/make-sample-record.mjs` now renders `12-record.png` from the record it has just
   saved, so the picture in LOGGER's guide and the record `npm run check` reads always come
@@ -114,7 +116,8 @@ All notable changes to this site are recorded here. The format follows
 - HANGIL's page describes its trade section: eight manufacturing job groups, each with 26
   words and 20 questions.
 
-[Unreleased]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.1...HEAD
+[Unreleased]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.2...HEAD
+[1.4.2]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.2.0...v1.3.0
