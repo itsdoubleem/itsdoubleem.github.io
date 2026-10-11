@@ -6,6 +6,8 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+## [1.4.3] — 2026-10-11
+
 ### Fixed
 - `tools/make-sample-record.mjs` checks the record it made before rendering it. If the
   invented worker, the four shifts or the pay period is missing, because a tap or fill
@@ -122,7 +124,8 @@ All notable changes to this site are recorded here. The format follows
 - HANGIL's page describes its trade section: eight manufacturing job groups, each with 26
   words and 20 questions.
 
-[Unreleased]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.2...HEAD
+[Unreleased]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.3...HEAD
+[1.4.3]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.2...v1.4.3
 [1.4.2]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.3.0...v1.4.0
