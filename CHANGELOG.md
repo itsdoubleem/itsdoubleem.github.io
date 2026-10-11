@@ -6,6 +6,12 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+### Changed
+- LOGGER's download and browser version are 1.2.23, up from 1.2.8. The guide's breaks and
+  document screens are recaptured from it (the breaks screen no longer has an "every day"
+  chip, and the name prompt has rounded corners), and the sample record's footer says
+  1.2.23.
+
 ## [1.4.3] — 2026-10-11
 
 ### Fixed

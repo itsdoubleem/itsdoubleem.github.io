@@ -117,7 +117,7 @@ way LOGGER's guide is by `tools/capture-logger.mjs`.
 The APKs this site serves are committed under `public/downloads/`. Their SHA-256 sums are
 
 ```
-97146473c525455711aab9280b4497a73f50a23fe26156f1ffa416767fdbd669  logger.apk
+c2f8e52b8c4f773c891b349f845e54a5d89c958b47b3c36982ef917175d92047  logger.apk
 31c03f7cdd8da5a1579745c215707947757ce4fd7939f8caaadbc5732e4fac53  hangil.apk
 ```
 

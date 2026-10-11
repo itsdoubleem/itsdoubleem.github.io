@@ -52,9 +52,9 @@ downloads:
     href: /logger/
     note: Works offline after the first load
 release:
-  version: 1.2.8
+  version: 1.2.23
   apk: /downloads/logger.apk
-  sha256: 97146473c525455711aab9280b4497a73f50a23fe26156f1ffa416767fdbd669
+  sha256: c2f8e52b8c4f773c891b349f845e54a5d89c958b47b3c36982ef917175d92047
   web: /logger/
 ---
 
