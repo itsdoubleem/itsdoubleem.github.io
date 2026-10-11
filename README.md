@@ -80,7 +80,8 @@ language. A translation no native speaker has checked says so on the page. See
 npm install
 npm run dev      # http://localhost:4321
 npm run build    # → ./dist, and fails on a missing asset or a hash that is not the file's
-npm run check    # downloads match their release: block and README; every #link lands
+npm run check    # downloads match their release: block and README; the sample record
+                 # matches LOGGER's version; every #link lands
 npm test         # unit tests in tests/ — Node's own runner, nothing to install
 ```
 
@@ -171,7 +172,18 @@ So an update is:
 3. Set `release.version`.
 4. If the app has an update notice with a `version:`, the build now fails until you rewrite
    it for this release or delete it (see below).
-5. `npm run build && npm run check`.
+5. **LOGGER only:** regenerate the sample work record in its guide, whose footer prints the
+   app's version. With `npm run dev` running:
+
+   ```bash
+   node tools/make-sample-record.mjs
+   node tools/render-page.mjs "$PWD/tools/sample-output/record.html" public/assets/logger/guide/12-record.png
+   ```
+
+   Then re-run `node tools/capture-logger.mjs` (and HANGIL's two capture scripts for a
+   HANGIL update) and look at what changed.
+6. `npm run build && npm run check`. The check fails if the sample record's footer and
+   LOGGER's `release.version` disagree.
 
 ### Update notices
 

@@ -1,0 +1,34 @@
+/* Checks that the sample 근무내역서 in LOGGER's guide was made by the LOGGER this site serves.
+ *
+ *   node tools/check-sample-record.mjs   (or: npm run check)
+ *
+ * The record prints the app's version in its footer ("작성 도구: 근무기록 LOGGER 1.2.8"),
+ * and the guide shows it as 12-record.png. Nothing regenerates it when LOGGER is
+ * updated, so it said "LOGGER v2" through 1.0 and into 1.2.8 without anyone noticing. This
+ * compares the footer of tools/sample-output/record.html with release.version in
+ * apps/logger.md. It cannot read the PNG, so README.md § Shipping an app update makes
+ * them two halves of one step: regenerate the record, then render the PNG from it.
+ */
+import { readFile } from 'node:fs/promises';
+
+const root = new URL('..', import.meta.url);
+const md = await readFile(new URL('apps/logger.md', root), 'utf8');
+const html = await readFile(new URL('tools/sample-output/record.html', root), 'utf8');
+
+const block = md.match(/^release:\n((?:[ \t]+.*\n)+)/m)?.[1] ?? '';
+const version = block.match(/^\s+version:\s*['"]?([^'"\s]+)/m)?.[1];
+const footer = html.match(/근무기록 LOGGER (\S+)/)?.[1];
+
+if (!version || !footer) {
+  console.error(`check-sample-record: could not read ${!version ? 'release.version in apps/logger.md' : 'the footer of tools/sample-output/record.html'} — has the layout moved?`);
+  process.exit(1);
+}
+if (footer !== version) {
+  console.error(`check-sample-record: the sample record was made by LOGGER ${footer}, the site serves ${version}.
+  Regenerate it (README.md § Shipping an app update):
+    npm run dev   (in another terminal)
+    node tools/make-sample-record.mjs
+    node tools/render-page.mjs "$PWD/tools/sample-output/record.html" public/assets/logger/guide/12-record.png`);
+  process.exit(1);
+}
+console.log(`check-sample-record: the sample record was made by LOGGER ${version}, the version served`);
