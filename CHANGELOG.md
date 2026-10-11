@@ -6,6 +6,12 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+- `tools/make-sample-record.mjs` checks the record it made before rendering it. If the
+  invented worker, the four shifts or the pay period is missing, because a tap or fill
+  failed along the way, it lists what is missing, leaves `12-record.png` alone and exits 1.
+  It used to render whatever it got and exit 0.
+
 ## [1.4.2] — 2026-10-11
 
 ### Fixed
