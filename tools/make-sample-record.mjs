@@ -174,6 +174,8 @@ console.log(`  ${period}`);
 // that runs exit handlers: a crash, a refusal, Ctrl-C while the browser is open.
 const tmp = await mkdtemp(join(tmpdir(), 'sample-record-'));
 process.on('exit', () => rmSync(tmp, { recursive: true, force: true }));
+// Ctrl-C does not run exit handlers on its own; leaving through process.exit does.
+process.on('SIGINT', () => process.exit(130));
 const saved = [];
 for (const [label, file] of [['CREATE A WORK RECORD', 'record.html'], ['CSV', 'records.csv']]) {
   const dl = page.waitForEvent('download', { timeout: 15000 }).catch(() => null);
