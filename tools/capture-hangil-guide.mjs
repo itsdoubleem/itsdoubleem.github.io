@@ -58,37 +58,52 @@ const go = async (page, hash, wait = 700) => {
 };
 // Every shot is checked for the words its caption in guides/hangil.md relies on, so a
 // change in the app — a renamed topic, a reshuffled question, an empty deck — fails here
-// instead of producing a picture the caption no longer describes. Only text the picture
-// shows counts: a line inside the viewport whose centre is not under something else, such
-// as the app's fixed top bar and tab bar. The chosen option of a <select> and the value of
-// an <input> count too, being drawn on screen without a text node. Case-blind, for the
-// same reason as scrollTo. What it still cannot tell: a paragraph counts in full if any
-// one of its lines is visible; overflow clipping and opacity are not looked at; and a word
+// instead of producing a picture the caption no longer describes. Only words the picture
+// shows count, each one judged on its own: inside the viewport, inside every box that
+// clips it (HANGIL cuts card descriptions at two lines, and the cut words are still laid
+// out below), not see-through, and with its centre not under something else, such as the
+// sticky top bar or the fixed tab bar. A gap left by a hidden word breaks a phrase. The
+// chosen option of a <select> and the text in a text box count too, being drawn without a
+// text node. Case-blind, for the same reason as scrollTo. What it still cannot tell: a word
 // split across two elements (<b>Start</b>ed) is read as two words.
 const inView = (page) => page.evaluate(() => {
-  const out = [];
+  const style = new Map();
+  const css = (e) => style.get(e) ?? style.set(e, getComputedStyle(e)).get(e);
   const shows = (el, b) => {
-    if (!(b.width > 0 && b.height > 0 && b.bottom > 0 && b.top < innerHeight
-      && b.right > 0 && b.left < innerWidth)) return false;
-    const x = Math.min(Math.max((b.left + b.right) / 2, 0), innerWidth - 1);
-    const y = Math.min(Math.max((b.top + b.bottom) / 2, 0), innerHeight - 1);
-    const hit = document.elementFromPoint(x, y);
+    let l = Math.max(b.left, 0), t = Math.max(b.top, 0);
+    let r = Math.min(b.right, innerWidth), btm = Math.min(b.bottom, innerHeight);
+    for (let a = el; a && a !== document.documentElement; a = a.parentElement) {
+      const st = css(a);
+      if (st.visibility === 'hidden' || st.display === 'none' || st.opacity === '0') return false;
+      if (st.overflowX !== 'visible' || st.overflowY !== 'visible') {
+        const c = a.getBoundingClientRect();
+        l = Math.max(l, c.left); t = Math.max(t, c.top); r = Math.min(r, c.right); btm = Math.min(btm, c.bottom);
+      }
+    }
+    if (r - l < 1 || btm - t < 1) return false;
+    const hit = document.elementFromPoint((l + r) / 2, (t + btm) / 2);
     return !!hit && (el.contains(hit) || hit.contains(el));
   };
+  const out = [];
   const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
   for (let n; (n = walk.nextNode());) {
     const el = n.parentElement;
     if (!n.textContent.trim() || el.closest('select, option, script, style')) continue;
-    const st = getComputedStyle(el);
-    if (st.visibility === 'hidden' || st.display === 'none') continue;
-    const r = document.createRange(); r.selectNodeContents(n);
-    if ([...r.getClientRects()].some((b) => shows(el, b))) out.push(n.textContent);
+    const range = document.createRange();
+    for (const m of n.textContent.matchAll(/\S+/g)) {
+      range.setStart(n, m.index); range.setEnd(n, m.index + m[0].length);
+      out.push([...range.getClientRects()].some((b) => shows(el, b)) ? m[0] : '¦');
+    }
   }
-  for (const c of document.querySelectorAll('select, input:not([type=hidden]), textarea')) {
+  const typed = 'select, textarea, input:is(:not([type]), [type=text], [type=search], [type=email], '
+    + '[type=tel], [type=url], [type=number], [type=button], [type=submit])';
+  for (const c of document.querySelectorAll(typed)) {
     const v = c.tagName === 'SELECT' ? c.selectedOptions[0]?.text : c.value;
-    if (v && shows(c, c.getBoundingClientRect())) out.push(v);
+    if (v && shows(c, c.getBoundingClientRect())) out.push('¦', v, '¦');
   }
-  return out.join(' ').replace(/\s+/g, ' ');
+  // A phrase may run from one text node into the next (<b>Weak spot:</b> 에), so words
+  // join with a space across nodes; only a hidden word, the ¦, breaks it.
+  return out.join(' ');
 });
 const shot = async (page, name, ...mustShow) => {
   const text = (await inView(page)).toLowerCase();
@@ -96,7 +111,8 @@ const shot = async (page, name, ...mustShow) => {
   if (missing.length) {
     throw new Error(`${name}: ${missing.map((t) => `"${t}"`).join(', ')} not on screen — has the app changed?`);
   }
-  await page.screenshot({ path: `${OUT}/${name}.png` });
+  // The streak flame on Today pulses forever; stopped, every run takes the same picture.
+  await page.screenshot({ path: `${OUT}/${name}.png`, animations: 'disabled' });
   console.log(`  → ${name}.png`);
 };
 // Bring a heading near the top of the screen, clear of the back-button bar, so the
