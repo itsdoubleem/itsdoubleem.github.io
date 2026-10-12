@@ -4,12 +4,18 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-  # Once a day, so an app's "New" pill comes down within a day of its seventh day, and an
-  # update notice within a day of its last (src/release.ts). The site is static — either
-  # is only gone once something rebuilds the page. GitHub pauses scheduled runs after 60
-  # days with no commits; if pills or notices ever stop expiring, look there first.
+  # Two schedules. GitHub pauses both after 60 days with no commits; if pills stop expiring
+  # or app releases stop arriving, look there first.
+  #
+  # 00:17 UTC (09:17 KST), daily: a full rebuild, so an app's "New" pill comes down within a
+  # day of its seventh day, and an update notice within a day of its last (src/release.ts).
+  # The site is static — either is only gone once something rebuilds the page.
+  #
+  # :47 past every hour: the sync job asks each app's repo for its Latest release
+  # (tools/sync-apps.mjs). The site is rebuilt only if that changed something.
   schedule:
     - cron: '17 0 * * *'
+    - cron: '47 * * * *'
 
 # No permissions by default. Each job asks for exactly what it needs below, so the job
 # that runs third-party code (npm ci, which executes package lifecycle scripts) holds no
@@ -22,7 +28,66 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Brings each app's download up to its Latest GitHub Release and commits the result to
+  # main. Not on a push: a push is a person's change, already in the tree.
+  #
+  # It holds contents:write, and so it never runs `npm ci` — no dependency's code runs
+  # beside the token. The sync needs only Node, unzip and the Android SDK's aapt2 and
+  # apksigner, all on the runner. The checkout keeps no credentials on disk; the token
+  # appears in the one step that pushes. A push made with this token starts no other
+  # workflow, which is why the build below takes the new commit from this job's output.
+  sync:
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
+      sha: ${{ steps.commit.outputs.sha }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - name: Sync app releases
+        run: node tools/sync-apps.mjs --message-file "$RUNNER_TEMP/sync-message"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      # Authored and committed as the owner's noreply address, so the repository keeps one
+      # contributor (CLAUDE.md, hard rule 6) — not github-actions[bot]. No trailers.
+      # Runs even when one app failed, so the apps that synced are still published. The
+      # job stays red, which is the signal to read the failed one's ::error:: line.
+      - id: commit
+        name: Commit and push
+        if: ${{ !cancelled() }}
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git config user.name itsdoubleem
+          git config user.email 328792799+itsdoubleem@users.noreply.github.com
+          git add -A
+          git commit -q -F "$RUNNER_TEMP/sync-message"
+          git push -q "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
   build:
+    needs: sync
+    # On a push or by hand, always. On the daily schedule, always — that is the rebuild that
+    # retires pills. On the hourly one, only when the sync committed something. A failed
+    # sync does not stop the daily rebuild of what is already on main.
+    if: >-
+      !cancelled() && (
+        github.event_name != 'schedule' ||
+        github.event.schedule == '17 0 * * *' ||
+        needs.sync.outputs.changed == 'true'
+      )
     runs-on: ubuntu-latest
     # Read the repo, write an artifact. That is all a build needs; it deliberately does
     # NOT get pages:write or id-token:write — those live in the deploy job, which runs
@@ -44,6 +109,9 @@ jobs:
       # If a future version un-pins something, the run fails at "Set up job" naming the
       # offending action; read that line rather than turning the requirement off.
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ needs.sync.outputs.sha || github.sha }}
+          persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
@@ -68,6 +136,9 @@ jobs:
 
   deploy:
     needs: build
+    # Said out loud: on a push the sync job is skipped, and a job downstream of a skipped
+    # one is skipped too unless its condition says otherwise.
+    if: ${{ !cancelled() && needs.build.result == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       pages: write

@@ -153,8 +153,8 @@
   --accent-ink: #010704;   /* 11.7:1 as a label on --accent */
   /* ── The alert ──
      Red, with one job: news about a release. That is the "New · 1.2.25" pill on the
-     download button for the first days after a release (src/release.ts), and an update
-     notice — its tag and its left edge. It is not a second accent and it never marks a
+     download button for the first days after a release (src/release.ts), and the boxes
+     it links to — What's new and an update notice — their tags and their left edges. It is not a second accent and it never marks a
      link, a heading or any other state. A page whose release is not new and has no notice has
      no red on it.
 

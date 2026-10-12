@@ -6,6 +6,18 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+### Added
+- Apps update themselves. Every hour the deploy workflow reads each app's Latest GitHub
+  Release (`tools/sync-apps.mjs`); when it is newer, it checks the APK's version and signing
+  certificate, publishes it with its browser build, hash and date, and redeploys. The
+  "New" pill follows by itself.
+- **What's new in {version}**: the release's GitHub notes, in red under the pill, for the
+  same seven days. The pill links to it.
+
+### Removed
+- HANGIL's "Had 1.0? Read first" notice. What's new replaces it; the Android note still
+  says how to update from 1.0.
+
 ## [1.5.0] — 2026-10-12
 
 ### Added

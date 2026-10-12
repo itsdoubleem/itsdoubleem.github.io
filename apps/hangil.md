@@ -69,24 +69,10 @@ release:
   sha256: 31c03f7cdd8da5a1579745c215707947757ce4fd7939f8caaadbc5732e4fac53
   web: /hangil/
   date: 2026-10-11
+  source: itsdoubleem/Hangil_app
+  signer: 7845c1898486c42c9fc4d7b06f8d56e47a93491475fdda3bc04e66895b18fafb
 # 1.0 and 1.0.1 are signed with different keys, so an update from 1.0 cannot install over
-# the top. 1.0.2 is signed with the same key as 1.0.1. `version` ties the notice to this release: the build fails when release.version
-# moves on, and the notice has to be rewritten or deleted rather than left to go stale.
-# With no `until`, it shows only while the release is new (src/release.ts NEW_FOR_DAYS),
-# then goes by itself. The Android note above says the 1.0 caveat on its own, so it does
-# not depend on this notice being up.
-notice:
-  badge: Had 1.0? Read first
-  heading: Had version 1.0? Take a backup before you update
-  version: 1.0.2
-  body: |
-    Version 1.0.1 moved to a new signing key, so Android will not install {version} over version 1.0. App info on your phone shows which one you have.
-
-    On 1.0, open Settings (설정) and tap Save a backup first. If a place to save the file opens, save it, uninstall HANGIL, install this APK, then Restore a backup.
-
-    If nothing opens, your copy is from before 23 September and cannot make a backup. Uninstalling it erases your progress, so you may prefer to keep it until you are ready to start again.
-
-    If you have 1.0.1 or later, none of this applies — {version} installs over the top and keeps your progress.
+# the top; the Android note above says so. 1.0.1 and later share the key pinned in `signer`.
 ---
 
 ## What it does

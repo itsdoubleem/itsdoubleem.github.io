@@ -1,6 +1,6 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { fill, pngSize, releaseFacts, servable, sha256Of, unknownTokens, webDir, webIcons } from './release';
 
 // The apps live in /apps at the repo root, not under src/ — they are the content
@@ -108,9 +108,20 @@ const apps = defineCollection({
         apk: z.string().startsWith('/downloads/'),
         sha256: z.string().regex(/^[0-9a-f]{64}$/, 'sha256 is 64 lowercase hex characters.'),
         web: z.string().optional(),
-        // The day this version was published. For NEW_FOR_DAYS from it, the download button
-        // wears a red "New · {version}" pill (src/release.ts). Move it with the version.
+        // The day this version was published, in Korea. For NEW_FOR_DAYS from it, the
+        // download button wears a red "New · {version}" pill (src/release.ts).
         date: z.coerce.date(),
+        // The GitHub repo (owner/name) whose Latest release tools/sync-apps.mjs follows
+        // every hour. Leave it out and the app is only ever updated by hand.
+        source: z.string().regex(/^[\w.-]+\/[\w.-]+$/, 'source is owner/repo').optional(),
+        // The release asset to take, when a release carries more than one APK.
+        asset: z.string().optional(),
+        // The SHA-256 of the certificate the APK must be signed with. The sync refuses any
+        // other: a new key means Android will not install the update over the old app.
+        signer: z.string().regex(/^[0-9a-f]{64}$/, 'signer is a 64-character certificate SHA-256').optional(),
+        // Written by the sync when it moves the app past its screenshots and sample record:
+        // the version those were taken from. Delete it after re-capturing.
+        captured: z.string().optional(),
       })
       .optional(),
     // A time-limited note for people updating — a key change, a backup to take first. It
@@ -196,6 +207,16 @@ const apps = defineCollection({
           }
         }
       }
+    }
+
+    if (r?.source && !r.signer) fail('release.source needs release.signer, so the sync can refuse a build signed by anyone else');
+
+    // The notes the page shows for this release, written by the sync from its GitHub
+    // Release. Notes for another version would sit under the wrong heading.
+    const notes = new URL(`../releases/${d.slug}.md`, import.meta.url);
+    if (r && existsSync(notes)) {
+      const v = readFileSync(notes, 'utf8').match(/^version:\s*['"]?([^'"\s]+)/m)?.[1];
+      if (v !== r.version) fail(`releases/${d.slug}.md is for ${v} but release.version is ${r.version}`);
     }
 
     const n = d.notice;
@@ -309,4 +330,15 @@ const install = defineCollection({
     }),
 });
 
-export const collections = { apps, guides, install };
+// What changed in an app's current release, keyed by slug: tools/sync-apps.mjs writes it
+// from the GitHub Release notes. The page shows it, in red, while the release is new.
+const releases = defineCollection({
+  loader: glob({ pattern: ['*.md', '!README.md'], base: './releases' }),
+  schema: z.object({
+    version: z.string(),
+    date: z.coerce.date(),
+    url: z.string().url(),
+  }),
+});
+
+export const collections = { apps, guides, install, releases };

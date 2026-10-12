@@ -165,7 +165,29 @@ unknown token fails the build, and so does a hash or an APK size typed out by ha
 (`npm run check`). Sizes are binary units written as KB and MB, which is what a phone's
 file manager shows.
 
-So an update is:
+**An app with `source:` in its `release:` block updates itself.** Every hour, the deploy
+workflow runs `tools/sync-apps.mjs`, which reads that repo's Latest GitHub Release. If it
+is newer than what the site serves, the sync:
+
+- downloads its APK (the asset named `asset:`, or its only `.apk`) and refuses it unless
+  its versionName matches the tag and it is signed by the certificate in `signer:`;
+- copies it to `public/downloads/`, copies its `assets/www/` into `release.web`, and rewrites
+  `version`, `sha256`, `date` and the hash in the list above;
+- writes the release's notes to `releases/<slug>.md`, which the page shows as **What's new**
+  under the pill, for the same seven days;
+- builds, checks, commits to `main` as the owner's noreply address, and deploys.
+
+A release with no APK attached is skipped with a warning on the run — so **attach the APK to
+every app release on GitHub**, or the site never sees it. HANGIL's releases up to v1.0.2
+carried none. A signer or version mismatch fails the run and publishes nothing for that app.
+
+What the sync cannot do is look at the app: screenshots and LOGGER's sample record need the
+running app on a Mac (step 5 below). The first time it moves an app past them it writes
+`captured: '<old version>'`, and the sample-record check holds the record to that. Do steps
+5 and 6 when you can, then delete the `captured:` line. Run `node tools/sync-apps.mjs` by hand
+to do the same sync locally without committing.
+
+Without `source:`, or to update by hand, an update is:
 
 1. Copy the new APK into `public/downloads/<slug>.apk`. Take the web build out of that
    APK, not out of the app's own build folder, which may have been rebuilt since the
@@ -235,6 +257,12 @@ notice:
   release pill does, seven days from `release.date` — HANGIL's 1.0 notice had no end date
   and stayed up for weeks, which is why that is the default. Either way it goes at the
   next daily build, so it is gone within a day.
+- A notice with a `version:` stops the hourly sync for that app when a newer release
+  appears: a person wrote it about one update, so a person decides what becomes of it.
+
+Most releases need no notice: the release notes already show as **What's new**. A notice is
+for the rare update that asks the reader to do something first. The pill links to the
+notice when there is one, and to What's new otherwise.
 - **`download`** defaults to the `release.apk` button, or the first download if the app
   has no release.
 

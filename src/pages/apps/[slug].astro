@@ -37,10 +37,11 @@ import { languageNames as langNames, platformLong as platformNames } from '../..
 import { installFileProblems, installOrder, installProblems } from '../../install';
 
 export async function getStaticPaths() {
-  const [apps, guides, installs] = await Promise.all([
+  const [apps, guides, installs, releases] = await Promise.all([
     getCollection('apps'),
     getCollection('guides'),
     getCollection('install'),
+    getCollection('releases'),
   ]);
   // The slug is the URL and the filename is what a person edits; if they disagree, the
   // page for apps/foo.md quietly appears at /apps/bar/. One rule, checked here.
@@ -59,11 +60,12 @@ export async function getStaticPaths() {
       app,
       hasGuide: guides.some((g) => g.data.app === app.data.slug),
       install: installs.find((i) => i.data.app === app.data.slug)?.data.languages,
+      notes: releases.find((r) => r.id === app.data.slug),
     },
   }));
 }
 
-const { app, hasGuide, install } = Astro.props;
+const { app, hasGuide, install, notes } = Astro.props;
 const d = app.data;
 const { Content } = await render(app);
 
@@ -83,11 +85,25 @@ const installLangs = install ? installOrder(install, d.languages) : [];
 
 // The red pill on one download button. While a release is new it says so, with the version;
 // otherwise a notice that is still up (an explicit `until`) lends it its badge. It links to
-// the notice when there is one, rather than wrapping the button: a link cannot sit inside a
-// link, and the button still has to download. With no notice it is a label, not a link.
+// what there is to read — the notice first, else the release's notes — rather than wrapping
+// the button: a link cannot sit inside a link, and the button still has to download. With
+// nothing to read it is a label, not a link.
+const isNew = releaseIsNew(d.release);
 const notice = noticeIsLive(d.notice, d.release) ? d.notice : undefined;
-const pillText = releaseIsNew(d.release) ? `New · ${d.release.version}` : notice ? f(notice.badge) : undefined;
+const newPill = isNew ? `New · ${d.release.version}` : undefined;
+const pillText = newPill ?? (notice ? f(notice.badge) : undefined);
 const pillOn = pillText && (notice?.download ?? d.release?.apk ?? d.downloads[0].href);
+// What changed, from the app's GitHub Release (tools/sync-apps.mjs → releases/<slug>.md).
+// Shown while the release is new, the same seven days as the pill.
+const whatsNew = isNew && notes ? notes : undefined;
+const { Content: NotesContent } = whatsNew ? await render(whatsNew) : { Content: undefined };
+// The notes are in whatever language the release was written in — LOGGER's are Korean.
+// Mostly Hangul means Korean, so a screen reader speaks it as Korean.
+const notesLang = whatsNew && (whatsNew.body?.match(/[가-힣]/g)?.length ?? 0) > (whatsNew.body?.length ?? 0) / 4 ? 'ko' : undefined;
+const pillHref = notice ? `#${notice.id}` : whatsNew ? '#whats-new' : undefined;
+const releasedOn = whatsNew
+  ? whatsNew.data.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
+  : '';
 const noticeParas = notice ? notice.body.split(/\n\s*\n/).map((p: string) => f(p.trim())) : [];
 
 const privacyLine =
@@ -166,8 +182,8 @@ const heroScreen = d.card
                     {dl.note && <span class="btn__note">{f(dl.note)}</span>}
                   </span>
                 </a>
-                {pillText && dl.href === pillOn && (notice
-                  ? <a class="getit__badge" href={`#${notice.id}`} aria-label={`${pillText} — read the update note first`}>{pillText}</a>
+                {pillText && dl.href === pillOn && (pillHref
+                  ? <a class="getit__badge" href={pillHref} aria-label={`${pillText} — ${notice ? 'read the update note first' : "what's new"}`}>{pillText}</a>
                   : <span class="getit__badge">{pillText}</span>
                 )}
               </span>
@@ -236,6 +252,18 @@ const heroScreen = d.card
           <p class="notice__tag">{f(notice.badge)}</p>
           <h2 class="notice__head" id={`${notice.id}-head`}>{f(notice.heading)}</h2>
           {noticeParas.map((p: string) => <p>{p}</p>)}
+        </section>
+      )}
+
+      {/* The release's own notes, as its GitHub Release words them. The heading, the date
+          and the link are this site's; the paragraphs are the app's, in its language. */}
+      {whatsNew && NotesContent && (
+        <section class="notice block" id="whats-new" aria-labelledby="whats-new-head">
+          <p class="notice__tag">{newPill}</p>
+          <h2 class="notice__head" id="whats-new-head">What's new in {d.release.version}</h2>
+          <p class="notice__date">Released {releasedOn}</p>
+          <div class="notice__notes" lang={notesLang}><NotesContent /></div>
+          <p class="notice__src"><a href={whatsNew.data.url}>The release on GitHub <span aria-hidden="true">↗</span></a></p>
         </section>
       )}
 
@@ -554,6 +582,12 @@ const heroScreen = d.card
   }
   .notice p:not(.notice__tag) { margin: 0 0 10px; line-height: 1.55; }
   .notice p:last-child { margin-bottom: 0; }
+  .notice + .notice { margin-top: 18px; }
+  .notice__date { color: var(--ink-soft); font-size: 14px; }
+  .notice__notes :global(p) { margin: 0 0 10px; line-height: 1.55; }
+  .notice__notes :global(ul), .notice__notes :global(ol) { margin: 0 0 10px; padding-left: 1.3em; line-height: 1.55; }
+  .notice__src { font-size: 14px; font-weight: 600; }
+  .notice__src a { text-decoration-color: var(--accent); text-underline-offset: 3px; }
   .apphead__actions .btn__label { display: grid; gap: 2px; text-align: left; }
 
   .apphead__links {

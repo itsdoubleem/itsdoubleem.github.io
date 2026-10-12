@@ -68,8 +68,16 @@ release:                         # optional; required once the page offers an AP
   apk:     /downloads/logger.apk # must be one of the downloads above
   sha256:  c180…                 # the build fails if it is not the file's hash
   web:     /logger/              # optional; enables {webSize}
-  date:    2026-10-12            # the day this version was published; the button wears
-                                 # a red "New · {version}" pill for 7 days from it
+  date:    2026-10-12            # the day this version was published, in Korea; the button
+                                 # wears a red "New · {version}" pill for 7 days from it
+  source:  itsdoubleem/Logger_app  # optional: the hourly sync follows this repo's Latest
+                                 # GitHub Release and updates everything above by itself
+                                 # (README.md § Shipping an app update)
+  asset:   worklog-release.apk   # optional: which release asset is the APK
+  signer:  115e06…               # required with source: the APK's signing certificate
+                                 # SHA-256; the sync refuses any other
+  captured: '1.2.24'             # written by the sync — the version the screenshots
+                                 # were taken from. Delete after re-capturing.
 notice:                          # optional — see README.md § Update notices
   badge:   Had 1.0? Read first
   heading: …
