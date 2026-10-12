@@ -6,6 +6,8 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+## [1.4.6] — 2026-10-12
+
 ### Fixed
 - `npm run check` fails when an APK has no `assets/www/` to compare with `release.web`,
   instead of comparing nothing and reporting a match. It also fails in CI when `unzip` is
@@ -151,7 +153,8 @@ All notable changes to this site are recorded here. The format follows
 - HANGIL's page describes its trade section: eight manufacturing job groups, each with 26
   words and 20 questions.
 
-[Unreleased]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.5...HEAD
+[Unreleased]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.6...HEAD
+[1.4.6]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.5...v1.4.6
 [1.4.5]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.4...v1.4.5
 [1.4.4]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.3...v1.4.4
 [1.4.3]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.2...v1.4.3
