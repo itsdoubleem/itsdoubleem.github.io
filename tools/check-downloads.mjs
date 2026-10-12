@@ -117,6 +117,11 @@ for (const name of (await readdir(new URL('apps/', root))).filter((f) => f.endsW
   if (unzip && web) {
     const packed = execFileSync('unzip', ['-Z1', `public${apk}`], { encoding: 'utf8' })
       .split('\n').filter((f) => f.startsWith('assets/www/') && !f.endsWith('/'));
+    // An APK that packs its web app elsewhere (Capacitor's assets/public/, say) would
+    // otherwise compare nothing and still pass.
+    if (!packed.length) {
+      problems.push(`${name}: release.web is ${web}, but ${apkName} has no assets/www/ to compare it with`);
+    }
     const differ = [];
     for (const entry of packed) {
       const rel = entry.slice('assets/www/'.length);
