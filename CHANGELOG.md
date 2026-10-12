@@ -6,6 +6,20 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+- The HANGIL guide says where the Weak spot card is: further down Today, under the four
+  tiles, just below the bottom of a phone's screen. It also says the card shows only when
+  the worst topic is under 80% right.
+- `tools/capture-hangil-guide.mjs` counts only the words inside the screenshot's frame when
+  it checks a shot, not the whole page, and checks three shots for more of their caption.
+- `install/README.md` lists every rule the build holds an install file to. A build error
+  about a misnamed or second install file names the file as it is on disk.
+- `npm run check` reads `release.web` as a site path, without its `?` or `#` part and
+  decoded, as the build does.
+- `tools/make-sample-record.mjs` removes its scratch folder when stopped with Ctrl-C.
+- The Report a problem link is spaced from the sentence before it when the page is read
+  without its styles, in reader mode or as copied text.
+
 ## [1.4.7] — 2026-10-12
 
 ### Added
