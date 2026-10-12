@@ -1,7 +1,7 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { existsSync, readFileSync } from 'node:fs';
-import { fill, pngSize, releaseFacts, servable, sha256Of, unknownTokens, webDir, webIcons } from './release';
+import { fill, pngSize, releaseFacts, releaseIsNew, servable, sha256Of, unknownTokens, webDir, webIcons } from './release';
 
 // The apps live in /apps at the repo root, not under src/ — they are the content
 // source of truth and are meant to be editable without opening the site code.
@@ -215,8 +215,17 @@ const apps = defineCollection({
     // Release. Notes for another version would sit under the wrong heading.
     const notes = new URL(`../releases/${d.slug}.md`, import.meta.url);
     if (r && existsSync(notes)) {
-      const v = readFileSync(notes, 'utf8').match(/^version:\s*['"]?([^'"\s]+)/m)?.[1];
+      const text = readFileSync(notes, 'utf8');
+      const v = text.match(/^version:\s*['"]?([^'"\s]+)/m)?.[1];
       if (v !== r.version) fail(`releases/${d.slug}.md is for ${v} but release.version is ${r.version}`);
+      if (!text.split(/^---$/m).slice(2).join('---').trim()) fail(`releases/${d.slug}.md says nothing — a new release needs its description`);
+    }
+    // Every app, no exceptions: while a release is new its page shows the pill AND says what
+    // changed. A pill with nothing behind it would announce a release and explain none of it,
+    // so the build refuses. With `source:` the hourly sync writes the file; without, write it
+    // by hand (releases/README.md).
+    if (r && releaseIsNew(r) && !existsSync(notes)) {
+      fail(`release ${r.version} is new, so it needs its description in releases/${d.slug}.md — run node tools/sync-apps.mjs, or write it by hand`);
     }
 
     const n = d.notice;

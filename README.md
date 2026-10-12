@@ -234,6 +234,11 @@ day counting as the first. Days are Korean days. Then it goes by itself: the sit
 static, so it drops out of the next build, and the deploy workflow rebuilds once a day for
 this reason. Shipping the next version with a new date brings it back.
 
+**The pill and What's new go together, on every app.** While a release is new, the build
+fails unless `releases/<slug>.md` exists and says something: a release is never announced
+without saying what changed. With `source:` the hourly sync writes it; without, write it by
+hand (`releases/README.md`).
+
 It links to what there is to read: an update notice if there is one, else **What's new in
 {version}** (`releases/<slug>.md`), which shows in red at the top of the reading column for
 the same seven days. With neither it is a label. As a link it sits beside the button rather

@@ -12,7 +12,8 @@ All notable changes to this site are recorded here. The format follows
   certificate, publishes it with its browser build, hash and date, and redeploys. The
   "New" pill follows by itself.
 - **What's new in {version}**: the release's GitHub notes, in red under the pill, for the
-  same seven days. The pill links to it.
+  same seven days, on every app. The pill links to it, and the build refuses a new release
+  that has no description.
 
 The sync refuses an APK whose version, signing key or Android permissions differ from what
 the page promises, works each update out before writing a file, and strips HTML, PR numbers

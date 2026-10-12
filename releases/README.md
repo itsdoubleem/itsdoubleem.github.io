@@ -17,5 +17,7 @@ into the app's repo reduced to their words, and no sentence carrying a hash, thi
 address or CHANGELOG.md (tools/sync-lib.mjs, cleanNotes).
 ```
 
-You can edit the text; the next release replaces the file. The sync writes it when a new
+**Required while the release is new.** The build fails for an app whose release is in its
+seven new days and has no file here, or an empty one — so every app's pill comes with its
+description. You can edit the text; the next release replaces the file. The sync writes it when a new
 release arrives, or when the file is missing.
