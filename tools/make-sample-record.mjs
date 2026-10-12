@@ -171,10 +171,11 @@ console.log(`  ${period}`);
 // passes, so a broken run leaves the committed record and CSV as they were.
 // The picture is rendered there too, and the three are copied in last, one after another —
 // only a failure in those few milliseconds could leave a mix. The folder goes on any exit
-// that runs exit handlers: a crash, a refusal, Ctrl-C while the browser is open.
+// that runs exit handlers: a crash, a refusal, Ctrl-C.
 const tmp = await mkdtemp(join(tmpdir(), 'sample-record-'));
 process.on('exit', () => rmSync(tmp, { recursive: true, force: true }));
-// Ctrl-C does not run exit handlers on its own; leaving through process.exit does.
+// Playwright turns Ctrl-C into process.exit(130) only while a browser is open; this
+// covers the rest of the run, after b.close().
 process.on('SIGINT', () => process.exit(130));
 const saved = [];
 for (const [label, file] of [['CREATE A WORK RECORD', 'record.html'], ['CSV', 'records.csv']]) {
