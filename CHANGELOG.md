@@ -6,6 +6,19 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+### Added
+- Each unchecked translation of the install steps ends with a Report a problem link, where
+  it asks to be told what reads wrong. The only link was at the foot of the English page.
+
+### Fixed
+- The HANGIL guide says how to reach Weak spots: there is no tab, only a card on Today.
+  The capture script checks every shot shows what its caption says, and that the card is there.
+- The build refuses an install file with no `en`, an empty one, a translation with a step
+  or section more or fewer than `en`, a file not named after its app, and a second file
+  for the same app.
+- An icon path with a space or non-ASCII folder name is found on disk instead of failing
+  the build as missing.
+
 ## [1.4.6] — 2026-10-12
 
 ### Fixed
