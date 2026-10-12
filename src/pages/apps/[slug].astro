@@ -51,7 +51,7 @@ export async function getStaticPaths() {
       throw new Error(`apps/${file}.md says slug: ${app.data.slug} — they must match`);
     }
   }
-  const fileProblems = installFileProblems(installs.map((i) => ({ id: i.id, app: i.data.app })));
+  const fileProblems = installFileProblems(installs.map((i) => ({ file: i.filePath ?? `install/${i.id}.md`, app: i.data.app })));
   if (fileProblems.length) throw new Error(fileProblems.join('\n'));
   return apps.map((app) => ({
     params: { slug: app.data.slug },

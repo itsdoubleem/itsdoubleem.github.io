@@ -77,14 +77,17 @@ export function installProblems(
 /** Problems with the set of install files: each is named after its app, as apps/<slug>.md
  *  is, and no app has two. Otherwise the first file found wins and the other is never
  *  checked or shown, and an error names an install/<slug>.md that does not exist. */
-export function installFileProblems(files: { id: string; app: string }[]): string[] {
+export function installFileProblems(files: { file: string; app: string }[]): string[] {
   const out: string[] = [];
   const seen = new Map<string, string>();
-  for (const { id, app } of files) {
-    if (id !== app) out.push(`install/${id}.md says app: ${app} — name it install/${app}.md`);
+  for (const { file, app } of files) {
+    // The name on disk, not the content loader's id: that is a slug of it, so Logger.md
+    // would pass as "logger" and an error could name a file that does not exist.
+    const name = file.split('/').pop()!.replace(/\.md$/, '');
+    if (name !== app) out.push(`${file} says app: ${app} — name it install/${app}.md`);
     const first = seen.get(app);
-    if (first) out.push(`install/${first}.md and install/${id}.md are both for ${app} — keep one`);
-    else seen.set(app, id);
+    if (first) out.push(`${first} and ${file} are both for ${app} — keep one`);
+    else seen.set(app, file);
   }
   return out;
 }

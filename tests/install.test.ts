@@ -80,11 +80,20 @@ test('a translation that drops or adds a step or a section is caught', () => {
 });
 
 test('one install file per app, named after it', () => {
-  assert.deepEqual(installFileProblems([{ id: 'logger', app: 'logger' }, { id: 'hangil', app: 'hangil' }]), []);
-  assert.deepEqual(installFileProblems([{ id: 'foo', app: 'logger' }]),
+  const f = (file: string, app: string) => ({ file, app });
+  assert.deepEqual(installFileProblems([f('install/logger.md', 'logger'), f('install/hangil.md', 'hangil')]), []);
+  assert.deepEqual(installFileProblems([f('install/foo.md', 'logger')]),
     ['install/foo.md says app: logger — name it install/logger.md']);
-  assert.deepEqual(installFileProblems([{ id: 'logger', app: 'logger' }, { id: 'zz-dup', app: 'logger' }]), [
+  assert.deepEqual(installFileProblems([f('install/logger.md', 'logger'), f('install/zz-dup.md', 'logger')]), [
     'install/zz-dup.md says app: logger — name it install/logger.md',
     'install/logger.md and install/zz-dup.md are both for logger — keep one',
+  ]);
+  // The real file name, not the loader's slug of it: Logger.md would be found as "logger",
+  // and "logger 2.md" reported as install/logger-2.md, a file that is not there.
+  assert.deepEqual(installFileProblems([f('install/Logger.md', 'logger')]),
+    ['install/Logger.md says app: logger — name it install/logger.md']);
+  assert.deepEqual(installFileProblems([f('install/logger.md', 'logger'), f('install/logger 2.md', 'logger')]), [
+    'install/logger 2.md says app: logger — name it install/logger.md',
+    'install/logger.md and install/logger 2.md are both for logger — keep one',
   ]);
 });
