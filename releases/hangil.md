@@ -7,3 +7,5 @@ url: https://github.com/itsdoubleem/Hangil_app/releases/tag/v1.0.2
 ---
 
 Vocabulary sets v13–v24 (404 words in all), six romanization fixes with a check that keeps them right, and a line-by-line review that changed 34 of the new words.
+
+Signed with the same key as 1.0.1, so it installs over it and keeps your progress.
