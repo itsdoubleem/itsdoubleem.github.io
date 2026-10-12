@@ -26,6 +26,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, readdirSync } from 'node:fs';
 import { readFile, readdir } from 'node:fs/promises';
 import { homedir } from 'node:os';
+import { fileURLToPath } from 'node:url';
 
 /* aapt2 reads the versionName out of an APK. It ships with the Android SDK, which the
  * GitHub runner has and this machine has; where it is missing the version check is
@@ -42,7 +43,8 @@ function findAapt2() {
 const aapt2 = findAapt2();
 
 /* unzip lists and reads the APK. macOS and the GitHub runner both have it; where it is
- * missing the web comparison is skipped with a note, like the version check. */
+ * missing the web comparison is skipped with a note, like the version check — except in
+ * CI, where a skipped comparison would let the deploy through unchecked. */
 let unzip = true;
 try { execFileSync('unzip', ['-v'], { stdio: 'ignore' }); } catch { unzip = false; }
 
@@ -94,6 +96,8 @@ for (const name of (await readdir(new URL('apps/', root))).filter((f) => f.endsW
     continue;
   }
   checked++;
+  // Absolute, so the tools below run from any folder, not only through npm run check.
+  const apkPath = fileURLToPath(new URL(`public${apk}`, root));
 
   const sum = createHash('sha256').update(file).digest('hex');
   const apkName = apk.split('/').pop();
@@ -107,7 +111,7 @@ for (const name of (await readdir(new URL('apps/', root))).filter((f) => f.endsW
 
   // release.version is typed by hand, and the notice guard trusts it.
   if (aapt2 && version) {
-    const badging = execFileSync(aapt2, ['dump', 'badging', `public${apk}`], { encoding: 'utf8' });
+    const badging = execFileSync(aapt2, ['dump', 'badging', apkPath], { encoding: 'utf8' });
     const inApk = badging.match(/versionName='([^']*)'/)?.[1];
     if (inApk !== version) {
       problems.push(`${name}: release.version is ${version}, the APK says versionName ${inApk}`);
@@ -115,7 +119,7 @@ for (const name of (await readdir(new URL('apps/', root))).filter((f) => f.endsW
   }
 
   if (unzip && web) {
-    const packed = execFileSync('unzip', ['-Z1', `public${apk}`], { encoding: 'utf8' })
+    const packed = execFileSync('unzip', ['-Z1', apkPath], { encoding: 'utf8' })
       .split('\n').filter((f) => f.startsWith('assets/www/') && !f.endsWith('/'));
     // An APK that packs its web app elsewhere (Capacitor's assets/public/, say) would
     // otherwise compare nothing and still pass.
@@ -126,13 +130,15 @@ for (const name of (await readdir(new URL('apps/', root))).filter((f) => f.endsW
     for (const entry of packed) {
       const rel = entry.slice('assets/www/'.length);
       const served = new URL(`public${web.replace(/\/?$/, '/')}${rel}`, root);
-      const inApk = execFileSync('unzip', ['-p', `public${apk}`, entry], { maxBuffer: 1 << 28 });
+      // unzip reads the name as a pattern, so a [ or * in a file name is escaped.
+      const literal = entry.replace(/[[\]*?\\]/g, '\\$&');
+      const inApk = execFileSync('unzip', ['-p', apkPath, literal], { maxBuffer: 1 << 28 });
       let onSite;
       try { onSite = await readFile(served); } catch { differ.push(`${rel} (not served)`); continue; }
       if (!inApk.equals(onSite)) differ.push(rel);
     }
     if (differ.length) {
-      problems.push(`${name}: public${web} is not the web app inside ${apkName}: ${differ.join(', ')}\n    copy those files from assets/www/ in the APK (unzip public${apk} 'assets/www/*') into public${web}`);
+      problems.push(`${name}: public${web} is not the web app inside ${apkName}: ${differ.join(', ')}\n    copy those files from assets/www/ in the APK (unzip public${apk} 'assets/www/*' -d <a scratch folder>) into public${web}`);
     }
   }
 }
@@ -146,5 +152,9 @@ if (problems.length) {
   process.exit(1);
 }
 if (!aapt2) console.log('check-downloads: no aapt2 found — APK versions not compared');
+if (!unzip && process.env.CI) {
+  console.error('check-downloads: no unzip found in CI — web builds cannot be compared with the APKs');
+  process.exit(1);
+}
 if (!unzip) console.log('check-downloads: no unzip found — web builds not compared with the APKs');
 console.log(`check-downloads: ${checked} download(s), each matches its release: block and README${unzip ? ', and its web build matches the APK' : ''}`);
