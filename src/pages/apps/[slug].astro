@@ -323,7 +323,19 @@ const heroScreen = d.card
                   </a>
                 </h3>
                 <div class="inst__body">
-                  {l.unchecked && <p class="inst__unchecked">{f(l.unchecked)}</p>}
+                  {/* The line asks to be told what reads wrong, so the way to tell sits in
+                      it, not at the foot of an English page the reader may never reach.
+                      The link text stays English, like the download buttons. */}
+                  {l.unchecked && (
+                    <p class="inst__unchecked">
+                      {f(l.unchecked)}
+                      {(contact.formUrl || contact.issuesUrl) && (
+                        <a class="inst__tell" lang="en" href={contact.formUrl ?? contact.issuesUrl}>
+                          Report a problem
+                        </a>
+                      )}
+                    </p>
+                  )}
                   {l.sections.map((s) => (
                     <>
                       <h4 class="inst__head">{f(s.heading)}</h4>
@@ -735,6 +747,11 @@ const heroScreen = d.card
     border-left: 3px solid var(--accent);
     background: var(--surface);
     color: var(--ink-soft); font-size: 14.5px;
+  }
+  .inst__tell {
+    display: block; margin-top: 6px; width: fit-content;
+    font-weight: 600; color: var(--ink);
+    text-decoration-color: var(--accent); text-underline-offset: 3px;
   }
   .inst__head { margin: 16px 0 6px; font-size: 16px; font-weight: 700; }
   .inst__head:first-of-type { margin-top: 0; }
