@@ -6,6 +6,8 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+## [1.4.5] — 2026-10-12
+
 ### Fixed
 - `npm run check` compares the web app packed inside each APK with the folder the site
   serves at `release.web`, file by file, and fails on any difference. LOGGER's page says
@@ -141,7 +143,8 @@ All notable changes to this site are recorded here. The format follows
 - HANGIL's page describes its trade section: eight manufacturing job groups, each with 26
   words and 20 questions.
 
-[Unreleased]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.4...HEAD
+[Unreleased]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.5...HEAD
+[1.4.5]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.4...v1.4.5
 [1.4.4]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.3...v1.4.4
 [1.4.3]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.2...v1.4.3
 [1.4.2]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.1...v1.4.2
