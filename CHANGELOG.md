@@ -6,6 +6,13 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+- The HANGIL guide places the Weak spot card right for a reader who has set a trade: it
+  comes after the trade's card as well as the four tiles.
+- `tools/capture-hangil-guide.mjs` no longer counts words behind the app's top bar or tab
+  bar as shown, and it reads what a dropdown or text box shows. The trade screenshot is
+  checked for the trade it names again.
+
 ## [1.4.8] — 2026-10-12
 
 ### Fixed
