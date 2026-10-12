@@ -34,7 +34,7 @@ import { themeColor } from '../../theme-color';
 import { contact, siteClaim } from '../../site';
 import { fill, noticeIsLive, releaseFacts, webIcons } from '../../release';
 import { languageNames as langNames, platformLong as platformNames } from '../../labels';
-import { installOrder, installProblems } from '../../install';
+import { installFileProblems, installOrder, installProblems } from '../../install';
 
 export async function getStaticPaths() {
   const [apps, guides, installs] = await Promise.all([
@@ -51,6 +51,8 @@ export async function getStaticPaths() {
       throw new Error(`apps/${file}.md says slug: ${app.data.slug} — they must match`);
     }
   }
+  const fileProblems = installFileProblems(installs.map((i) => ({ id: i.id, app: i.data.app })));
+  if (fileProblems.length) throw new Error(fileProblems.join('\n'));
   return apps.map((app) => ({
     params: { slug: app.data.slug },
     props: {

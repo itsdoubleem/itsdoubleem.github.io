@@ -35,7 +35,25 @@ export function installProblems(
   known: string[],
 ): string[] {
   const out: string[] = [];
+  // "Every translation says what en says, no more" (install/README.md). The meaning cannot
+  // be checked here, but the shape can: a dropped or merged step is how a translation
+  // usually drifts, and the update step it would drop is the one that keeps the records.
+  const source = langs.en;
+  if (!Object.keys(langs).length) out.push('languages: is empty — add en, or delete the file');
+  else if (!source) out.push('en: missing — it is the source every other language translates');
   for (const [code, l] of Object.entries(langs)) {
+    if (source && code !== 'en') {
+      if (l.sections.length !== source.sections.length) {
+        out.push(`${code}: has ${l.sections.length} section(s), en has ${source.sections.length} — every language says what en says`);
+      } else {
+        l.sections.forEach((s, i) => {
+          const want = source.sections[i].steps.length;
+          if (s.steps.length !== want) {
+            out.push(`${code}: section ${i + 1} has ${s.steps.length} step(s), en has ${want} — every language says what en says`);
+          }
+        });
+      }
+    }
     // English is the version the others are translated from, and the one the owner can
     // read to know what every other language is meant to say. Its author wrote it.
     if (code === 'en' && !l.checked) out.push('en: the English is the source — it is checked: true');
@@ -52,6 +70,21 @@ export function installProblems(
     for (const text of prose) {
       for (const t of unknownTokens(text, known)) out.push(`${code}: {${t}} cannot be filled for this app`);
     }
+  }
+  return out;
+}
+
+/** Problems with the set of install files: each is named after its app, as apps/<slug>.md
+ *  is, and no app has two. Otherwise the first file found wins and the other is never
+ *  checked or shown, and an error names an install/<slug>.md that does not exist. */
+export function installFileProblems(files: { id: string; app: string }[]): string[] {
+  const out: string[] = [];
+  const seen = new Map<string, string>();
+  for (const { id, app } of files) {
+    if (id !== app) out.push(`install/${id}.md says app: ${app} — name it install/${app}.md`);
+    const first = seen.get(app);
+    if (first) out.push(`install/${first}.md and install/${id}.md are both for ${app} — keep one`);
+    else seen.set(app, id);
   }
   return out;
 }
