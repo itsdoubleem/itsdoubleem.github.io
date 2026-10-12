@@ -14,6 +14,10 @@ All notable changes to this site are recorded here. The format follows
 - **What's new in {version}**: the release's GitHub notes, in red under the pill, for the
   same seven days. The pill links to it.
 
+The sync refuses an APK whose version, signing key or Android permissions differ from what
+the page promises, works each update out before writing a file, and strips HTML, PR numbers
+and repo links from the notes. An hourly run can no longer cancel the deploy of a push.
+
 ### Removed
 - HANGIL's "Had 1.0? Read first" notice. What's new replaces it; the Android note still
   says how to update from 1.0.

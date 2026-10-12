@@ -170,16 +170,25 @@ workflow runs `tools/sync-apps.mjs`, which reads that repo's Latest GitHub Relea
 is newer than what the site serves, the sync:
 
 - downloads its APK (the asset named `asset:`, or its only `.apk`) and refuses it unless
-  its versionName matches the tag and it is signed by the certificate in `signer:`;
-- copies it to `public/downloads/`, copies its `assets/www/` into `release.web`, and rewrites
+  its versionName matches the tag, it is signed by the certificate in `signer:`, and it
+  asks for no Android permission the served APK does not (and never for INTERNET — both
+  pages say the app cannot reach the network);
+- works the whole update out before writing anything, so an app that fails leaves the tree
+  as it was;
+- copies the APK to `public/downloads/`, its `assets/www/` into `release.web`, and rewrites
   `version`, `sha256`, `date` and the hash in the list above;
-- writes the release's notes to `releases/<slug>.md`, which the page shows as **What's new**
-  under the pill, for the same seven days;
-- builds, checks, commits to `main` as the owner's noreply address, and deploys.
+- writes the release's notes to `releases/<slug>.md` (cleaned: no HTML, PR numbers, hashes or
+  links into the app's repo), which the page shows as **What's new** for the same seven days;
+- commits to `main` as the owner's noreply address and pushes. The same run then builds,
+  checks and deploys that commit — so a check that fails after the push leaves `main` red
+  and undeployed until someone fixes it, rather than publishing it.
 
 A release with no APK attached is skipped with a warning on the run — so **attach the APK to
 every app release on GitHub**, or the site never sees it. HANGIL's releases up to v1.0.2
-carried none. A signer or version mismatch fails the run and publishes nothing for that app.
+carried none. A refusal (signer, version, permission, a notice tied to the old version)
+fails the run and publishes nothing for that app. It fails again every hour, with a GitHub
+email each time, until someone acts: read the run's red `::error::` line, then either fix
+the release or update the app by hand.
 
 What the sync cannot do is look at the app: screenshots and LOGGER's sample record need the
 running app on a Mac (step 5 below). The first time it moves an app past them it writes
@@ -199,7 +208,10 @@ Without `source:`, or to update by hand, an update is:
    seven days from that date the download button wears a red **New · {version}** pill,
    on every app, with nothing else to switch on — see § The release pill.
 4. If the app has an update notice with a `version:`, the build now fails until you rewrite
-   it for this release or delete it (see below).
+   it for this release or delete it (see below). The same goes for `releases/<slug>.md`,
+   the What's new notes: the build fails while its `version:` is not `release.version`.
+   With `source:` set, delete the file and run `node tools/sync-apps.mjs` to write it from
+   the GitHub Release; otherwise edit it by hand (`releases/README.md`).
 5. Re-run the app's capture scripts with `npm run dev` running, and look at what changed:
    `node tools/capture-logger.mjs` for LOGGER; `node tools/capture-hangil.mjs` and
    `node tools/capture-hangil-guide.mjs` for HANGIL.
@@ -218,12 +230,14 @@ Without `source:`, or to update by hand, an update is:
 
 Every app with a `release:` gets a red **New · {version}** pill on the corner of its APK's
 download button for `NEW_FOR_DAYS` (7, in `src/release.ts`) from `release.date`, the release
-day counting as the first. Days are Korean days. Then it goes by itself: the site is static, so it drops out of
-the next build, and the deploy workflow rebuilds once a day for this reason. Shipping the
-next version with a new date brings it back.
+day counting as the first. Days are Korean days. Then it goes by itself: the site is
+static, so it drops out of the next build, and the deploy workflow rebuilds once a day for
+this reason. Shipping the next version with a new date brings it back.
 
-With no notice the pill is a label. With one, it is a link to the notice, kept beside the
-button rather than inside it, so the button still downloads.
+It links to what there is to read: an update notice if there is one, else **What's new in
+{version}** (`releases/<slug>.md`), which shows in red at the top of the reading column for
+the same seven days. With neither it is a label. As a link it sits beside the button rather
+than inside it, so the button still downloads.
 
 ### Update notices
 
@@ -257,16 +271,17 @@ notice:
   release pill does, seven days from `release.date` — HANGIL's 1.0 notice had no end date
   and stayed up for weeks, which is why that is the default. Either way it goes at the
   next daily build, so it is gone within a day.
-- A notice with a `version:` stops the hourly sync for that app when a newer release
-  appears: a person wrote it about one update, so a person decides what becomes of it.
+- **`download`** defaults to the `release.apk` button, or the first download if the app
+  has no release.
+
+A notice with a `version:` also stops the hourly sync for that app when a newer release
+appears: a person wrote it about one update, so a person decides what becomes of it.
 
 Most releases need no notice: the release notes already show as **What's new**. A notice is
 for the rare update that asks the reader to do something first. The pill links to the
 notice when there is one, and to What's new otherwise.
-- **`download`** defaults to the `release.apk` button, or the first download if the app
-  has no release.
 
 Only one notice per app. The red (`--alert` in `global.css`) is used for nothing but the
-pill and the notice, so a page with neither has no red on it. Since a notice goes by itself,
+pill, What's new and the notice, so a page whose release is not new has no red on it. Since a notice goes by itself,
 no other part of the page may depend on it being there — say the caveat in full where it
 matters, as HANGIL's Android note does, rather than "see the note at the top".

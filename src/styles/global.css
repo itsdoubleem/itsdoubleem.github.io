@@ -154,9 +154,9 @@
   /* ── The alert ──
      Red, with one job: news about a release. That is the "New · 1.2.25" pill on the
      download button for the first days after a release (src/release.ts), and the boxes
-     it links to — What's new and an update notice — their tags and their left edges. It is not a second accent and it never marks a
-     link, a heading or any other state. A page whose release is not new and has no notice has
-     no red on it.
+     it links to — What's new and an update notice — their tags and their left edges.
+     It is not a second accent, and it never marks a link, a heading or any other state.
+     A page whose release is not new and has no notice has no red on it.
 
      It is a FILL that carries white, never text on the dark ground. White on it
      measures 5.3:1, which clears AA for the 12px labels it holds. As text on the ground
