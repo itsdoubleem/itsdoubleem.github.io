@@ -43,7 +43,12 @@ Tokens (`{apkSize}`, `{version}` …) work as they do in `apps/` prose.
 - `en` that is not `checked: true`;
 - `checked: false` with no `unchecked:` line, or `checked: true` with one still there;
 - a token this app cannot fill;
-- an `app:` with no `apps/<app>.md`.
+- an `app:` with no `apps/<app>.md`;
+- a file with no `en`, or with nothing under `languages:`;
+- a translation with more or fewer sections than `en`, or a section with more or fewer
+  steps than the same section in `en`;
+- a file not named after its `app:` (`install/<app>.md`);
+- a second install file for the same app.
 
 Tests for these are in `tests/install.test.ts`.
 
