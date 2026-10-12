@@ -6,6 +6,15 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+- `npm run check` compares the web app packed inside each APK with the folder the site
+  serves at `release.web`, file by file, and fails on any difference. LOGGER's page says
+  the two hash identically, and nothing checked it. README.md § Shipping an app update
+  now says to take the web build out of the APK.
+- `tools/make-sample-record.mjs` writes nothing when it refuses a record. It used to
+  overwrite `record.html` and `records.csv` before refusing, and say only that the picture
+  was left alone.
+
 ## [1.4.4] — 2026-10-12
 
 ### Changed
