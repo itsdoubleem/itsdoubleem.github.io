@@ -11,8 +11,10 @@ date: 2026-10-12      # the release day, in Korea
 url: https://github.com/…/releases/tag/v1.2.25
 ---
 
-The release notes, as written, minus PR numbers, the download link and hash, and
-pointers to CHANGELOG.md (tools/sync-lib.mjs, cleanNotes).
+The release notes, as written, cut down sentence by sentence: no HTML tags or images,
+no PR numbers or GitHub's generated "What's Changed" lines, headings as bold lines, links
+into the app's repo reduced to their words, and no sentence carrying a hash, this site's
+address or CHANGELOG.md (tools/sync-lib.mjs, cleanNotes).
 ```
 
 You can edit the text; the next release replaces the file. The sync writes it when a new

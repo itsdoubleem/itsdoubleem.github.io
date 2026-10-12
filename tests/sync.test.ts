@@ -70,6 +70,17 @@ test('notes lose HTML, images, repo-relative links, headings and GitHub\'s gener
   );
 });
 
+test('a less-than sign is text, not a tag; an autolink keeps its address', () => {
+  assert.equal(cleanNotes('Rounds when hours < 4 and pay > 0.'), 'Rounds when hours < 4 and pay > 0.');
+  assert.equal(cleanNotes('See <https://example.com/x>.'), 'See https://example.com/x.');
+});
+
+test('permissions are read in every form aapt2 prints them', async () => {
+  const { permissionsOf } = await import('../tools/sync-lib.mjs');
+  const badging = "uses-permission: name='android.permission.VIBRATE'\nuses-permission-sdk-23: name='android.permission.INTERNET'\n";
+  assert.deepEqual(permissionsOf(badging), ['android.permission.INTERNET', 'android.permission.VIBRATE']);
+});
+
 test('only signer lines count as signers, not a source stamp', () => {
   const out = `Signer #1 certificate SHA-256 digest: ${'a'.repeat(64)}\nSource Stamp Signer certificate SHA-256 digest: ${'c'.repeat(64)}\n`;
   assert.deepEqual(signersOf(out), ['a'.repeat(64)]);
@@ -134,7 +145,7 @@ test('refusals: wrong signer, wrong version, a new permission, INTERNET, a tied 
   await assert.rejects(planApp(app(), rel(), io({ inspect: () => ({ versionName: '1.1.0', signers: [SIGNER], permissions: ['android.permission.CAMERA'] }) })), /CAMERA/);
   const internet = { versionName: '1.1.0', signers: [SIGNER], permissions: ['android.permission.INTERNET'] };
   await assert.rejects(planApp(app(), rel(), io({ inspect: () => internet, current: () => ({ permissions: ['android.permission.INTERNET'] }) })), /INTERNET/);
-  await assert.rejects(planApp({ ...app(), md: appMd() + 'notice:\n  version: 1.0.0\n' }, rel(), io()), /notice tied/);
+  await assert.rejects(planApp({ ...app(), md: appMd('notice:\n  badge: Read first\n  version: 1.0.0\n') }, rel(), io()), /notice tied/);
   await assert.rejects(planApp({ ...app(), readme: '' }, rel(), io()), /no hash line/);
   await assert.rejects(planApp(app(), rel(), io({ unpack: () => [] })), /no assets\/www/);
 });

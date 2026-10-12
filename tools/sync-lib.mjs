@@ -70,7 +70,8 @@ export function cleanNotes(body) {
     .replace(/<!--[\s\S]*?-->/g, '')
     .replace(/<(script|style)\b[\s\S]*?<\/\1\s*>/gi, '')
     .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
-    .replace(/<[^>]*>/g, '')
+    .replace(/<(https?:\/\/[^>\s]+)>/g, '$1')
+    .replace(/<\/?[a-zA-Z][\w-]*(?:\s[^<>]*)?\/?>/g, '')
     .replace(/\[([^\]]+)\]\((?!https?:\/\/)[^)]*\)/g, '$1')
     .replace(/ by @[\w-]+ in https:\/\/github\.com\/\S+/g, '')
     .replace(/[ \t]*\((?:PR\s*)?#\d+(?:(?:,\s*|\s+and\s+)(?:PR\s*)?#\d+)*\)/g, '');
@@ -108,7 +109,7 @@ export function notesFile({ version, date, url, notes }) {
 
 /* Android permissions an APK asks for, from `aapt2 dump badging`. */
 export const permissionsOf = (badging) =>
-  [...badging.matchAll(/^uses-permission: name='([^']+)'/gm)].map((m) => m[1]).sort();
+  [...badging.matchAll(/^uses-permission(?:-sdk-\d+)?: name='([^']+)'/gm)].map((m) => m[1]).sort();
 
 /* What one app's sync would do, worked out without touching the disk. Everything that can
  * fail — the download, the version, the signer, the permissions, the unpacking, the README
