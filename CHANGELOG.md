@@ -6,6 +6,8 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+## [1.4.9] — 2026-10-12
+
 ### Fixed
 - The HANGIL guide places the Weak spot card right for a reader who has set a trade: it
   comes after the trade's card as well as the four tiles.
@@ -190,7 +192,8 @@ All notable changes to this site are recorded here. The format follows
 - HANGIL's page describes its trade section: eight manufacturing job groups, each with 26
   words and 20 questions.
 
-[Unreleased]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.8...HEAD
+[Unreleased]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.9...HEAD
+[1.4.9]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.8...v1.4.9
 [1.4.8]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.7...v1.4.8
 [1.4.7]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.6...v1.4.7
 [1.4.6]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.5...v1.4.6

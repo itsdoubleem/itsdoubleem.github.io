@@ -1,6 +1,6 @@
 {
   "name": "doubleem",
-  "version": "1.4.8",
+  "version": "1.4.9",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build --force",
