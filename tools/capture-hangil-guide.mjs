@@ -58,20 +58,35 @@ const go = async (page, hash, wait = 700) => {
 };
 // Every shot is checked for the words its caption in guides/hangil.md relies on, so a
 // change in the app — a renamed topic, a reshuffled question, an empty deck — fails here
-// instead of producing a picture the caption no longer describes. Only text inside the
-// viewport counts: a word scrolled out of the frame is not in the picture. Case-blind, for
-// the same reason as scrollTo.
+// instead of producing a picture the caption no longer describes. Only text the picture
+// shows counts: a line inside the viewport whose centre is not under something else, such
+// as the app's fixed top bar and tab bar. The chosen option of a <select> and the value of
+// an <input> count too, being drawn on screen without a text node. Case-blind, for the
+// same reason as scrollTo. What it still cannot tell: a paragraph counts in full if any
+// one of its lines is visible; overflow clipping and opacity are not looked at; and a word
+// split across two elements (<b>Start</b>ed) is read as two words.
 const inView = (page) => page.evaluate(() => {
   const out = [];
+  const shows = (el, b) => {
+    if (!(b.width > 0 && b.height > 0 && b.bottom > 0 && b.top < innerHeight
+      && b.right > 0 && b.left < innerWidth)) return false;
+    const x = Math.min(Math.max((b.left + b.right) / 2, 0), innerWidth - 1);
+    const y = Math.min(Math.max((b.top + b.bottom) / 2, 0), innerHeight - 1);
+    const hit = document.elementFromPoint(x, y);
+    return !!hit && (el.contains(hit) || hit.contains(el));
+  };
   const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
   for (let n; (n = walk.nextNode());) {
-    if (!n.textContent.trim()) continue;
-    const st = getComputedStyle(n.parentElement);
+    const el = n.parentElement;
+    if (!n.textContent.trim() || el.closest('select, option, script, style')) continue;
+    const st = getComputedStyle(el);
     if (st.visibility === 'hidden' || st.display === 'none') continue;
     const r = document.createRange(); r.selectNodeContents(n);
-    const seen = [...r.getClientRects()].some((b) => b.width > 0 && b.height > 0
-      && b.bottom > 0 && b.top < innerHeight && b.right > 0 && b.left < innerWidth);
-    if (seen) out.push(n.textContent);
+    if ([...r.getClientRects()].some((b) => shows(el, b))) out.push(n.textContent);
+  }
+  for (const c of document.querySelectorAll('select, input:not([type=hidden]), textarea')) {
+    const v = c.tagName === 'SELECT' ? c.selectedOptions[0]?.text : c.value;
+    if (v && shows(c, c.getBoundingClientRect())) out.push(v);
   }
   return out.join(' ').replace(/\s+/g, ' ');
 });
@@ -110,7 +125,7 @@ const trade = fresh.locator('label.field', { hasText: 'Trade' }).locator('select
 await trade.selectOption({ label: '식품가공 — Food processing' });
 await fresh.waitForTimeout(500);
 await scrollTo(fresh, 'Trade');
-await shot(fresh, '02-trade', 'Trade', 'job-related questions on your paper');                 // a trade chosen, and what it changes
+await shot(fresh, '02-trade', 'Trade', '식품가공 — Food processing', 'job-related questions on your paper');                 // a trade chosen, and what it changes
 
 await scrollTo(fresh, 'Korean voice');
 await shot(fresh, '03-voice', 'Test the voice');                 // the voice, the speed, Test the voice
