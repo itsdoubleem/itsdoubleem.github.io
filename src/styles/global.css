@@ -152,9 +152,10 @@
   --accent-2:   #18D770;   /* 10.6:1 — gradient partner only, never text by itself */
   --accent-ink: #010704;   /* 11.7:1 as a label on --accent */
   /* ── The alert ──
-     Red, with one job: an app's update notice — the badge on its download button, the
-     tag at the top of the notice, and the notice's left edge. It is not a second accent
-     and it never marks a link, a heading or a state. If a page has no notice, there is
+     Red, with one job: news about a release. That is the "New · 1.2.25" pill on the
+     download button for the first days after a release (src/release.ts), and an update
+     notice — its tag and its left edge. It is not a second accent and it never marks a
+     link, a heading or a state. A page whose release is not new and has no notice has
      no red on it.
 
      It is a FILL that carries white, never text on the dark ground. White on it

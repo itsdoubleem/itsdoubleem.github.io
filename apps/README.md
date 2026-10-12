@@ -68,6 +68,8 @@ release:                         # optional; required once the page offers an AP
   apk:     /downloads/logger.apk # must be one of the downloads above
   sha256:  c180…                 # the build fails if it is not the file's hash
   web:     /logger/              # optional; enables {webSize}
+  date:    2026-10-12            # the day this version was published; the button wears
+                                 # a red "New · {version}" pill for 7 days from it
 notice:                          # optional — see README.md § Update notices
   badge:   Had 1.0? Read first
   heading: …

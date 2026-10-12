@@ -3,7 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
-import { manifestIcons, publicPath, webDir } from '../src/release.ts';
+import { manifestIcons, noticeIsLive, publicPath, releaseIsNew, webDir } from '../src/release.ts';
 
 test('reads 192 and 512 icons, resolving relative src against the folder', () => {
   const icons = manifestIcons(
@@ -77,4 +77,23 @@ test('publicPath decodes a percent-encoded path, as the server does', () => {
   assert.ok(publicPath('/%ED%95%9C%EA%B8%B8/icon-512.png').endsWith(join('public', '한길', 'icon-512.png')));
   // Malformed escapes are not a crash: the raw text is used.
   assert.ok(publicPath('/app/100%.png').endsWith(join('public', 'app', '100%.png')));
+});
+
+test('a release is new for seven days, its release day counting as the first', () => {
+  const release = { date: new Date('2026-10-12') };
+  assert.equal(releaseIsNew(release, new Date('2026-10-11T23:59:59Z')), false);
+  assert.equal(releaseIsNew(release, new Date('2026-10-12T00:00:00Z')), true);
+  assert.equal(releaseIsNew(release, new Date('2026-10-18T23:59:59Z')), true);
+  assert.equal(releaseIsNew(release, new Date('2026-10-19T00:00:00Z')), false);
+  assert.equal(releaseIsNew(undefined), false);
+});
+
+test('a notice with no until goes when its release stops being new; one with until keeps to it', () => {
+  const release = { date: new Date('2026-10-11') };
+  assert.equal(noticeIsLive({}, release, new Date('2026-10-17T12:00:00Z')), true);
+  assert.equal(noticeIsLive({}, release, new Date('2026-10-18T00:00:00Z')), false);
+  const until = { until: new Date('2026-12-31') };
+  assert.equal(noticeIsLive(until, release, new Date('2026-12-31T23:00:00Z')), true);
+  assert.equal(noticeIsLive(until, release, new Date('2027-01-01T00:00:00Z')), false);
+  assert.equal(noticeIsLive(undefined, release), false);
 });

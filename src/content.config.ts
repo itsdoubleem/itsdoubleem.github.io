@@ -108,26 +108,31 @@ const apps = defineCollection({
         apk: z.string().startsWith('/downloads/'),
         sha256: z.string().regex(/^[0-9a-f]{64}$/, 'sha256 is 64 lowercase hex characters.'),
         web: z.string().optional(),
+        // The day this version was published. For NEW_FOR_DAYS from it, the download button
+        // wears a red "New · {version}" pill (src/release.ts). Move it with the version.
+        date: z.coerce.date(),
       })
       .optional(),
     // A time-limited note for people updating — a key change, a backup to take first. It
-    // renders as its own section near the top of the page, with a red badge on the
-    // download button that links to it. README.md § Update notices has the how-to.
+    // renders as its own section near the top of the page, and the release pill on the
+    // download button links to it. README.md § Update notices has the how-to.
     notice: z
       .object({
-        // The section's id, so the badge (and anyone else) can link to #<id>.
+        // The section's id, so the pill (and anyone else) can link to #<id>.
         id: z.string().regex(/^[a-z][a-z0-9-]*$/).default('update-notice'),
+        // The red tag at the top of the notice. It also stands in for the release pill on
+        // the button if the notice outlasts the release's new days (an explicit `until`).
         badge: z.string().max(28, 'The badge sits on a button — keep it to a few words.'),
         heading: z.string(),
         // Paragraphs separated by a blank line. May use the release tokens.
         body: z.string(),
-        // The href of the download whose button wears the badge. Defaults to the
+        // The href of the download whose button wears the pill. Defaults to the
         // release APK, else the first download.
         download: z.string().optional(),
         // The release this notice was written for. When `release.version` moves on the
         // build fails, so the notice is rewritten or deleted rather than left to go stale.
         version: z.string().optional(),
-        // The last day it shows. Optional — leave it out for "until I remove it".
+        // The last day it shows. Leave it out and it shows while the release is new.
         until: z.coerce.date().optional(),
       })
       .optional(),

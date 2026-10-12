@@ -118,7 +118,7 @@ way LOGGER's guide is by `tools/capture-logger.mjs`.
 The APKs this site serves are committed under `public/downloads/`. Their SHA-256 sums are
 
 ```
-c2f8e52b8c4f773c891b349f845e54a5d89c958b47b3c36982ef917175d92047  logger.apk
+87b8c78ff10bc9cc04a07824290e408152421d54ee77cd8484d50d937357e272  logger.apk
 31c03f7cdd8da5a1579745c215707947757ce4fd7939f8caaadbc5732e4fac53  hangil.apk
 ```
 
@@ -144,6 +144,7 @@ Every fact about a release lives in one place: the `release:` block in `apps/<sl
 ```yaml
 release:
   version: 1.0.1                  # typed once; the build cannot read it out of the APK
+  date: 2026-10-11                # the day it was published — starts the "New" pill
   apk: /downloads/hangil.apk      # must also be one of the page's downloads
   sha256: 3846f5c0…df7fff75       # the build fails if this is not the file's hash
   web: /hangil/                   # optional: the offline web build, measured at build time
@@ -172,7 +173,9 @@ So an update is:
    its files into `public/<slug>/`. Keep any file the site adds, such as HANGIL's `sw.js`.
 2. `shasum -a 256 public/downloads/<slug>.apk`. Put the hash in `release.sha256` **and** on
    that APK's line in the list above, in the same commit.
-3. Set `release.version`.
+3. Set `release.version` and `release.date` (the day the version was published). For
+   seven days from that date the download button wears a red **New · {version}** pill,
+   on every app, with nothing else to switch on — see § The release pill.
 4. If the app has an update notice with a `version:`, the build now fails until you rewrite
    it for this release or delete it (see below).
 5. Re-run the app's capture scripts with `npm run dev` running, and look at what changed:
@@ -189,14 +192,27 @@ So an update is:
    LOGGER's `release.version` disagree, or if any file in an APK's `assets/www/` differs
    from the one served under `release.web`.
 
+### The release pill
+
+Every app with a `release:` gets a red **New · {version}** pill on the corner of its APK's
+download button for `NEW_FOR_DAYS` (7, in `src/release.ts`) from `release.date`, the release
+day counting as the first. Then it goes by itself: the site is static, so it drops out of
+the next build, and the deploy workflow rebuilds once a day for this reason. Shipping the
+next version with a new date brings it back.
+
+With no notice the pill is a label. With one, it is a link to the notice, kept beside the
+button rather than inside it, so the button still downloads.
+
 ### Update notices
 
 When an update needs the reader to do something first, such as take a backup before a key
 change, give the app a `notice:`. The page then shows:
 
-- a **red badge** on the corner of one download button, which links to the notice. It is a
-  separate link beside the button rather than part of it, so the button still downloads.
-- a **notice section** at the top of the reading column, with an anchor the badge jumps to.
+- the **release pill** on the download button, linking to the notice. If the notice is kept
+  up past the release's new days with an `until`, the pill stays too and shows the
+  notice's `badge` instead.
+- a **notice section** at the top of the reading column, headed by its `badge` in red, with
+  an anchor the pill jumps to.
 
 ```yaml
 notice:
@@ -207,7 +223,7 @@ notice:
 
     Updates after this one install over the top.
   version: 1.0.1                  # optional: the release this was written for
-  until: 2026-12-31               # optional: the last day it shows
+  until: 2026-12-31               # optional: the last day it shows (default: while the release is new)
   download: /downloads/hangil.apk # optional: which button wears the badge
   id: update-notice               # optional: the anchor; this is the default
 ```
@@ -215,12 +231,14 @@ notice:
 - **`version`** ties the notice to one release. When `release.version` changes, the build
   fails with "notice was written for 1.0.1 but release.version is 1.0.2", so a notice
   about one update can never sit silently on the next one.
-- **`until`** takes the notice down after that date. The site is static, so the notice goes
-  at the next build after the date. The deploy workflow rebuilds once a day for this
-  reason, so it is gone within a day.
+- **`until`** takes the notice down after that date. Without it the notice goes when the
+  release pill does, seven days from `release.date` — HANGIL's 1.0 notice had no end date
+  and stayed up for weeks, which is why that is the default. Either way it goes at the
+  next daily build, so it is gone within a day.
 - **`download`** defaults to the `release.apk` button, or the first download if the app
   has no release.
 
-Only one notice per app. The red (`--alert` in `global.css`) is used for nothing else, so
-a page with no notice has no red on it. To remove a notice, delete the `notice:` block, and
-any sentence elsewhere on the page that points to it.
+Only one notice per app. The red (`--alert` in `global.css`) is used for nothing but the
+pill and the notice, so a page with neither has no red on it. Since a notice goes by itself,
+no other part of the page may depend on it being there — say the caveat in full where it
+matters, as HANGIL's Android note does, rather than "see the note at the top".

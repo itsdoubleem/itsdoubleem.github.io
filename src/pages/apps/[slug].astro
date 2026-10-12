@@ -32,7 +32,7 @@ import PhoneDevice from '../../components/PhoneDevice.astro';
 import AppIcon from '../../components/AppIcon.astro';
 import { themeColor } from '../../theme-color';
 import { contact, siteClaim } from '../../site';
-import { fill, noticeIsLive, releaseFacts, webIcons } from '../../release';
+import { fill, noticeIsLive, releaseFacts, releaseIsNew, webIcons } from '../../release';
 import { languageNames as langNames, platformLong as platformNames } from '../../labels';
 import { installFileProblems, installOrder, installProblems } from '../../install';
 
@@ -81,11 +81,13 @@ if (install) {
 }
 const installLangs = install ? installOrder(install, d.languages) : [];
 
-// The update notice, if there is one and its last day has not passed. Its badge goes on
-// one download button, and links to the section rather than wrapping it: a link cannot
-// sit inside a link, and the button still has to download.
-const notice = noticeIsLive(d.notice) ? d.notice : undefined;
-const badgeOn = notice && (notice.download ?? d.release?.apk ?? d.downloads[0].href);
+// The red pill on one download button. While a release is new it says so, with the version;
+// otherwise a notice that is still up (an explicit `until`) lends it its badge. It links to
+// the notice when there is one, rather than wrapping the button: a link cannot sit inside a
+// link, and the button still has to download. With no notice it is a label, not a link.
+const notice = noticeIsLive(d.notice, d.release) ? d.notice : undefined;
+const pillText = releaseIsNew(d.release) ? `New · ${d.release.version}` : notice ? f(notice.badge) : undefined;
+const pillOn = pillText && (notice?.download ?? d.release?.apk ?? d.downloads[0].href);
 const noticeParas = notice ? notice.body.split(/\n\s*\n/).map((p: string) => f(p.trim())) : [];
 
 const privacyLine =
@@ -164,8 +166,9 @@ const heroScreen = d.card
                     {dl.note && <span class="btn__note">{f(dl.note)}</span>}
                   </span>
                 </a>
-                {notice && dl.href === badgeOn && (
-                  <a class="getit__badge" href={`#${notice.id}`}>{f(notice.badge)}</a>
+                {pillText && dl.href === pillOn && (notice
+                  ? <a class="getit__badge" href={`#${notice.id}`}>{pillText}</a>
+                  : <span class="getit__badge">{pillText}</span>
                 )}
               </span>
             ))}
@@ -226,7 +229,7 @@ const heroScreen = d.card
     <div class="wrap">
      <div class="read">
       {/* Before everything else in the column, because it is the thing to read before
-          downloading — the badge on the button links straight here. No .reveal: a reader
+          downloading — the pill on the button links straight here. No .reveal: a reader
           who arrives by the anchor must see it at once, not watch it fade in. */}
       {notice && (
         <section class="notice block" id={notice.id} aria-labelledby={`${notice.id}-head`}>
@@ -525,7 +528,7 @@ const heroScreen = d.card
     font-size: 12px; font-weight: 700; line-height: 1; white-space: nowrap;
     text-decoration: none;
   }
-  .getit__badge:hover { text-decoration: underline; text-underline-offset: 2px; }
+  a.getit__badge:hover { text-decoration: underline; text-underline-offset: 2px; }
 
   .notice {
     padding: 22px;

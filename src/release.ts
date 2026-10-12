@@ -152,13 +152,34 @@ export function fill(text: string, facts: Record<string, string>): string {
   });
 }
 
-/* A notice with an `until` date stops rendering the day after it. The site is static, so
- * "stops rendering" means "is left out of the next build" — deploy.yml rebuilds once a
- * day for exactly this reason, so an expired notice is gone within a day of its date. */
-export function noticeIsLive(notice: { until?: Date } | undefined, today = new Date()) {
+/* A release is new for this many days, counting its release day as the first. While it is,
+ * its download button wears a red "New · 1.2.25" pill — every app, with nothing to switch
+ * on: the pill comes from `release.date` and goes by itself. The site is static, so "goes"
+ * means "is left out of the next build" — deploy.yml rebuilds once a day for exactly this
+ * reason, so a pill is gone within a day of its last day. */
+export const NEW_FOR_DAYS = 7;
+
+const endOfDay = (d: Date, plusDays = 0) => {
+  const e = new Date(d);
+  e.setUTCDate(e.getUTCDate() + plusDays);
+  e.setUTCHours(23, 59, 59, 999);
+  return e;
+};
+
+export function releaseIsNew(release: { date: Date } | undefined, today = new Date()) {
+  if (!release) return false;
+  return today >= release.date && today <= endOfDay(release.date, NEW_FOR_DAYS - 1);
+}
+
+/* A notice with an `until` date stops rendering the day after it. One without shows for as
+ * long as its release is new, so no notice outlives the pill that points at it by accident —
+ * one about a key change that had stayed up for weeks is why. Same daily rebuild as above. */
+export function noticeIsLive(
+  notice: { until?: Date } | undefined,
+  release: { date: Date } | undefined,
+  today = new Date(),
+) {
   if (!notice) return false;
-  if (!notice.until) return true;
-  const lastDay = new Date(notice.until);
-  lastDay.setUTCHours(23, 59, 59, 999);
-  return today <= lastDay;
+  if (!notice.until) return releaseIsNew(release, today);
+  return today <= endOfDay(notice.until);
 }

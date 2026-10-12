@@ -37,7 +37,7 @@ screenshots:
     caption: Vocabulary, grouped by where you will hear it. Every word and sentence has a play button.
 platformNotes:
   - platform: android
-    note: Installs from the file itself, with no store account. Your phone will warn you about installing from outside the store — that warning is normal for anything distributed this way. The Android app speaks Korean through the phone's own speech engine, so it can use a better voice than a browser can, and Settings lets you pick which engine and which of the installed Korean voices reads to you. Your progress lives in the app's own storage, so it survives an update — except the one from 1.0, which the note at the top of this page covers.
+    note: Installs from the file itself, with no store account. Your phone will warn you about installing from outside the store — that warning is normal for anything distributed this way. The Android app speaks Korean through the phone's own speech engine, so it can use a better voice than a browser can, and Settings lets you pick which engine and which of the installed Korean voices reads to you. Your progress lives in the app's own storage, so it survives an update — except the one from 1.0, which used a different signing key and has to be uninstalled first. Take a backup in Settings before you do, if your copy can make one, and restore it after.
   - platform: web
     note: It opens in any browser and there is nothing to install, but it is meant to be added to your home screen — on Android, Chrome's menu › Add to Home screen; on iPhone, Safari's share button › Add to Home Screen. After that it opens full screen like any other app and works with no connection. The app picks the best Korean voice the browser has, with nothing to set. In Chrome and Edge on a computer that is an online voice — see Your data for what that sends. Your progress lives in that browser's storage for this address, so it does not follow you to another phone or another browser — take a backup from Settings before you switch.
 verify:
@@ -68,10 +68,13 @@ release:
   apk: /downloads/hangil.apk
   sha256: 31c03f7cdd8da5a1579745c215707947757ce4fd7939f8caaadbc5732e4fac53
   web: /hangil/
+  date: 2026-10-11
 # 1.0 and 1.0.1 are signed with different keys, so an update from 1.0 cannot install over
 # the top. 1.0.2 is signed with the same key as 1.0.1. `version` ties the notice to this release: the build fails when release.version
 # moves on, and the notice has to be rewritten or deleted rather than left to go stale.
-# When you delete it, also delete "except the one from 1.0 …" from the Android note above.
+# With no `until`, it shows only while the release is new (src/release.ts NEW_FOR_DAYS),
+# then goes by itself. The Android note above says the 1.0 caveat on its own, so it does
+# not depend on this notice being up.
 notice:
   badge: Had 1.0? Read first
   heading: Had version 1.0? Take a backup before you update
