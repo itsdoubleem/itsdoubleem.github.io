@@ -22,11 +22,6 @@ on:
 # token that can publish anything.
 permissions: {}
 
-# Let a running deploy finish rather than cancelling it half-published.
-concurrency:
-  group: pages
-  cancel-in-progress: false
-
 jobs:
   # Brings each app's download up to its Latest GitHub Release and commits the result to
   # main. Not on a push: a push is a person's change, already in the tree.
@@ -38,6 +33,10 @@ jobs:
   # workflow, which is why the build below takes the new commit from this job's output.
   sync:
     if: github.event_name != 'push'
+    # One sync at a time, so two never push the same update.
+    concurrency:
+      group: sync
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -45,8 +44,11 @@ jobs:
       changed: ${{ steps.commit.outputs.changed }}
       sha: ${{ steps.commit.outputs.sha }}
     steps:
+      # main as it is now, not the commit the schedule fired on: a run that waited behind
+      # another would otherwise sync onto an old tree and have its push refused.
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
+          ref: main
           persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
@@ -73,6 +75,7 @@ jobs:
           git config user.email 328792799+itsdoubleem@users.noreply.github.com
           git add -A
           git commit -q -F "$RUNNER_TEMP/sync-message"
+          git pull -q --rebase "https://github.com/${GITHUB_REPOSITORY}.git" main
           git push -q "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main
           echo "changed=true" >> "$GITHUB_OUTPUT"
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
@@ -136,6 +139,14 @@ jobs:
 
   deploy:
     needs: build
+    # The concurrency group sits here, on the deploy alone, and not on the whole workflow.
+    # GitHub cancels a *pending* run in a group when a newer one queues; at workflow level an
+    # hourly run could cancel a push's run and then, having synced nothing, build nothing —
+    # the push would wait for the daily rebuild. Here, whatever replaces a pending deploy
+    # was built from a main at least as new. A running deploy is still let finish.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
     # Said out loud: on a push the sync job is skipped, and a job downstream of a skipped
     # one is skipped too unless its condition says otherwise.
     if: ${{ !cancelled() && needs.build.result == 'success' }}
