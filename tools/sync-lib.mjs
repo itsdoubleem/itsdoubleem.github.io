@@ -128,8 +128,17 @@ export async function planApp(app, rel, io) {
   let md = app.md;
   const current = releaseField(md, 'version');
   const latest = rel.tag_name.replace(/^v/, '');
-  const notes = () =>
-    notesFile({ version: latest, date: kstDate(rel.published_at), url: rel.html_url, notes: cleanNotes(rel.body) });
+  // The build refuses a new release with nothing to say, and this job pushes before the
+  // build runs. Empty notes written here would leave main red until someone wrote them, so
+  // they stop the sync instead: nothing is written, the app stays where it was, and the
+  // hourly run says why.
+  const notes = () => {
+    const text = cleanNotes(rel.body);
+    if (!text) {
+      throw new Error(`${rel.tag_name} has no release notes the site can show — write what changed in the GitHub Release`);
+    }
+    return notesFile({ version: latest, date: kstDate(rel.published_at), url: rel.html_url, notes: text });
+  };
   const cmp = compareVersions(latest, current);
 
   if (cmp < 0) return { writes: [], log: `${current} is current (latest release ${rel.tag_name} is older)` };
@@ -154,6 +163,7 @@ export async function planApp(app, rel, io) {
     };
   }
 
+  const notesText = notes();
   const buf = await io.download(apks[0].browser_download_url);
   const got = io.inspect(buf);
   if (got.versionName !== latest) throw new Error(`${rel.tag_name}'s APK says versionName ${got.versionName}`);
@@ -192,7 +202,7 @@ export async function planApp(app, rel, io) {
       ...www.map(([p, data]) => [`public${web.replace(/\/?$/, '/')}${p}`, data]),
       [`apps/${slug}.md`, md],
       ['README.md', readme.replace(`${oldSha}  ${apkName}`, `${sha}  ${apkName}`)],
-      [`releases/${slug}.md`, notes()],
+      [`releases/${slug}.md`, notesText],
     ],
   };
 }

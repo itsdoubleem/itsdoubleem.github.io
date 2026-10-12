@@ -17,7 +17,8 @@ All notable changes to this site are recorded here. The format follows
 
 The sync refuses an APK whose version, signing key or Android permissions differ from what
 the page promises, works each update out before writing a file, and strips HTML, PR numbers
-and repo links from the notes. An hourly run can no longer cancel the deploy of a push.
+and repo links from the notes. A release whose notes come out empty is refused rather than
+published without a description. An hourly run can no longer cancel the deploy of a push.
 
 ### Removed
 - HANGIL's "Had 1.0? Read first" notice. What's new replaces it; the Android note still

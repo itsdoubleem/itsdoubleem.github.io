@@ -128,6 +128,15 @@ test('a newer, correctly signed release plans every file and nothing else', asyn
   assert.equal(String(plan.writes[3][1]), `${'1'.repeat(64)}  x.apk\n`);
 });
 
+test('a release whose notes clean down to nothing is refused, and writes nothing', async () => {
+  // The build refuses a new release with no description, and the sync pushes before the
+  // build runs — so empty notes must stop here, or main goes red until someone writes them.
+  const empty = (body: string | null) => ({ ...rel(), body });
+  await assert.rejects(planApp(app(), empty(null), io()), /no release notes/);
+  await assert.rejects(planApp(app(), empty('SHA-256 ' + 'a'.repeat(64)), io()), /no release notes/);
+  await assert.rejects(planApp({ ...app(), notesExists: false }, { ...rel('v1.0.0'), body: '' }, io()), /no release notes/);
+});
+
 test('the same or an older release changes nothing', async () => {
   assert.deepEqual((await planApp(app(), rel('v1.0.0'), io())).writes, []);
   assert.deepEqual((await planApp(app(), rel('v0.9.0'), io())).writes, []);
