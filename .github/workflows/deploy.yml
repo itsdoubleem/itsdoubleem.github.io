@@ -97,6 +97,7 @@ jobs:
       contents: read
     outputs:
       sha: ${{ steps.built.outputs.sha }}
+      current: ${{ steps.still.outputs.current }}
     steps:
       # Actions are pinned to a commit, not a tag. A tag is a movable pointer: whoever
       # controls the action's repo can repoint v4 at new code, and it would run here on
@@ -120,7 +121,9 @@ jobs:
           ref: main
           persist-credentials: false
       - id: built
-        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "Building main at $(git rev-parse HEAD)"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
@@ -139,6 +142,19 @@ jobs:
       # is typed into a page by hand, and every #link in the built pages has somewhere to
       # land. Needs no network. A failure here stops the deploy.
       - run: npm run check
+      # Asked again here, before the deploy job joins the `pages` group: a deploy that joins
+      # only to find itself stale could still cancel a newer one waiting there.
+      - id: still
+        shell: bash
+        run: |
+          head=$(git ls-remote --exit-code "https://github.com/${GITHUB_REPOSITORY}.git" refs/heads/main | cut -f1)
+          [ -n "$head" ] || { echo "::error::could not read main's head"; exit 1; }
+          if [ "$head" = "$(git rev-parse HEAD)" ]; then
+            echo "current=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::main moved to $head while this built — leaving the deploy to the run that builds it."
+            echo "current=false" >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: ./dist
@@ -150,8 +166,10 @@ jobs:
     # hourly run could cancel a push's run and then, having synced nothing, build nothing —
     # the push would wait for the daily rebuild. A running deploy is still let finish.
     #
-    # Builds from different runs finish in any order, so the first step asks GitHub what
-    # main is now and deploys only if this build is of it. A build main has moved past is
+    # Builds from different runs finish in any order, so the build's last step asks GitHub
+    # what main is now, and this job runs only if the build is of it — a stale build never
+    # joins the group, so it cannot cancel a newer deploy waiting there. The first step
+    # below asks once more, for a main that moved while this waited. A build main has moved past is
     # dropped: whatever moved main — a push, or a sync's commit — started a run of its own
     # that builds the newer tree. So the live site never goes back to an older commit.
     concurrency:
@@ -159,7 +177,7 @@ jobs:
       cancel-in-progress: false
     # Said out loud: on a push the sync job is skipped, and a job downstream of a skipped
     # one is skipped too unless its condition says otherwise.
-    if: ${{ !cancelled() && needs.build.result == 'success' }}
+    if: ${{ !cancelled() && needs.build.result == 'success' && needs.build.outputs.current == 'true' }}
     runs-on: ubuntu-latest
     permissions:
       pages: write
@@ -169,10 +187,12 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: current
+        shell: bash
         env:
           BUILT: ${{ needs.build.outputs.sha }}
         run: |
-          head=$(git ls-remote "https://github.com/${GITHUB_REPOSITORY}.git" refs/heads/main | cut -f1)
+          head=$(git ls-remote --exit-code "https://github.com/${GITHUB_REPOSITORY}.git" refs/heads/main | cut -f1)
+          [ -n "$head" ] || { echo "::error::could not read main's head"; exit 1; }
           if [ "$head" = "$BUILT" ]; then
             echo "deploy=true" >> "$GITHUB_OUTPUT"
           else
