@@ -15,18 +15,21 @@
  * visible element carrying a label and lets Playwright issue a real pointer sequence.
  */
 import { chromium } from 'playwright';
-import { copyFile, mkdir, mkdtemp, readFile, rm } from 'node:fs/promises';
+import { rmSync } from 'node:fs';
+import { copyFile, mkdir, mkdtemp, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const URL = process.env.LOGGER_URL || 'http://localhost:4321/logger/index.html';
 const APP = 'logger';
+// Relative to the repo, not to the folder the script is run from.
+const repo = (p) => join(fileURLToPath(import.meta.url), '../..', p);
 const OUT = 'tools/sample-output';
 const PNG = 'public/assets/logger/guide/12-record.png';
 const NAME = 'Jane Doe';
 const COMPANY = '(주) 가나다산업';
-await mkdir(OUT, { recursive: true });
+await mkdir(repo(OUT), { recursive: true });
 
 const b = await chromium.launch();
 const ctx = await b.newContext({
@@ -166,7 +169,10 @@ const period = await page.evaluate(() => {
 console.log(`  ${period}`);
 // Downloads land in a scratch folder first and reach OUT only once the check below
 // passes, so a broken run leaves the committed record and CSV as they were.
+// The picture is rendered there too, and all three are copied in together at the end. The
+// folder goes on any exit, a crash included.
 const tmp = await mkdtemp(join(tmpdir(), 'sample-record-'));
+process.on('exit', () => rmSync(tmp, { recursive: true, force: true }));
 const saved = [];
 for (const [label, file] of [['CREATE A WORK RECORD', 'record.html'], ['CSV', 'records.csv']]) {
   const dl = page.waitForEvent('download', { timeout: 15000 }).catch(() => null);
@@ -192,22 +198,19 @@ if (saved.includes('record.html')) {
 }
 if (missing.length) {
   await b.close();
-  await rm(tmp, { recursive: true, force: true });
   console.error(`\n✗ ${missing.join('\n✗ ')}\n\nNothing was written: ${OUT}/ and ${PNG} are as they were.`
     + `\nThe cause is usually the first ✗ tap or fill above, other than tap(I clocked in earlier today),`
     + ` which misses on every run.`);
   process.exit(1);
 }
-for (const f of saved) {
-  await copyFile(join(tmp, f), `${OUT}/${f}`);
-  console.log(`  → ${OUT}/${f}`);
-}
-await rm(tmp, { recursive: true, force: true });
 // 860px at 2x, which is the 1720px width the guide's picture has always had.
 const doc = await b.newPage({ viewport: { width: 860, height: 1200 }, deviceScaleFactor: 2 });
-await doc.goto(pathToFileURL(`${OUT}/record.html`).href, { waitUntil: 'networkidle' });
+await doc.goto(pathToFileURL(join(tmp, 'record.html')).href, { waitUntil: 'networkidle' });
 await doc.waitForTimeout(600);
-await doc.screenshot({ path: PNG, fullPage: true });
-console.log(`  → ${PNG}`);
+await doc.screenshot({ path: join(tmp, '12-record.png'), fullPage: true });
 await b.close();
+for (const [from, to] of [...saved.map((f) => [f, `${OUT}/${f}`]), ['12-record.png', PNG]]) {
+  await copyFile(join(tmp, from), repo(to));
+  console.log(`  → ${to}`);
+}
 console.log('\ndone');

@@ -6,6 +6,14 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+- `npm run check` fails when an APK has no `assets/www/` to compare with `release.web`,
+  instead of comparing nothing and reporting a match. It also fails in CI when `unzip` is
+  missing, runs from any folder, and reads a file name containing `[` correctly.
+- `tools/make-sample-record.mjs` renders the picture in its temporary folder and copies the
+  record, the CSV and the picture in together at the end, so a crash partway leaves all
+  three as they were and removes the folder. It also runs from any folder.
+
 ## [1.4.5] — 2026-10-12
 
 ### Fixed
