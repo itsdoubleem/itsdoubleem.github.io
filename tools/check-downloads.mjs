@@ -127,11 +127,15 @@ for (const name of (await readdir(new URL('apps/', root))).filter((f) => f.endsW
     if (!packed.length) {
       problems.push(`${name}: release.web is ${web}, but ${apkName} has no assets/www/ to compare it with`);
     }
+    // release.web is a site path, read the way publicPath in src/release.ts reads it: no
+    // ? or # part, and %20 or %ED%95%9C decoded. The APK's file names below are not.
+    let webFolder = web.split(/[?#]/)[0];
+    try { webFolder = decodeURIComponent(webFolder); } catch { /* a stray % is part of the name */ }
     const differ = [];
     for (const entry of packed) {
       const rel = entry.slice('assets/www/'.length);
       // A path join, not a URL: a ? # or % in a file name is part of the name here.
-      const served = join(fileURLToPath(root), 'public', web, rel);
+      const served = join(fileURLToPath(root), 'public', webFolder, rel);
       // unzip reads the name as a pattern, so a [ or * in a file name is escaped.
       const literal = entry.replace(/[[\]*?\\]/g, '\\$&');
       const inApk = execFileSync('unzip', ['-p', apkPath, literal], { maxBuffer: 1 << 28 });
