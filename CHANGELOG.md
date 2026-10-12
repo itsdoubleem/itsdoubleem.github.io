@@ -6,6 +6,8 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+## [1.4.4] — 2026-10-12
+
 ### Changed
 - LOGGER's download and browser version are 1.2.23, up from 1.2.8. The guide's breaks and
   document screens are recaptured from it (the breaks screen no longer has an "every day"
@@ -130,7 +132,8 @@ All notable changes to this site are recorded here. The format follows
 - HANGIL's page describes its trade section: eight manufacturing job groups, each with 26
   words and 20 questions.
 
-[Unreleased]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.3...HEAD
+[Unreleased]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.4...HEAD
+[1.4.4]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.3...v1.4.4
 [1.4.3]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.2...v1.4.3
 [1.4.2]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.0...v1.4.1
