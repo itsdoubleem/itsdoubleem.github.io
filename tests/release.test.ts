@@ -2,7 +2,8 @@
 // which reads TypeScript directly, so there is nothing to install.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { manifestIcons, webDir } from '../src/release.ts';
+import { join } from 'node:path';
+import { manifestIcons, publicPath, webDir } from '../src/release.ts';
 
 test('reads 192 and 512 icons, resolving relative src against the folder', () => {
   const icons = manifestIcons(
@@ -68,4 +69,12 @@ test('src resolves as a browser would, and an icon on another site does not coun
 
 test('webDir normalises a release.web value to its folder', () => {
   for (const web of ['/hangil', '/hangil/', '/hangil/?v=2', '/hangil#top']) assert.equal(webDir(web), '/hangil/');
+});
+
+test('publicPath decodes a percent-encoded path, as the server does', () => {
+  // manifestIcons keeps the encoded href for the HTML; the file on disk has the plain name.
+  assert.ok(publicPath('/app/icon%20512.png').endsWith(join('public', 'app', 'icon 512.png')));
+  assert.ok(publicPath('/%ED%95%9C%EA%B8%B8/icon-512.png').endsWith(join('public', '한길', 'icon-512.png')));
+  // Malformed escapes are not a crash: the raw text is used.
+  assert.ok(publicPath('/app/100%.png').endsWith(join('public', 'app', '100%.png')));
 });

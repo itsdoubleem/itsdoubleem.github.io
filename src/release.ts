@@ -27,9 +27,18 @@ import { join } from 'node:path';
 const PUBLIC = join(process.cwd(), 'public');
 
 /** Where a site path like /downloads/x.apk or /hangil/ lives on disk. A query or hash
- *  is not part of the file's name, so it is dropped. */
+ *  is not part of the file's name, so it is dropped, and %20 or %ED%95%9C is decoded the
+ *  way the server decodes it — manifestIcons keeps hrefs encoded for the HTML. */
 export const publicPath = (href: string) =>
-  join(PUBLIC, href.split(/[?#]/)[0].replace(/^\//, ''));
+  join(PUBLIC, decodePath(href.split(/[?#]/)[0]).replace(/^\//, ''));
+
+function decodePath(path: string): string {
+  try {
+    return decodeURIComponent(path);
+  } catch {
+    return path; // a stray % that is not an escape is part of the name
+  }
+}
 
 /** A site path the build can serve: a file, or a folder with an index.html. */
 export function servable(href: string): boolean {
