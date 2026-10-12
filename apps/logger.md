@@ -18,7 +18,7 @@ screenshots:
   # is deliberately not repeated here. This strip picks up where that leaves off: what the
   # app works out, the one button that turns it into a document, and the document itself.
   - src: /assets/logger/guide/08-pay.png
-    alt: The PAY tab showing an estimated take-home of ₩1,939,950 for the 09.01 to 09.30 pay period, above an earnings list beginning with basic salary of ₩2,156,880 for 209 hours
+    alt: The PAY tab showing an estimated take-home of ₩1,939,990 for the 09.01 to 09.30 pay period, above an earnings list beginning with basic salary of ₩2,156,880 for 209 hours
     caption: The month, worked out from your 기본급 and shown line by line before payday. The figures are from invented shifts.
   - src: /assets/logger/guide/10-document.png
     alt: The foot of the PAY tab, with a red button reading CREATE A WORK RECORD (evidence) and a line confirming the file 근무내역서-09010930.html was created
@@ -52,10 +52,11 @@ downloads:
     href: /logger/
     note: Works offline after the first load
 release:
-  version: 1.2.23
+  version: 1.2.25
   apk: /downloads/logger.apk
-  sha256: c2f8e52b8c4f773c891b349f845e54a5d89c958b47b3c36982ef917175d92047
+  sha256: 87b8c78ff10bc9cc04a07824290e408152421d54ee77cd8484d50d937357e272
   web: /logger/
+  date: 2026-10-12
 ---
 
 ## What it does

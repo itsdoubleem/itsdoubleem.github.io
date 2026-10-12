@@ -7,7 +7,7 @@
  *
  * Bump CACHE on every rebuild — build.py stamps it.
  */
-const CACHE = 'worklog-0b19887bf0';
+const CACHE = 'worklog-456d846405';
 const ASSETS = [
   './',
   './index.html',
