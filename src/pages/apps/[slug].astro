@@ -330,9 +330,9 @@ const heroScreen = d.card
                     <p class="inst__unchecked">
                       {f(l.unchecked)}
                       {(contact.formUrl || contact.issuesUrl) && (
-                        <a class="inst__tell" lang="en" href={contact.formUrl ?? contact.issuesUrl}>
+                        <>{' '}<a class="inst__tell" lang="en" href={contact.formUrl ?? contact.issuesUrl}>
                           Report a problem
-                        </a>
+                        </a></>
                       )}
                     </p>
                   )}
