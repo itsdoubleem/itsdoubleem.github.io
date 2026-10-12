@@ -26,6 +26,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, readdirSync } from 'node:fs';
 import { readFile, readdir } from 'node:fs/promises';
 import { homedir } from 'node:os';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 /* aapt2 reads the versionName out of an APK. It ships with the Android SDK, which the
@@ -129,7 +130,8 @@ for (const name of (await readdir(new URL('apps/', root))).filter((f) => f.endsW
     const differ = [];
     for (const entry of packed) {
       const rel = entry.slice('assets/www/'.length);
-      const served = new URL(`public${web.replace(/\/?$/, '/')}${rel}`, root);
+      // A path join, not a URL: a ? # or % in a file name is part of the name here.
+      const served = join(fileURLToPath(root), 'public', web, rel);
       // unzip reads the name as a pattern, so a [ or * in a file name is escaped.
       const literal = entry.replace(/[[\]*?\\]/g, '\\$&');
       const inApk = execFileSync('unzip', ['-p', apkPath, literal], { maxBuffer: 1 << 28 });

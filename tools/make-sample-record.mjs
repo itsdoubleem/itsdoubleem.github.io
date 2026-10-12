@@ -169,8 +169,9 @@ const period = await page.evaluate(() => {
 console.log(`  ${period}`);
 // Downloads land in a scratch folder first and reach OUT only once the check below
 // passes, so a broken run leaves the committed record and CSV as they were.
-// The picture is rendered there too, and all three are copied in together at the end. The
-// folder goes on any exit, a crash included.
+// The picture is rendered there too, and the three are copied in last, one after another —
+// only a failure in those few milliseconds could leave a mix. The folder goes on any exit
+// that runs exit handlers: a crash, a refusal, Ctrl-C while the browser is open.
 const tmp = await mkdtemp(join(tmpdir(), 'sample-record-'));
 process.on('exit', () => rmSync(tmp, { recursive: true, force: true }));
 const saved = [];
