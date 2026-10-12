@@ -56,7 +56,16 @@ const go = async (page, hash, wait = 700) => {
   await page.goto(BASE + hash, { waitUntil: 'networkidle' });
   await page.waitForTimeout(wait);
 };
-const shot = async (page, name) => {
+// Every shot is checked for the words its caption in guides/hangil.md relies on, so a
+// change in the app — a renamed topic, a reshuffled question, an empty deck — fails here
+// instead of producing a picture the caption no longer describes. Case-blind, for the
+// same reason as scrollTo.
+const shot = async (page, name, ...mustShow) => {
+  const text = (await page.evaluate(() => document.body.innerText)).toLowerCase();
+  const missing = mustShow.filter((t) => !text.includes(t.toLowerCase()));
+  if (missing.length) {
+    throw new Error(`${name}: ${missing.map((t) => `"${t}"`).join(', ')} not on screen — has the app changed?`);
+  }
   await page.screenshot({ path: `${OUT}/${name}.png` });
   console.log(`  → ${name}.png`);
 };
@@ -79,29 +88,29 @@ const scrollTo = async (page, text) => {
 const fresh = await newPage();
 
 await go(fresh, '#/');
-await shot(fresh, '01-today');                 // the welcome, pointing at lesson 1
+await shot(fresh, '01-today', '어서 오세요', '404 words');                 // the welcome, pointing at lesson 1
 
 await go(fresh, '#/me');
 const trade = fresh.locator('label.field', { hasText: 'Trade' }).locator('select');
 await trade.selectOption({ label: '식품가공 — Food processing' });
 await fresh.waitForTimeout(500);
 await scrollTo(fresh, 'Trade');
-await shot(fresh, '02-trade');                 // a trade chosen, and what it changes
+await shot(fresh, '02-trade', 'Trade');                 // a trade chosen, and what it changes
 
 await scrollTo(fresh, 'Korean voice');
-await shot(fresh, '03-voice');                 // the voice, the speed, Test the voice
+await shot(fresh, '03-voice', 'Test the voice');                 // the voice, the speed, Test the voice
 
 await go(fresh, '#/course/g01/learn');
 await fresh.getByRole('button', { name: 'Next' }).click();
 await fresh.waitForTimeout(500);
-await shot(fresh, '04-learn');                 // a pair card: 학생 / 학생이에요
+await shot(fresh, '04-learn', '2 / 14', '학생이에요');                 // a pair card: 학생 / 학생이에요
 
 await go(fresh, '#/course/g01/practice');
 // The first option, whatever it is: with the seed fixed it is always the same question
 // and the same option, and guides/hangil.md describes the screen that results.
 await fresh.locator('button', { hasText: /^A/ }).first().click();
 await fresh.waitForTimeout(600);
-await shot(fresh, '05-practice');              // answered: wrong, with the right one shown
+await shot(fresh, '05-practice', 'Not that one');              // answered: wrong, with the right one shown
 
 // ── Pass 2: a learner with a little progress ──
 // Real entries in the app's own store, in its own shape (see Hangil_app/src/js/store.js),
@@ -131,21 +140,27 @@ await used.evaluate((t) => {
 await used.reload({ waitUntil: 'networkidle' });
 await used.waitForTimeout(600);
 
+// guides/hangil.md tells the reader that Weak spots is reached from a card on Today, which
+// appears once a topic is under 80% with six answers. Check that it does, here.
+await go(used, '#/');
+const card = (await used.evaluate(() => document.body.innerText)).includes('Weak spot: 에 against 에서');
+if (!card) throw new Error('no "Weak spot: 에 against 에서" card on Today — has the app changed?');
+
 await go(used, '#/review');
-await shot(used, '06-review');                 // what is due today
+await shot(used, '06-review', '1 / 3', 'monthly wage');                 // what is due today
 
 await go(used, '#/weak');
-await shot(used, '07-weak');                   // worst first: 에 against 에서
+await shot(used, '07-weak', '에 against 에서', '있다');                   // worst first: 에 against 에서
 
 await go(used, '#/exam');
-await shot(used, '08-exam');                   // the exam side, by question type
+await shot(used, '08-exam', 'By question type');                   // the exam side, by question type
 
 await go(used, '#/exam/paper/mock1');
-await shot(used, '09-paper');                  // a timed paper, before it starts
+await shot(used, '09-paper', 'Start the paper');                  // a timed paper, before it starts
 
 await go(used, '#/me');
 await scrollTo(used, 'YOUR PROGRESS');
-await shot(used, '10-backup');                 // Save a backup / Restore a backup
+await shot(used, '10-backup', 'Save a backup', 'Restore a backup');                 // Save a backup / Restore a backup
 
 await b.close();
 console.log('captured to', OUT);
