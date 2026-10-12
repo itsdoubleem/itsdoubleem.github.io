@@ -12,6 +12,11 @@
  * instead of written as {sha256} or {apkSize}. Typed copies are how HANGIL's page came to
  * say 1.4 MB about a 2.6 MB APK — it looked exactly as right as the true number would.
  *
+ * And it compares the web app packed inside each APK (assets/www/) with the folder the site
+ * serves at release.web, file by file. LOGGER's page says the two hash identically; v1.4.4
+ * nearly shipped a /logger/ built one commit past the APK's tag, and nothing here noticed.
+ * The site may serve files the APK lacks (HANGIL's sw.js), but not different copies.
+ *
  * This is hard rule 1 wearing work clothes — a number on the site that nothing
  * verifies is a number the site is inventing. Exits non-zero, so it can gate a
  * deploy.
@@ -36,6 +41,11 @@ function findAapt2() {
 }
 const aapt2 = findAapt2();
 
+/* unzip lists and reads the APK. macOS and the GitHub runner both have it; where it is
+ * missing the web comparison is skipped with a note, like the version check. */
+let unzip = true;
+try { execFileSync('unzip', ['-v'], { stdio: 'ignore' }); } catch { unzip = false; }
+
 const root = new URL('..', import.meta.url);
 const readme = await readFile(new URL('README.md', root), 'utf8');
 const problems = [];
@@ -53,6 +63,7 @@ for (const name of (await readdir(new URL('apps/', root))).filter((f) => f.endsW
   const apk = block.match(/^\s+apk:\s*['"]?([^'"\s]+)/m)?.[1];
   const sha = block.match(/^\s+sha256:\s*['"]?([0-9a-f]{64})/m)?.[1];
   const version = block.match(/^\s+version:\s*['"]?([^'"\s]+)/m)?.[1];
+  const web = block.match(/^\s+web:\s*['"]?([^'"\s]+)/m)?.[1];
 
   // Anything hash-shaped or APK-size-shaped outside the release block is a typed copy —
   // in the frontmatter or in the body below it.
@@ -102,6 +113,23 @@ for (const name of (await readdir(new URL('apps/', root))).filter((f) => f.endsW
       problems.push(`${name}: release.version is ${version}, the APK says versionName ${inApk}`);
     }
   }
+
+  if (unzip && web) {
+    const packed = execFileSync('unzip', ['-Z1', `public${apk}`], { encoding: 'utf8' })
+      .split('\n').filter((f) => f.startsWith('assets/www/') && !f.endsWith('/'));
+    const differ = [];
+    for (const entry of packed) {
+      const rel = entry.slice('assets/www/'.length);
+      const served = new URL(`public${web.replace(/\/?$/, '/')}${rel}`, root);
+      const inApk = execFileSync('unzip', ['-p', `public${apk}`, entry], { maxBuffer: 1 << 28 });
+      let onSite;
+      try { onSite = await readFile(served); } catch { differ.push(`${rel} (not served)`); continue; }
+      if (!inApk.equals(onSite)) differ.push(rel);
+    }
+    if (differ.length) {
+      problems.push(`${name}: public${web} is not the web app inside ${apkName}: ${differ.join(', ')}\n    copy those files from assets/www/ in the APK (unzip public${apk} 'assets/www/*') into public${web}`);
+    }
+  }
 }
 
 if (!checked) {
@@ -113,4 +141,5 @@ if (problems.length) {
   process.exit(1);
 }
 if (!aapt2) console.log('check-downloads: no aapt2 found — APK versions not compared');
-console.log(`check-downloads: ${checked} download(s), each matches its release: block and README`);
+if (!unzip) console.log('check-downloads: no unzip found — web builds not compared with the APKs');
+console.log(`check-downloads: ${checked} download(s), each matches its release: block and README${unzip ? ', and its web build matches the APK' : ''}`);

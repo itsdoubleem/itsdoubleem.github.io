@@ -80,8 +80,9 @@ language. A translation no native speaker has checked says so on the page. See
 npm install
 npm run dev      # http://localhost:4321
 npm run build    # → ./dist, and fails on a missing asset or a hash that is not the file's
-npm run check    # downloads match their release: block and README; the sample record
-                 # matches LOGGER's version; every #link lands
+npm run check    # downloads match their release: block and README, and the web build
+                 # inside each APK matches release.web; the sample record matches
+                 # LOGGER's version; every #link lands
 npm test         # unit tests in tests/ — Node's own runner, nothing to install
 ```
 
@@ -165,8 +166,10 @@ file manager shows.
 
 So an update is:
 
-1. Copy the new build into `public/downloads/<slug>.apk` (and `public/<slug>/` for the web
-   build).
+1. Copy the new APK into `public/downloads/<slug>.apk`. Take the web build out of that
+   APK, not out of the app's own build folder, which may have been rebuilt since the
+   release: `unzip public/downloads/<slug>.apk 'assets/www/*'` into a scratch folder and copy
+   its files into `public/<slug>/`. Keep any file the site adds, such as HANGIL's `sw.js`.
 2. `shasum -a 256 public/downloads/<slug>.apk`. Put the hash in `release.sha256` **and** on
    that APK's line in the list above, in the same commit.
 3. Set `release.version`.
@@ -181,7 +184,8 @@ So an update is:
    the picture alone if the record is missing the invented worker, the shifts or the pay
    period. Look at the picture before committing it.
 7. `npm run build && npm run check`. The check fails if the sample record's footer and
-   LOGGER's `release.version` disagree.
+   LOGGER's `release.version` disagree, or if any file in an APK's `assets/www/` differs
+   from the one served under `release.web`.
 
 ### Update notices
 
