@@ -6,14 +6,17 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+## [1.5.0] — 2026-10-12
+
 ### Added
 - A red **New · {version}** pill on an app's download button for seven days after a
   release, on every app, driven by a new `release.date` field. It drops out of the daily
   rebuild after its seventh day.
 
 ### Changed
-- LOGGER 1.2.23 → 1.2.25: the download, the browser version, the PAY screenshot and the sample work record. The
-  sample take-home is now ₩1,939,990, after LOGGER's 국민연금 rounding fix.
+- LOGGER 1.2.23 → 1.2.25: the download, the browser version, the PAY screenshot and the
+  sample work record. The sample take-home is now ₩1,939,990, after LOGGER's 국민연금
+  rounding fix.
 - An update notice with no `until` now goes when its release stops being new. HANGIL's
   "Had 1.0? Read first" notice had no end date and had been up for weeks; it now goes
   after 2026-10-17. HANGIL's Android note states the 1.0 caveat in full.
