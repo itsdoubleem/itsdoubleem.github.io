@@ -6,10 +6,11 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+## [1.4.8] — 2026-10-12
+
 ### Fixed
-- The HANGIL guide says where the Weak spot card is: further down Today, under the four
-  tiles, just below the bottom of a phone's screen. It also says the card shows only when
-  the worst topic is under 80% right.
+- The HANGIL guide says where the Weak spot card is: further down Today, below the tiles.
+  It also says the card shows only when the worst topic is under 80% right.
 - `tools/capture-hangil-guide.mjs` counts only the words inside the screenshot's frame when
   it checks a shot, not the whole page, and checks three shots for more of their caption.
 - `install/README.md` lists every rule the build holds an install file to. A build error
@@ -182,7 +183,8 @@ All notable changes to this site are recorded here. The format follows
 - HANGIL's page describes its trade section: eight manufacturing job groups, each with 26
   words and 20 questions.
 
-[Unreleased]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.7...HEAD
+[Unreleased]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.8...HEAD
+[1.4.8]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.7...v1.4.8
 [1.4.7]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.6...v1.4.7
 [1.4.6]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.5...v1.4.6
 [1.4.5]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.4...v1.4.5
