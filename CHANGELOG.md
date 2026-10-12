@@ -6,6 +6,8 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+## [1.6.0] — 2026-10-12
+
 ### Added
 - Apps update themselves. Every hour the deploy workflow reads each app's Latest GitHub
   Release (`tools/sync-apps.mjs`); when it is newer, it checks the APK's version and signing
