@@ -15,7 +15,9 @@
  * visible element carrying a label and lets Playwright issue a real pointer sequence.
  */
 import { chromium } from 'playwright';
-import { mkdir, readFile } from 'node:fs/promises';
+import { copyFile, mkdir, mkdtemp, readFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const URL = process.env.LOGGER_URL || 'http://localhost:4321/logger/index.html';
@@ -162,33 +164,45 @@ const period = await page.evaluate(() => {
   return i < 0 ? '?' : t.slice(i, i + 60).replace(/\n+/g, ' ');
 });
 console.log(`  ${period}`);
+// Downloads land in a scratch folder first and reach OUT only once the check below
+// passes, so a broken run leaves the committed record and CSV as they were.
+const tmp = await mkdtemp(join(tmpdir(), 'sample-record-'));
 const saved = [];
 for (const [label, file] of [['CREATE A WORK RECORD', 'record.html'], ['CSV', 'records.csv']]) {
   const dl = page.waitForEvent('download', { timeout: 15000 }).catch(() => null);
   await tap(label);
   const d = await dl;
-  console.log(d ? `  → ${OUT}/${file}` : `  ✗ no download for ${label}`);
-  if (d) { await d.saveAs(`${OUT}/${file}`); saved.push(file); }
+  console.log(d ? `  → ${file}` : `  ✗ no download for ${label}`);
+  if (d) { await d.saveAs(join(tmp, file)); saved.push(file); }
   await page.waitForTimeout(800);
 }
 
 // Render the record this run just saved — never one left over from an earlier run — and
 // only if it is the record the guide describes. A missed tap or fill above is logged and
 // the run carries on, so a broken run can still produce a record: no name, no shifts.
-// Check the outcome rather than the taps, some of which miss on every good run.
+// Check the outcome rather than the taps: tap(I clocked in earlier today) misses on every
+// shift after the first, because the sheet is already open, so ✗ lines alone prove nothing.
 const missing = ['record.html', 'records.csv'].filter((f) => !saved.includes(f))
   .map((f) => `${f} was not saved`);
 if (saved.includes('record.html')) {
-  const html = await readFile(`${OUT}/record.html`, 'utf8');
+  const html = await readFile(join(tmp, 'record.html'), 'utf8');
   const expect = [NAME, COMPANY, '급여기간 09.01 → 09.30', '09.08 (화)', '09.09 (수)',
     '09.10 (목)', '09.11 (금)', '<td class="n">4일</td>'];
   missing.push(...expect.filter((t) => !html.includes(t)).map((t) => `the record has no "${t}"`));
 }
 if (missing.length) {
   await b.close();
-  console.error(`\n✗ ${missing.join('\n✗ ')}\n\n${PNG} was left as it was. Check the ✗ lines above.`);
+  await rm(tmp, { recursive: true, force: true });
+  console.error(`\n✗ ${missing.join('\n✗ ')}\n\nNothing was written: ${OUT}/ and ${PNG} are as they were.`
+    + `\nThe cause is usually the first ✗ tap or fill above, other than tap(I clocked in earlier today),`
+    + ` which misses on every run.`);
   process.exit(1);
 }
+for (const f of saved) {
+  await copyFile(join(tmp, f), `${OUT}/${f}`);
+  console.log(`  → ${OUT}/${f}`);
+}
+await rm(tmp, { recursive: true, force: true });
 // 860px at 2x, which is the 1720px width the guide's picture has always had.
 const doc = await b.newPage({ viewport: { width: 860, height: 1200 }, deviceScaleFactor: 2 });
 await doc.goto(pathToFileURL(`${OUT}/record.html`).href, { waitUntil: 'networkidle' });
