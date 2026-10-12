@@ -52,8 +52,8 @@ after:
     alt: The Weak spots screen, saying 2 topics are costing you more than the rest, ordered worst first. The first is 에 against 에서, 3 of 12 right, 25%, with a Practise 6 of these button; the second is 있다 and 없다, 6 of 8 right.
     kicker: When you have answered a few
     title: See what you keep getting wrong
-    body: Weak spots lists the topics that cost you the most, worst first — not just how many you got wrong, but what they were about, like 에 against 에서. Tap Practise to get questions on that one thing, pulled from everywhere it turns up.
-    note: A topic appears only once it has six answers behind it. Fewer than that is a small sample, not a weak spot. The scores here are sample progress, as above.
+    body: There is no tab for it. When a topic starts costing you, a Weak spot card appears on Today — tap it. Weak spots lists the topics that cost you the most, worst first — not just how many you got wrong, but what they were about, like 에 against 에서. Tap Practise to get questions on that one thing, pulled from everywhere it turns up.
+    note: The card on Today names only the worst topic, and only one under 80% right. A topic appears only once it has six answers behind it. Fewer than that is a small sample, not a weak spot. The scores here are sample progress, as above.
   - image: 08-exam
     alt: The EPS-TOPIK screen, explaining that the paper has forty questions, twenty listening and twenty reading, in fifty minutes. Below are How the exam works, six short reads, and a list headed By question type, starting with Signs and notices and The right word.
     kicker: The exam
