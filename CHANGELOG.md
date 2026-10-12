@@ -6,6 +6,13 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+- `tools/capture-hangil-guide.mjs` judges each word on its own: a word the app cuts off
+  (card descriptions stop at two lines) or hides no longer counts as shown, and neither
+  does the rest of a paragraph that runs below the screen. It reads text boxes but not
+  sliders or checkboxes, and it stops the streak flame's animation, so every run takes the
+  same 01-today.png.
+
 ## [1.4.9] — 2026-10-12
 
 ### Fixed
