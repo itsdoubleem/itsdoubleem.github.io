@@ -30,7 +30,7 @@ jobs:
   # beside the token. The sync needs only Node, unzip and the Android SDK's aapt2 and
   # apksigner, all on the runner. The checkout keeps no credentials on disk; the token
   # appears in the one step that pushes. A push made with this token starts no other
-  # workflow, which is why the build below takes the new commit from this job's output.
+  # workflow, which is why this run's own build below picks the new commit up from main.
   sync:
     if: github.event_name != 'push'
     # One sync at a time, so two never push the same update.
@@ -42,7 +42,6 @@ jobs:
       contents: write
     outputs:
       changed: ${{ steps.commit.outputs.changed }}
-      sha: ${{ steps.commit.outputs.sha }}
     steps:
       # main as it is now, not the commit the schedule fired on: a run that waited behind
       # another would otherwise sync onto an old tree and have its push refused.
@@ -78,7 +77,6 @@ jobs:
           git pull -q --rebase "https://github.com/${GITHUB_REPOSITORY}.git" main
           git push -q "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main
           echo "changed=true" >> "$GITHUB_OUTPUT"
-          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
   build:
     needs: sync
@@ -97,6 +95,8 @@ jobs:
     # nothing but the deploy action.
     permissions:
       contents: read
+    outputs:
+      sha: ${{ steps.built.outputs.sha }}
     steps:
       # Actions are pinned to a commit, not a tag. A tag is a movable pointer: whoever
       # controls the action's repo can repoint v4 at new code, and it would run here on
@@ -111,10 +111,16 @@ jobs:
       # why these two are on v5 rather than the v3/v4 pair the Pages docs still show.
       # If a future version un-pins something, the run fails at "Set up job" naming the
       # offending action; read that line rather than turning the requirement off.
+      #
+      # It builds main as it is when the job starts, whatever started the run — not the
+      # commit the run was queued for. Two runs close together then never build an older
+      # tree than they could; the deploy job below refuses a build main has since moved past.
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
-          ref: ${{ needs.sync.outputs.sha || github.sha }}
+          ref: main
           persist-credentials: false
+      - id: built
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
@@ -142,8 +148,12 @@ jobs:
     # The concurrency group sits here, on the deploy alone, and not on the whole workflow.
     # GitHub cancels a *pending* run in a group when a newer one queues; at workflow level an
     # hourly run could cancel a push's run and then, having synced nothing, build nothing —
-    # the push would wait for the daily rebuild. Here, whatever replaces a pending deploy
-    # was built from a main at least as new. A running deploy is still let finish.
+    # the push would wait for the daily rebuild. A running deploy is still let finish.
+    #
+    # Builds from different runs finish in any order, so the first step asks GitHub what
+    # main is now and deploys only if this build is of it. A build main has moved past is
+    # dropped: whatever moved main — a push, or a sync's commit — started a run of its own
+    # that builds the newer tree. So the live site never goes back to an older commit.
     concurrency:
       group: pages
       cancel-in-progress: false
@@ -158,5 +168,17 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - id: current
+        env:
+          BUILT: ${{ needs.build.outputs.sha }}
+        run: |
+          head=$(git ls-remote "https://github.com/${GITHUB_REPOSITORY}.git" refs/heads/main | cut -f1)
+          if [ "$head" = "$BUILT" ]; then
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::Built $BUILT, but main is now $head — leaving the deploy to the run that builds it."
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+          fi
       - id: deployment
+        if: steps.current.outputs.deploy == 'true'
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
