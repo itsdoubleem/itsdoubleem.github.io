@@ -6,6 +6,8 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+## [1.4.10] — 2026-10-12
+
 ### Fixed
 - `tools/capture-hangil-guide.mjs` judges each word on its own: a word the app cuts off
   (card descriptions stop at two lines) or hides no longer counts as shown, and neither
@@ -199,7 +201,8 @@ All notable changes to this site are recorded here. The format follows
 - HANGIL's page describes its trade section: eight manufacturing job groups, each with 26
   words and 20 questions.
 
-[Unreleased]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.9...HEAD
+[Unreleased]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.10...HEAD
+[1.4.10]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.9...v1.4.10
 [1.4.9]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.8...v1.4.9
 [1.4.8]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.7...v1.4.8
 [1.4.7]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.6...v1.4.7
