@@ -122,7 +122,7 @@ const apps = defineCollection({
         id: z.string().regex(/^[a-z][a-z0-9-]*$/).default('update-notice'),
         // The red tag at the top of the notice. It also stands in for the release pill on
         // the button if the notice outlasts the release's new days (an explicit `until`).
-        badge: z.string().max(28, 'The badge sits on a button — keep it to a few words.'),
+        badge: z.string().max(28, 'The badge is a pill on a button and atop the notice — keep it to a few words.'),
         heading: z.string(),
         // Paragraphs separated by a blank line. May use the release tokens.
         body: z.string(),
@@ -202,6 +202,9 @@ const apps = defineCollection({
     if (n) {
       if (n.download && !d.downloads.some((dl) => dl.href === n.download)) {
         fail(`notice.download ${n.download} is not one of the downloads`);
+      }
+      if (!n.until && !r) {
+        fail('notice has no `until` and the app has no `release:`, so it would never show — give it an `until`');
       }
       if (n.version && n.version !== r?.version) {
         fail(

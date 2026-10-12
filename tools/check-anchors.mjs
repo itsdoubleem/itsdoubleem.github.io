@@ -2,7 +2,7 @@
  *
  *   npm run build && node tools/check-anchors.mjs
  *
- * The update notice's badge is a link to #<notice id>, and nothing about a link to a
+ * The release pill on a download button is a link to #<notice id> while a notice is up, and nothing about a link to a
  * missing id looks broken — the page simply fails to scroll, and the reader who was
  * told to read something first never finds it. So this reads dist/, collects every id
  * on each page, and fails if any href="#x" on that page has no id="x" to go to.

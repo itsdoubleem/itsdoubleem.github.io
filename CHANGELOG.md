@@ -12,7 +12,7 @@ All notable changes to this site are recorded here. The format follows
   rebuild after its seventh day.
 
 ### Changed
-- LOGGER 1.2.23 → 1.2.25: the download, the browser version and the PAY screenshot. The
+- LOGGER 1.2.23 → 1.2.25: the download, the browser version, the PAY screenshot and the sample work record. The
   sample take-home is now ₩1,939,990, after LOGGER's 국민연금 rounding fix.
 - An update notice with no `until` now goes when its release stops being new. HANGIL's
   "Had 1.0? Read first" notice had no end date and had been up for weeks; it now goes

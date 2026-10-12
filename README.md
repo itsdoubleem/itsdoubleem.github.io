@@ -196,7 +196,7 @@ So an update is:
 
 Every app with a `release:` gets a red **New · {version}** pill on the corner of its APK's
 download button for `NEW_FOR_DAYS` (7, in `src/release.ts`) from `release.date`, the release
-day counting as the first. Then it goes by itself: the site is static, so it drops out of
+day counting as the first. Days are Korean days. Then it goes by itself: the site is static, so it drops out of
 the next build, and the deploy workflow rebuilds once a day for this reason. Shipping the
 next version with a new date brings it back.
 
@@ -216,7 +216,7 @@ change, give the app a `notice:`. The page then shows:
 
 ```yaml
 notice:
-  badge: Had 1.0? Read first      # on the button; 28 characters at most
+  badge: Had 1.0? Read first      # the notice's red tag; 28 characters at most
   heading: Had version 1.0? Take a backup before you update
   body: |                         # paragraphs, separated by a blank line; tokens allowed
     Version {version} is signed with a new key, so Android will not install it over 1.0.
@@ -224,7 +224,7 @@ notice:
     Updates after this one install over the top.
   version: 1.0.1                  # optional: the release this was written for
   until: 2026-12-31               # optional: the last day it shows (default: while the release is new)
-  download: /downloads/hangil.apk # optional: which button wears the badge
+  download: /downloads/hangil.apk # optional: which button wears the pill
   id: update-notice               # optional: the anchor; this is the default
 ```
 

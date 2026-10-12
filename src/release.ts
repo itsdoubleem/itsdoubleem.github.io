@@ -159,16 +159,21 @@ export function fill(text: string, facts: Record<string, string>): string {
  * reason, so a pill is gone within a day of its last day. */
 export const NEW_FOR_DAYS = 7;
 
+/* Release days are Korean days: a date in the frontmatter is the day in Korea, and both
+ * apps are released from there. YAML reads 2026-10-12 as 00:00 UTC, which is 09:00 KST, so
+ * reading it as UTC would leave a release made before 09:00 with no pill on its own day. */
+const KST = 9 * 60 * 60 * 1000;
+const startOfDay = (d: Date) => new Date(d.getTime() - KST);
 const endOfDay = (d: Date, plusDays = 0) => {
   const e = new Date(d);
   e.setUTCDate(e.getUTCDate() + plusDays);
   e.setUTCHours(23, 59, 59, 999);
-  return e;
+  return new Date(e.getTime() - KST);
 };
 
 export function releaseIsNew(release: { date: Date } | undefined, today = new Date()) {
   if (!release) return false;
-  return today >= release.date && today <= endOfDay(release.date, NEW_FOR_DAYS - 1);
+  return today >= startOfDay(release.date) && today <= endOfDay(release.date, NEW_FOR_DAYS - 1);
 }
 
 /* A notice with an `until` date stops rendering the day after it. One without shows for as

@@ -4,10 +4,10 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-  # Once a day, so an app's update notice with an `until:` date comes down within a day
-  # of it (src/release.ts). The site is static — a notice past its date is only gone once
-  # something rebuilds the page. GitHub pauses scheduled runs after 60 days with no
-  # commits; if notices ever stop expiring, that is the first thing to look at.
+  # Once a day, so an app's "New" pill comes down within a day of its seventh day, and an
+  # update notice within a day of its last (src/release.ts). The site is static — either
+  # is only gone once something rebuilds the page. GitHub pauses scheduled runs after 60
+  # days with no commits; if pills or notices ever stop expiring, look there first.
   schedule:
     - cron: '17 0 * * *'
 

@@ -167,7 +167,7 @@ const heroScreen = d.card
                   </span>
                 </a>
                 {pillText && dl.href === pillOn && (notice
-                  ? <a class="getit__badge" href={`#${notice.id}`}>{pillText}</a>
+                  ? <a class="getit__badge" href={`#${notice.id}`} aria-label={`${pillText} — read the update note first`}>{pillText}</a>
                   : <span class="getit__badge">{pillText}</span>
                 )}
               </span>
@@ -510,10 +510,11 @@ const heroScreen = d.card
   }
   .apphead__actions .btn { min-height: 54px; }
 
-  /* ---------- the update notice ---------- */
-  /* The badge is a second link pinned to the button's corner, not a part of it — the
-     button downloads and the badge goes to the notice, and a link inside a link is
-     invalid HTML that browsers untangle unpredictably. White type on the red, and no
+  /* ---------- the release pill and the update notice ---------- */
+  /* The pill is pinned to the button's corner, not a part of it. With a notice it is a
+     second link — the button downloads and the pill goes to the notice, and a link inside
+     a link is invalid HTML that browsers untangle unpredictably. Without one it is a
+     label, and lets clicks through to the button beneath. White type on the red, and no
      stroke — the owner had the 2px white ring taken off on 2026-09-26; the red is
      loud enough against the mint on its own. The badge pokes 8px past the button's
      corner, inside the 12px gap of .apphead__actions, so it never touches the button
@@ -528,6 +529,7 @@ const heroScreen = d.card
     font-size: 12px; font-weight: 700; line-height: 1; white-space: nowrap;
     text-decoration: none;
   }
+  span.getit__badge { pointer-events: none; }
   a.getit__badge:hover { text-decoration: underline; text-underline-offset: 2px; }
 
   .notice {
