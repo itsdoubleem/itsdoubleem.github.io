@@ -82,7 +82,8 @@ npm run dev      # http://localhost:4321
 npm run build    # → ./dist, and fails on a missing asset or a hash that is not the file's
 npm run check    # downloads match their release: block and README, and the web build
                  # inside each APK matches release.web; the sample record matches
-                 # LOGGER's version; every #link lands
+                 # LOGGER's version; every #link lands; the homepage primer reads
+                 # cleanly, cites its source and points at a chapter that exists
 npm test         # unit tests in tests/ — Node's own runner, nothing to install
 ```
 
