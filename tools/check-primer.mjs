@@ -2,8 +2,9 @@
  *
  *   npm run build && node tools/check-primer.mjs
  *
- * Two bug classes have reached a render of that paragraph, both invisible in the source
- * and both obvious on screen, so they are worth catching on the way out of the build.
+ * Three things are checked. The first two are bug classes that have reached a render of
+ * that paragraph, both invisible in the source and both obvious on screen; the third is a
+ * sourcing hole this paragraph shipped with. All are worth catching on the way out.
  *
  * 1. GLUE. In an .astro template a line break between text and an inline element or an
  *    expression is collapsed away, not turned into a space. OneTrueThing.astro has
@@ -141,16 +142,33 @@ if (!chapter) {
  * half of the sentence rested on nothing a reader could reach. That is the failure this
  * whole paragraph exists to argue against, and nothing would have caught it coming back.
  *
- * Two, not "at least one": dropping either link re-opens exactly that hole, and both
- * other guards here would stay green while it did. If the paragraph is ever rewritten
- * down to a single claim, change this number deliberately and say so. */
-const cites = [...inner.matchAll(/<a\b[^>]*href="(http[^"]*)"/g)].map((m) => m[1]);
-if (cites.length < 2) {
-  problems.push(
-    'the primer carries ' + cites.length + ' citation link(s), and its two dated claims ' +
-    'need one each — the 195,000-year benchmark and the Jebel Irhoud dating are on ' +
-    'different Smithsonian pages.',
-  );
+ * It names the two pages rather than counting anchors. Counting was the first version and
+ * it passed on two cases it claimed to stop: the Jebel Irhoud link dropped while any other
+ * http link sat in the primer, and both anchors pointing at the same page. A guard whose
+ * comment overstates what it enforces is the exact fault this paragraph argues against.
+ *
+ * PRIMER_SOURCE_URL is tied to curios.ts by the build-time throw at the top of
+ * OneTrueThing.astro, so it cannot quietly become the wrong page. PRIMER_SOURCE_2_URL is
+ * tied to nothing — it is typed into that file and nowhere else — which is why this is
+ * the only thing standing between it and silent removal.
+ *
+ * If the paragraph is ever rewritten down to one dated claim, edit this deliberately and
+ * say why. */
+const cites = new Set(
+  [...inner.matchAll(/<a\b[^>]*href="(http[^"]*)"/g)].map((m) => m[1]),
+);
+const needed = [
+  ['/fossils/omo-i', 'the ~195,000-year benchmark at Omo'],
+  ['our-species-arose', 'the Jebel Irhoud dating'],
+];
+for (const [fragment, claim] of needed) {
+  if (![...cites].some((u) => u.includes(fragment))) {
+    problems.push(
+      'nothing in the primer links to ' + fragment + ', so ' + claim + ' rests on no ' +
+      'citation a reader can reach. If that claim has gone from the copy, drop this ' +
+      'requirement in the same commit.',
+    );
+  }
 }
 
 if (problems.length) {
@@ -160,5 +178,5 @@ if (problems.length) {
 }
 
 console.log(
-  `check-primer: the primer reads cleanly, cites ${cites.length} sources and points at chapter ${chapter[1]}`,
+  `check-primer: the primer reads cleanly, cites ${cites.size} sources and points at chapter ${chapter[1]}`,
 );

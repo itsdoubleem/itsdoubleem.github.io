@@ -19,10 +19,10 @@
 import { curios } from '../curios';
 
 /* ── Which chapter the primer points at, found rather than typed ──
- * The primer below names a chapter ("Chapter N already moved") and then prints
- * that chapter's own citation. Carrying the same source as the chapter is the whole point of the example —
- * it makes the paragraph checkable against something already on this page instead of
- * being an anecdote of its own. So the source is the real link between the two, and the
+ * The primer below names a chapter ("Chapter N already moved") and then prints that
+ * chapter's own citation. Carrying the same source as the chapter is the whole point
+ * of the example — it makes the paragraph checkable against something already on this
+ * page instead of being an anecdote of its own. So the source is the real link between the two, and the
  * number is derived from it rather than written down beside it.
  *
  * This was the literal "Chapter 24" until 2026-09-23. That counted positions in
@@ -50,6 +50,13 @@ const PRIMER_SOURCE_URL =
  * 2026-10-19, it gives "Age: About 195,000 years old", "Site: Omo River, Ethiopia" and
  * "Species: Homo sapiens" as fielded data. So each half of the sentence now has a link
  * that carries it, and neither rests on an inference drawn from the other.
+ *
+ * ITS SITE FIELD SAYS "Omo River, Ethiopia" AND THE COPY SAYS "Omo Kibish". Both are
+ * right and the copy is not a typo: Omo I came from the Kibish Formation in the lower Omo
+ * valley, which is the name the literature uses — McDougall, Brown & Fleagle, Nature 433
+ * (2005), "Stratigraphic placement and age of modern humans from Kibish, Ethiopia", which
+ * is also where the 195,000 figure originates. Do not "correct" the copy to match the
+ * field; the page simply names the valley rather than the formation.
  *
  * Two things that page says which this paragraph deliberately does not. It calls Omo I
  * "one of the oldest known Homo sapiens braincases", not the oldest — hence "the accepted
@@ -590,12 +597,17 @@ e
           of its own. It carries the same source link that chapter does, which is also how
           it finds the chapter's number.
 
-          The number and the citation below are both derived — see primerChapter at the top
-          of this file. Neither is typed out here, so reordering, inserting and retitling
-          chapters all leave this paragraph correct without anyone remembering to come and
-          look. What it cannot absorb is that chapter's sourceUrl changing; that stops the
-          build with an explanation rather than shipping the wrong card under a paragraph
-          about not overstating the evidence.
+          The number and the Jebel Irhoud citation are both derived — see primerChapter at
+          the top of this file — so reordering, inserting and retitling chapters all leave
+          this paragraph correct without anyone remembering to come and look. What that
+          cannot absorb is the chapter's sourceUrl changing; it stops the build with an
+          explanation rather than shipping the wrong card under a paragraph about not
+          overstating the evidence.
+
+          The Omo I citation beside it is NOT derived. It is typed into this file, it
+          belongs to no chapter, and nothing in the build knows it should be there — which
+          is why tools/check-primer.mjs names it outright. If you move or rename it, that
+          check is the only thing that will tell you.
 
           The two dates here were wrong in the draft this came from, and both were fixed
           rather than shipped: the earlier figure was given as 150,000 years (the accepted

@@ -8,18 +8,21 @@ All notable changes to this site are recorded here. The format follows
 
 ### Added
 - `npm run check` reads the homepage primer out of the build: it fails if .astro whitespace
-  collapse has glued two words together (which has shipped twice) or if the chapter number
-  the paragraph derives from curios.ts has gone missing from the markup.
+  collapse has glued two words together (which has shipped twice), if the chapter number
+  the paragraph derives from curios.ts has gone missing from the markup, or if either of
+  the two pages its dated claims rest on is no longer linked.
 
 ### Changed
 - The note above the 42-chapter deck now opens by saying what it is for — that every
   chapter is the best reading of the evidence today and some will change — before the
   Jebel Irhoud fossils prove it. It used to open on the fossils with nothing marking it
   as a note, so a reader took it for chapter 1 and met the Big Bang next. 105 words to 92.
-- The same note now cites two pages, not one. Its older half — the ~195,000-year benchmark
-  at Omo — was not covered by the Jebel Irhoud page printed under it, so the Smithsonian's
-  own Omo I page is printed beside it and each half of the sentence has a link that carries
-  it.
+- The same note now says what it can source. Its older half claimed a dated fossil age —
+  "the oldest fossils … were about 195,000 years old" — which the Jebel Irhoud page printed
+  under it does not give; it now reads "the accepted benchmark … was about 195,000 years",
+  a claim about where the field stood before 2017. And it cites two pages instead of one:
+  the Smithsonian's own Omo I page states that figure outright, so each half of the
+  sentence has a link that carries it.
 
 ## [1.6.0] — 2026-10-12
 
