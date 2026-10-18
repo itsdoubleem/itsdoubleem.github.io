@@ -15,7 +15,7 @@ All notable changes to this site are recorded here. The format follows
 - The note above the 42-chapter deck now opens by saying what it is for — that every
   chapter is the best reading of the evidence today and some will change — before the
   Jebel Irhoud fossils prove it. It used to open on the fossils with nothing marking it
-  as a note, so a reader took it for chapter 1 and met the Big Bang next. 105 words to 94.
+  as a note, so a reader took it for chapter 1 and met the Big Bang next. 105 words to 92.
 
 ## [1.6.0] — 2026-10-12
 
