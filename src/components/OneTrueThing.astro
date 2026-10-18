@@ -40,6 +40,30 @@ import { curios } from '../curios';
 const PRIMER_SOURCE_URL =
   'https://humanorigins.si.edu/research/whats-hot-human-origins/our-species-arose-least-300000-years-ago';
 
+/* ── The second source, and why the paragraph needs two ──
+ * PRIMER_SOURCE_URL above covers Jebel Irhoud: 300,000, Morocco, June 2017, Hublin. It
+ * does not mention Omo or 195,000, and the first half of the paragraph claims both. One
+ * citation under two claims left the older half resting on nothing a reader could reach
+ * — in the paragraph whose whole argument is that claims here are checkable.
+ *
+ * This is the Smithsonian's own Omo I page, same Human Origins Program as the first. Read
+ * 2026-10-19, it gives "Age: About 195,000 years old", "Site: Omo River, Ethiopia" and
+ * "Species: Homo sapiens" as fielded data. So each half of the sentence now has a link
+ * that carries it, and neither rests on an inference drawn from the other.
+ *
+ * Two things that page says which this paragraph deliberately does not. It calls Omo I
+ * "one of the oldest known Homo sapiens braincases", not the oldest — hence "the accepted
+ * benchmark", which is a claim about where the field stood, not about one skull being
+ * first. And it still prints 195,000 in the present tense, not having absorbed Vidal et
+ * al. 2022 (Nature 601), which redated Omo I to at least 233,000 years. That is the
+ * reason for the past tense here, and it is not a detail to tidy away: a source can be
+ * behind the literature and still be the right citation for what the field accepted. */
+const PRIMER_SOURCE_2_URL = 'https://humanorigins.si.edu/evidence/human-fossils/fossils/omo-i';
+/* The curly apostrophe matches the source strings in curios.ts, which is where the
+ * other half of this line comes from — two citations side by side should not differ in
+ * their punctuation. */
+const PRIMER_SOURCE_2 = 'Smithsonian’s Human Origins Program, Omo I';
+
 const primerMatches = curios.filter((c) => c.sourceUrl === PRIMER_SOURCE_URL);
 if (primerMatches.length !== 1) {
   throw new Error(
@@ -540,16 +564,22 @@ e
           published in Nature on June 8, 2017. It does NOT say Omo Kibish, and it does NOT
           say 195,000.
 
-          That is why the first half reads "the accepted benchmark for the oldest Homo
-          sapiens was about 195,000 years" and not "the oldest fossils were about 195,000
-          years old". The second is a dated fossil age, and the page under it does not give
-          one; the first is a claim about where the field stood before 2017, which the page
-          does support — push 300,000 back by at least 100,000 and you land on the number
-          being described. 195,000 itself is McDougall et al. 2005, and Omo Kibish is still
-          named on this page without that source being printed. If you want the site named
-          with its own citation, add a second link; if you want one link, drop the site.
-          What must not happen is the sentence drifting back into asserting a fossil age
-          that the only link under it does not give.
+          A DRAFT OF THIS COMMENT ARGUED THAT THE PAGE IMPLIES 195,000, AND IT DOES NOT.
+          The argument was: push its 300,000 back by the "at least 100,000 years" it says
+          Jebel Irhoud moved the origin, and you land on the number. That is wrong twice.
+          "At least" is a floor on the displacement, so the subtraction yields an upper
+          bound — no more than about 200,000 — and 150,000 or 120,000 would satisfy the
+          page just as well; the only thing singling out 195,000 was that the writer
+          already knew it. And the quantity on the page is the origin of the species, not
+          the age of the oldest known fossil, so the subtraction swaps one for the other
+          halfway through. It is left here because it is a tidy-looking inference that
+          will occur to the next person too.
+
+          The figure is sourced instead of inferred: PRIMER_SOURCE_2_URL above is the
+          Smithsonian's Omo I page and gives it outright. The wording is still "the
+          accepted benchmark ... was", not "the oldest fossils were", because that is the
+          claim the paragraph is actually making — where the field stood before 2017 —
+          and because that page says "one of the oldest", not the oldest.
 
           The past tense is load-bearing in a second way: Omo I was itself redated to at
           least 233,000 years in 2022 (Vidal et al., Nature). "Was the accepted benchmark"
@@ -599,7 +629,12 @@ e
         {/* Its own line, and styled like a card's citation rather than trailing off the
             end of a sentence — every other claim in this section names its source that
             way and this one should not look like an afterthought. */}
+        {/* Two links, in the order the sentence makes the claims: Omo I carries the
+            195,000, Jebel Irhoud carries the 300,000. Separated by a middot rather than
+            stacked, because they are one citation line for one paragraph. */}
         <p class="curio__primer-src">
+          <a href={PRIMER_SOURCE_2_URL}>{PRIMER_SOURCE_2}</a>
+          {' · '}
           <a href={PRIMER_SOURCE_URL}>{primerSource}</a>
         </p>
       </div>

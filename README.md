@@ -83,7 +83,7 @@ npm run build    # → ./dist, and fails on a missing asset or a hash that is no
 npm run check    # downloads match their release: block and README, and the web build
                  # inside each APK matches release.web; the sample record matches
                  # LOGGER's version; every #link lands; the homepage primer reads
-                 # cleanly, cites its source and points at a chapter that exists
+                 # cleanly, cites both its sources and points at a chapter that exists
 npm test         # unit tests in tests/ — Node's own runner, nothing to install
 ```
 

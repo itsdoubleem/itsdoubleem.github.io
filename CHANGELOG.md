@@ -16,6 +16,10 @@ All notable changes to this site are recorded here. The format follows
   chapter is the best reading of the evidence today and some will change — before the
   Jebel Irhoud fossils prove it. It used to open on the fossils with nothing marking it
   as a note, so a reader took it for chapter 1 and met the Big Bang next. 105 words to 92.
+- The same note now cites two pages, not one. Its older half — the ~195,000-year benchmark
+  at Omo — was not covered by the Jebel Irhoud page printed under it, so the Smithsonian's
+  own Omo I page is printed beside it and each half of the sentence has a link that carries
+  it.
 
 ## [1.6.0] — 2026-10-12
 

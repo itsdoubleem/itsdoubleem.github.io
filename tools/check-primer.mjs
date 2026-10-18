@@ -135,10 +135,22 @@ if (!chapter) {
   }
 }
 
-/* The paragraph's claims rest on the one link under it. Without it the primer is an
- * anecdote, and both guards above would stay green. */
-if (!/<a\b[^>]*href="http/.test(inner)) {
-  problems.push('the primer has no citation link — its claims would stand on nothing.');
+/* The paragraph makes two dated claims — a benchmark of about 195,000 years, and Jebel
+ * Irhoud at roughly 300,000 — and it carries a link for each. It shipped with one link
+ * for a while, the Jebel Irhoud one, which named neither Omo nor 195,000, so the older
+ * half of the sentence rested on nothing a reader could reach. That is the failure this
+ * whole paragraph exists to argue against, and nothing would have caught it coming back.
+ *
+ * Two, not "at least one": dropping either link re-opens exactly that hole, and both
+ * other guards here would stay green while it did. If the paragraph is ever rewritten
+ * down to a single claim, change this number deliberately and say so. */
+const cites = [...inner.matchAll(/<a\b[^>]*href="(http[^"]*)"/g)].map((m) => m[1]);
+if (cites.length < 2) {
+  problems.push(
+    'the primer carries ' + cites.length + ' citation link(s), and its two dated claims ' +
+    'need one each — the 195,000-year benchmark and the Jebel Irhoud dating are on ' +
+    'different Smithsonian pages.',
+  );
 }
 
 if (problems.length) {
@@ -148,5 +160,5 @@ if (problems.length) {
 }
 
 console.log(
-  `check-primer: the primer reads cleanly, cites its source and points at chapter ${chapter[1]}`,
+  `check-primer: the primer reads cleanly, cites ${cites.length} sources and points at chapter ${chapter[1]}`,
 );
