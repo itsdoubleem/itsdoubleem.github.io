@@ -19,8 +19,8 @@
 import { curios } from '../curios';
 
 /* ── Which chapter the primer points at, found rather than typed ──
- * The primer below opens "Chapter N is the example" and then prints that chapter's own
- * citation. Carrying the same source as the chapter is the whole point of the example —
+ * The primer below names a chapter ("Chapter N already moved") and then prints that
+ * chapter's own citation. Carrying the same source as the chapter is the whole point of the example —
  * it makes the paragraph checkable against something already on this page instead of
  * being an anecdote of its own. So the source is the real link between the two, and the
  * number is derived from it rather than written down beside it.
@@ -514,14 +514,24 @@ e
           then card 1 is the Big Bang and they have to go back and reclassify what they
           just read. Example-first only works once the reader knows an argument is under
           way; nothing here told them. It also opened at maximum detail — four proper
-          nouns, an italicised genus-species and three six-figure numbers before the point
-          — and at 105 words it was twice the longest card in a deck deliberately held to
-          34–51 (see curios.ts on DWELL), so it read as an unnumbered first card.
+          nouns, an italicised genus-species and two six-figure numbers before the point.
 
-          The fix is ONE framing sentence, not four: it is now 92 words, the first sentence
-          says what the passage is for, and Jebel Irhoud still does the arguing. If you add
-          to this, add evidence, not another way of putting it — four abstract sentences is
-          the other ditch and it is three lines up.
+          The fix is ONE framing sentence, not four: the first sentence now says what the
+          passage is for, and Jebel Irhoud still does the arguing. Length was a symptom,
+          not the cause — the trim from 105 words to 94 is worth little on its own, and
+          this is still close to twice the longest card in a deck deliberately held to
+          34–51 words (see curios.ts on DWELL, whose own comment says 36–51 and is stale:
+          chapter 7 is 34). If it needs to come down further, cut the example's detail, not
+          the framing sentence. And if you add to this, add evidence, not another way of
+          putting it — four abstract sentences is the other ditch, two paragraphs up.
+
+          "DATED", NOT "FOUND", AND THE YEAR BELONGS TO THE DATING. A draft of this said
+          "a 2017 find at Jebel Irhoud", which is wrong twice over: the site was found in
+          1961 and Hublin's excavations ran from 2004. June 2017 is when the dating was
+          published (Hublin et al. / Richter et al., Nature 546, 8 June 2017, 315 ± 34 ka),
+          and the dating is the event this paragraph is about — a number moving, not a
+          discovery. The cited Smithsonian page gives the publication date and no discovery
+          date, so "find" was not checkable against the one source under the paragraph.
 
           The worked example is the Homo sapiens chapter on purpose — the primer should be
           checkable against something already on this page rather than asserting an anecdote
@@ -560,9 +570,9 @@ e
         <p>
           Chapter {primerChapter} already moved. The oldest fossils we could firmly call{' '}
           <em>Homo sapiens</em> were about 195,000 years old, from Omo Kibish in Ethiopia —
-          then a 2017 find at Jebel Irhoud in Morocco pushed it to roughly 300,000. The old
-          number never claimed nothing older existed, only that nothing older had been
-          found. That is the method working, not failing.
+          then in June 2017 the Jebel Irhoud remains in Morocco were dated to roughly
+          300,000 years. The old number never claimed nothing older existed, only that
+          nothing older had been found. That is the method working, not failing.
         </p>
         {/* Its own line, and styled like a card's citation rather than trailing off the
             end of a sentence — every other claim in this section names its source that

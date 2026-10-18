@@ -6,11 +6,16 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+### Added
+- `npm run check` reads the homepage primer out of the build: it fails if .astro whitespace
+  collapse has glued two words together (which has shipped twice) or if the chapter number
+  the paragraph derives from curios.ts has gone missing from the markup.
+
 ### Changed
 - The note above the 42-chapter deck now opens by saying what it is for — that every
   chapter is the best reading of the evidence today and some will change — before the
   Jebel Irhoud fossils prove it. It used to open on the fossils with nothing marking it
-  as a note, so a reader took it for chapter 1 and met the Big Bang next. 105 words to 92.
+  as a note, so a reader took it for chapter 1 and met the Big Bang next. 105 words to 94.
 
 ## [1.6.0] — 2026-10-12
 
