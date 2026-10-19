@@ -701,24 +701,39 @@ e
             overstating evidence, written without once using the UI it described.
 
             ATTEMPT TWO made the words a control — a <label for> checking that chapter's
-            radio, the same JS-free mechanism Next and Back use. It works perfectly on a
-            desktop. ON A PHONE IT DOES NOTHING VISIBLE, and that is why it is gone.
-            Measured at 390x844 with a real pointer click: the radio is checked, the card
-            becomes display:block, the browser focuses the radio — and does not scroll, so
-            the card sits at y873 in an 844px viewport with not one line of its text on
-            screen. Before and after are indistinguishable. scroll-margin-bottom on the
-            radio does not fix it, because no scroll is triggered to apply a margin to;
-            measured, not assumed. It is worst on tall phones and invisible on a desktop,
-            which is the shape of bug that ships.
+            radio, the same JS-free mechanism Next and Back use. As shipped it did nothing
+            visible on a phone. Measured in Chromium at 390x844 with a real pointer click:
+            the radio is checked, the card becomes display:block, the browser focuses the
+            radio — and the page does not scroll, so the card sits below the fold with not
+            one line of its text on screen. Before and after are indistinguishable. Perfect
+            on a desktop, dead on a phone: the shape of bug that ships.
 
-            Nothing short of script will scroll this page on activation, and the deck is
-            script-free on purpose. So the number is a plain reference again, which is what
-            it is for: it makes the claim checkable against a card that exists, not a
-            promise to take the reader there. If you want the jump to work, the honest
-            route is an <a href> to an id on the card plus :target CSS to reveal it — a
-            fragment navigation does scroll — but that means every card carries an id and
-            the auto-advance rules have to be taught to stand down when one is targeted.
-            Deliberate work, not a tidy-up.
+            WHAT IS AND IS NOT ESTABLISHED, because a first draft of this note got it
+            wrong and a note like this is only worth having if it is right. Adding
+            ".curio__radio { scroll-margin-bottom: 460px }" DOES fix it in Chromium —
+            rebuilt in the live DOM and clicked for real at 390x844, the page scrolls
+            +681px and the card lands at y192 with five of its text blocks on screen. The
+            first draft here said that rule does not work, which was a measurement taken
+            through scroll-behavior: smooth before the animation had settled. That is the
+            same trap that corrupted the scroll-margin measurements two commits earlier.
+            IF YOU MEASURE SCROLLING ON THIS PAGE, PASS behavior instant OR WAIT.
+
+            So the reason this is reverted is not Chromium. A review pass on WebKit,
+            including an emulated iPhone 13, reported the control scrolling 0px with and
+            without that rule — a CSS-only control dead on iOS. That result is NOT
+            reproduced here (this pane is Chromium), and it is the one measurement the
+            decision rests on. The audience is on phones and a large share of them are
+            iPhones, so shipping on an unverified maybe is the wrong risk; if you can test
+            iOS and it works, attempt two plus the scroll-margin rule is live again, and
+            the 460px wants to stop being a magic number tied to one card's height.
+
+            Meanwhile the number is a plain reference, which is what it is for: it makes
+            the claim checkable against a card that exists, not a promise to take the
+            reader there. The other route is an <a href> to an id on the card plus :target
+            CSS to reveal it — a fragment navigation does scroll, in every engine — but
+            that means every card carries an id, the auto-advance rules have to stand down
+            when one is targeted, and each jump writes a history entry, so Back walks the
+            reader through chapters. Deliberate work, not a tidy-up.
 
             check-primer requires "chapter N" in the rendered text, and the number comes
             from primerChapter, never typed.
@@ -861,6 +876,17 @@ e
     overflow: clip;
     padding-block: clamp(30px, 4vw, 54px);
   }
+
+  /* The legacy #how-we-got-here id sits on this section's <header>, and scroll-margin-top
+   * is NOT inherited — the rule above is on .curio and does nothing for a child. Without
+   * this, the anchor kept alive to protect a published URL landed with the heading's first
+   * line clipped off the top of the viewport and the second behind the floating bar.
+   *
+   * The same calc, not the number it evaluates to today: global.css says moving the bar
+   * means moving --head-h, and that there is no layout relationship left to catch a
+   * hardcoded copy. Both anchors clear the bar; they do not land identically, because the
+   * section's own padding sits between them. */
+  .curio > header { scroll-margin-top: calc(var(--head-h) + 14px); }
 
   /* ---------- the cosmos ---------- */
   /* The edge fade is defined once and worn by both layers. Custom properties are
@@ -1298,13 +1324,7 @@ e
    * the whole paragraph, and a highlighted clause mid-paragraph reads as a pull quote. */
   .curio__primer-key { color: var(--ink); }
 
-  /* The legacy #how-we-got-here id sits on this header, and scroll-margin-top is NOT
-   * inherited — the 86px that makes #big-bang-to-now clear the floating bar is on .curio
-   * and does nothing for a child. Without this, the anchor kept alive to protect a
-   * published URL landed with the heading's first line clipped off the top of the
-   * viewport and the second behind the bar: measured 0..51 at 390x844. Same number as
-   * .curio so both anchors land in the same place. */
-  .curio > header { scroll-margin-top: 86px; }
+
 
   .curio__primer em { font-style: italic; }
   .curio__primer-src { margin-top: 10px !important; font-size: 13px; opacity: .85; }
