@@ -117,7 +117,11 @@ for (const m of text.matchAll(/[0-9](?=\p{L})|\p{L}(?=[0-9])/gu)) {
   );
 }
 
-const chapter = text.match(/Chapter (\d+)/);
+/* Case-insensitive: the number is "Chapter N" when it opens a sentence and "chapter N"
+ * when it does not, and which one is correct is a matter of where the copy puts it. The
+ * first version of this check matched only the capital and failed a rewrite that moved
+ * the reference mid-sentence — a guard rejecting correct English. */
+const chapter = text.match(/chapter (\d+)/i);
 if (!chapter) {
   problems.push('no "Chapter N" in the primer — the derived number is not being printed.');
 } else {

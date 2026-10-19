@@ -13,16 +13,21 @@ All notable changes to this site are recorded here. The format follows
   the two pages its dated claims rest on is no longer linked.
 
 ### Changed
-- The note above the 42-chapter deck now opens by saying what it is for — that every
-  chapter is the best reading of the evidence today and some will change — before the
-  Jebel Irhoud fossils prove it. It used to open on the fossils with nothing marking it
-  as a note, so a reader took it for chapter 1 and met the Big Bang next. 105 words to 92.
-- The same note now says what it can source. Its older half claimed a dated fossil age —
-  "the oldest fossils … were about 195,000 years old" — which the Jebel Irhoud page printed
-  under it does not give; it now reads "the accepted benchmark … was about 195,000 years",
-  a claim about where the field stood before 2017. And it cites two pages instead of one:
-  the Smithsonian's own Omo I page states that figure outright, so each half of the
-  sentence has a link that carries it.
+- The note above the 42-chapter deck now explains why a scientific answer is allowed to
+  change, which it never did before. It opens on a question, gives the answer we used to
+  have — about 195,000 years for the oldest *Homo sapiens* — then the 2017 Jebel Irhoud
+  dating that moved it to roughly 300,000, then the part that matters: science is the best
+  answer the evidence supports now, so a better answer is the method working rather than
+  failing. It ends by saying the old number was not a lie, only an honest read of what had
+  been found. Short sentences, one beat per paragraph, and the opening question is set a
+  step larger so it reads as a way in rather than a second standfirst.
+
+  It used to open on the fossils with nothing marking it as a note at all, so a reader took
+  it for chapter 1 and met the Big Bang next.
+- The note cites two pages instead of one. It claimed a dated fossil age — "the oldest
+  fossils … were about 195,000 years old" — which the Jebel Irhoud page printed under it
+  does not give. The Smithsonian's own Omo I page states that figure outright and is now
+  printed beside it, so each claim has a link that carries it.
 
 ## [1.6.0] — 2026-10-12
 
