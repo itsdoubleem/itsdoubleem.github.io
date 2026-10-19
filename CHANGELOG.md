@@ -19,6 +19,13 @@ All notable changes to this site are recorded here. The format follows
   here", which on a studio site is an origin story — how this person started, why Korea,
   why free — and what arrived was the Big Bang. It reads "From the Big Bang to now", the
   heading matches it, and the anchor is #big-bang-to-now.
+- "chapter 24" in that note is now a control: clicking it shows chapter 24. The deck is a
+  stack, not a list — one card at a time, 23 presses of Next away — so the words briefly
+  said "further down", which was false about the page. The jump uses the same JS-free
+  radio the Next and Back controls use, and the keyboard path through the cards is
+  unchanged.
+- The section's old anchor, #how-we-got-here, still works. It is a published URL, so it is
+  kept on the header while #big-bang-to-now names the section.
 - That section now says why it is on a software site at all. Everything under the heading
   explained how knowledge gets revised and none of it said what that had to do with
   doubleem, so the honest reading was a hobby that wandered onto a portfolio: "It is here
