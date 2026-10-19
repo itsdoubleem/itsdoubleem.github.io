@@ -10,7 +10,9 @@ All notable changes to this site are recorded here. The format follows
 - `npm run check` reads the homepage primer out of the build: it fails if .astro whitespace
   collapse has glued two words together (which has shipped twice), if the chapter number
   the paragraph derives from curios.ts has gone missing from the markup, or if either of
-  the two pages its dated claims rest on is no longer linked.
+  the two pages its dated claims rest on is no longer linked. It matches the chapter
+  number whether or not the copy capitalises it — the first version failed a rewrite for
+  saying "Take chapter 24" mid-sentence, which is correct English.
 
 ### Changed
 - The note above the 42-chapter deck now explains why a scientific answer is allowed to
@@ -19,8 +21,12 @@ All notable changes to this site are recorded here. The format follows
   dating that moved it to roughly 300,000, then the part that matters: science is the best
   answer the evidence supports now, so a better answer is the method working rather than
   failing. It ends by saying the old number was not a lie, only an honest read of what had
-  been found. Short sentences, one beat per paragraph, and the opening question is set a
-  step larger so it reads as a way in rather than a second standfirst.
+  been found. Thirteen sentences averaging ten words, across four paragraphs. It is longer
+  than what it replaces, 92 words to 134: five beats do not fit in the length of a deck
+  card, and what made the old one read as an unnumbered card was having no visible job
+  rather than its size. The opening question is set a step larger and in the brighter ink
+  so it reads as a way in rather than a second standfirst, and the paragraph explaining
+  why answers move takes that brighter ink too, because it is the point of the passage.
 
   It used to open on the fossils with nothing marking it as a note at all, so a reader took
   it for chapter 1 and met the Big Bang next.

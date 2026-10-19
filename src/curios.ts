@@ -45,8 +45,8 @@
  * The homepage counts the entries itself, so adding chapter 43 is appending to this array.
  *
  * ONE `sourceUrl` IN HERE IS LOAD-BEARING, AND IT IS NOT OBVIOUS FROM THIS FILE.
- * The primer above the deck in OneTrueThing.astro names a chapter ("Chapter N already
- * moved") and means the Homo sapiens chapter. It does not count to 24 — it finds that
+ * The primer above the deck in OneTrueThing.astro names a chapter ("Take chapter N")
+ * and means the Homo sapiens chapter. It does not count to 24 — it finds that
  * chapter by matching its own citation against `sourceUrl`, then prints the number and
  * the source it finds. So appending, inserting, reordering and retitling are all safe here and need no
  * edit there; the primer follows the chapter around on its own.

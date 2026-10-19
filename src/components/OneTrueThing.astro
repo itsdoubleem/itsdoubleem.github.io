@@ -19,11 +19,11 @@
 import { curios } from '../curios';
 
 /* ── Which chapter the primer points at, found rather than typed ──
- * The primer below names a chapter ("Chapter N already moved") and then prints that
- * chapter's own citation. Carrying the same source as the chapter is the whole point
- * of the example — it makes the paragraph checkable against something already on this
- * page instead of being an anecdote of its own. So the source is the real link between the two, and the
- * number is derived from it rather than written down beside it.
+ * The primer below names a chapter ("Take chapter N") and then prints that chapter's
+ * own citation. Carrying the same source as the chapter is the whole point of the
+ * example — it makes the paragraph checkable against something already on this page
+ * instead of being an anecdote of its own. So the source is the real link between the
+ * two, and the number is derived from it rather than written down beside it.
  *
  * This was the literal "Chapter 24" until 2026-09-23. That counted positions in
  * curios.ts, so inserting any chapter above Homo sapiens silently repointed the sentence
@@ -559,8 +559,9 @@ e
           comment says 36–51 and is stale: chapter 7 is 34). That is deliberate. Five beats
           do not fit in forty words, and the thing that made the old version read as an
           unnumbered card was not its length but having no visible job — the sentences here
-          average ten words and each beat is its own paragraph. Do not compress it back
-          into one block to match the deck.
+          average ten words and the beats are broken across four paragraphs, with 2 and 3
+          sharing one because the old answer and the evidence that moved it are one
+          thought. Do not compress it back into a single block to match the deck.
 
           VOICE: short declarative sentences, no contractions, no slang, no "basically".
           The deck's own cards read that way — "Atoms from the Big Bang, arranged into
@@ -596,13 +597,13 @@ e
 
           The figure is sourced instead of inferred: PRIMER_SOURCE_2_URL above is the
           Smithsonian's Omo I page and gives it outright. The wording is still "the
-          accepted benchmark ... was", not "the oldest fossils were", because that is the
+          accepted answer ... was", not "the oldest fossils were", because that is the
           claim the paragraph is actually making — where the field stood before 2017 —
           and because that page says "one of the oldest", not the oldest.
 
           The past tense is load-bearing in a second way: Omo I was itself redated to at
-          least 233,000 years in 2022 (Vidal et al., Nature). "Was the accepted benchmark"
-          survives that. "Are about 195,000 years old" would not.
+          least 233,000 years in 2022 (Vidal et al., Nature). "The accepted answer ... was"
+          survives that. "The oldest fossils are about 195,000 years old" would not.
 
           The worked example is the Homo sapiens chapter on purpose — the primer should be
           checkable against something already on this page rather than asserting an anecdote
@@ -637,25 +638,24 @@ e
             trap caught {primerChapter} below on the day this was rewritten — it sat at the
             end of a line and rendered "Chapter 24carries the new date". An expression and
             the words touching it have to share a source line, or take a {' '}. That is why
-            "Chapter {primerChapter} already moved." is all on one line below. */}
+            "Take chapter {primerChapter}." is all on one line below. */}
         <p>
-          Nobody was there for any of this. So how does anyone know?
+          Nobody was there when any of this started. So how does anyone know?
         </p>
         <p>
           Take chapter {primerChapter}. The accepted answer for the oldest{' '}
           <em>Homo sapiens</em> was about 195,000 years, from Omo Kibish in Ethiopia. Then
-          in June 2017, remains from Jebel Irhoud in Morocco were dated to roughly 300,000
-          years, and our species got a hundred thousand years older.
+          in June 2017, a team dated remains from Jebel Irhoud in Morocco to roughly
+          300,000 years, and the answer got a hundred thousand years older.
+        </p>
+        <p class="curio__primer-key">
+          Here is why that matters. Science is not a list of facts handed to you. It is the
+          best answer the evidence supports right now, so when better evidence turns up,
+          the answer moves. That is not the method failing. That is the method.
         </p>
         <p>
-          This is the part worth knowing. Science is not a list of facts handed to you. It
-          is the best answer the evidence supports right now, so when better evidence turns
-          up, the answer moves. That is not the method failing. That is the method.
-        </p>
-        <p>
-          The old number was never a lie. It was an honest read of everything anyone had
-          found, and the Morocco fossils had not been found yet. You answer with the data
-          you have.
+          The old number was never a lie. It was not a claim that nothing older existed —
+          only that nothing older had been found. You answer with the data you have.
         </p>
         {/* Its own line, and styled like a card's citation rather than trailing off the
             end of a sentence — every other claim in this section names its source that
@@ -1195,6 +1195,18 @@ e
     font-size: 16.5px;
     color: var(--ink);
   }
+
+  /* ── Beat 4 ──
+   * The owner's words: "the important part is explaining why science changes statements".
+   * It was the dimmest type on the page while the question that introduces it was the
+   * brightest, so the styling argued the opposite of the brief.
+   *
+   * Colour only, not size. Three levels is the most this block can carry — the question
+   * at 16.5px/--ink, this at 14.5px/--ink, the narrative at 14.5px/--ink-soft — and a
+   * second size step here would set up a competition with the question and with the h2
+   * above it. Lifting the paragraph rather than one sentence inside it: the argument is
+   * the whole paragraph, and a highlighted clause mid-paragraph reads as a pull quote. */
+  .curio__primer-key { color: var(--ink); }
   .curio__primer em { font-style: italic; }
   .curio__primer-src { margin-top: 10px !important; font-size: 13px; opacity: .85; }
 
