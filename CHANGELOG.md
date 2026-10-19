@@ -20,9 +20,12 @@ All notable changes to this site are recorded here. The format follows
   have — about 195,000 years for the oldest *Homo sapiens* — then the 2017 Jebel Irhoud
   dating that moved it to roughly 300,000, then the part that matters: science is the best
   answer the evidence supports now, so a better answer is the method working rather than
-  failing. It ends by saying the old number was not a lie, only an honest read of what had
-  been found. Thirteen sentences averaging ten words, across four paragraphs. It is longer
-  than what it replaces, 92 words to 134: five beats do not fit in the length of a deck
+  failing. It ends on why the old number was not a lie: it never claimed nothing older
+  existed, only that nothing older had been found — the difference between the world and
+  what is known of it. The older half also stopped asserting a dated fossil age, which no
+  page under it gives, and now reads "the accepted answer ... was about 195,000 years".
+  Thirteen sentences averaging ten words, across four paragraphs. It is longer
+  than what it replaces, 92 words to 129: five beats do not fit in the length of a deck
   card, and what made the old one read as an unnumbered card was having no visible job
   rather than its size. The opening question is set a step larger and in the brighter ink
   so it reads as a way in rather than a second standfirst, and the paragraph explaining

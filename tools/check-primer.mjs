@@ -106,9 +106,12 @@ const text = decode(inner.replace(BLOCK, '\n').replace(/<[^>]+>/g, ''))
 
 /* An EXPRESSION that collapsed leaves no tag behind — {primerChapter} renders as bare
  * text, so "Chapter 24carries the new date" shipped with nothing in the output to mark
- * where the join happened, and the boundary walk above cannot see it. A digit hard
- * against a letter is that join's shape, and it has no legitimate use in this paragraph:
- * every figure here is followed by a space ("300,000 years", "in June 2017 the"). */
+ * where the join happened, and the boundary walk above cannot see it. (That sentence is
+ * long gone — the copy now reads "Take chapter 24." — but the trap is a property of the
+ * template, not of any wording, so the example stays as the thing that actually shipped.)
+ * A digit hard against a letter is that join's shape, and it has no legitimate use in
+ * this paragraph: every figure here is followed by a space ("300,000 years", "June 2017,
+ * a team"). */
 for (const m of text.matchAll(/[0-9](?=\p{L})|\p{L}(?=[0-9])/gu)) {
   const at = Math.max(0, m.index - 16);
   problems.push(
