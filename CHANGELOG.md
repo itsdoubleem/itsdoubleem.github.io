@@ -19,17 +19,19 @@ All notable changes to this site are recorded here. The format follows
   here", which on a studio site is an origin story — how this person started, why Korea,
   why free — and what arrived was the Big Bang. It reads "From the Big Bang to now", the
   heading matches it, and the anchor is #big-bang-to-now.
-- "chapter 24" in that note is now a control: clicking it shows chapter 24. The deck is a
-  stack, not a list — one card at a time, 23 presses of Next away — so the words briefly
-  said "further down", which was false about the page. The jump uses the same JS-free
-  radio the Next and Back controls use, and the keyboard path through the cards is
-  unchanged.
+- The note's reference to chapter 24 stays a plain reference. It briefly said "further
+  down", which is false — the deck is a stack, one card at a time, and chapter 24 is 23
+  presses of Next away — and was then briefly a control that checked that chapter's radio.
+  The control works on a desktop and does nothing visible on a phone: the card is below
+  the fold and no scroll is triggered, so the reader sees no change at all. Reverted, with
+  the measurements in the source so nobody tries it a third time.
 - The section's old anchor, #how-we-got-here, still works. It is a published URL, so it is
   kept on the header while #big-bang-to-now names the section.
 - That section now says why it is on a software site at all. Everything under the heading
   explained how knowledge gets revised and none of it said what that had to do with
-  doubleem, so the honest reading was a hobby that wandered onto a portfolio: "It is here
-  because the apps make claims people act on, and this is how I think about being wrong."
+  doubleem, so the honest reading was a hobby that wandered onto a portfolio: "All of it
+  is here because the apps make claims people act on, and this is how I think about being
+  wrong."
   The note stopped repeating the span, which the heading now carries.
 - The note above the 42-chapter deck now explains why a scientific answer is allowed to
   change, which it never did before. It opens on a question, gives the answer we used to

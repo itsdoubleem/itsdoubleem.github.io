@@ -499,17 +499,21 @@ e
           and each card really was one true thing on its own. It is now a single story told
           in order, so the heading promises a story and the note gives its span.
 
-          THE HEADING MATCHES THE LINK THAT POINTS AT IT — both were replaced together on
-          2026-10-19, and the paragraph below describes the pair they replaced. The hero on
-          index.astro carries
-          "From the Big Bang to now" pointing at #big-bang-to-now, this section's id — so
-          for a while a reader clicked one name and landed on another, "How did we come
-          about?". The id already had the right name; the heading was the odd one out, and
-          it was also the wrong promise: "come about" means to originate, while chapters 1
-          to 9 are cosmology with no "we" in them and 27 to 42 are cities and machines,
-          long after anyone came about. "How did we get here?" is the whole chain, matches
-          the link's words closely enough to confirm the arrival, and keeps the question
-          form the section answers.
+          THE HEADING MATCHES THE LINK THAT POINTS AT IT. Today that pair is "From the Big
+          Bang to now" in the hero on index.astro, pointing at #big-bang-to-now, and the
+          heading below carries those words inside it. Both were replaced together on
+          2026-10-19; index.astro holds the reasoning, which is about "we" reading as the
+          studio on a studio site.
+
+          Two earlier rounds of the same mistake, kept because the rule they produced is
+          the useful part. First the heading was "How did we come about?" while the link
+          said "How we got here" — a reader clicked one name and landed on another, and
+          "come about" was also the wrong promise, since chapters 1 to 9 are cosmology with
+          no "we" in them and 27 to 42 are cities and machines, long after anyone came
+          about. That was fixed by making the heading match the link. Then the pair agreed
+          with each other and both misdescribed the destination, which no amount of
+          matching catches. SO THE RULE IS BOTH HALVES: the link and the heading must say
+          the same thing, and that thing must be what the section actually is.
 
           The note had drifted off the job described above: it read "What the evidence
           tells us about our history", which gives no span at all, narrows 13.8 billion
@@ -682,26 +686,42 @@ e
           clause, because that is the sentence making the claim — a reader should not have
           to carry a date forward from one sentence to place the event in the next. */}
       <div class="curio__primer">
-        {/* ── "chapter N" is a control, not a cross-reference ──
-            It said "Take chapter {primerChapter}." and then, briefly, "further down",
-            which is false about this page and was the worse of the two. The deck is a
-            STACK, not a list: all 42 cards share one grid cell, one is shown at a time by
-            the radio above it, and chapter 24 is 23 presses of Next away — or about five
-            minutes of waiting, or, under prefers-reduced-motion, 23 presses and nothing
-            else, because the timer does not run. Nothing is further down except chapter 1.
-            CLAUDE.md hard rule 3, in the paragraph about not overstating: the claim was
-            checked against the running page only after it had shipped to a branch.
+        {/* ── "chapter N" IS A PLAIN REFERENCE, AND TWO ATTEMPTS TO IMPROVE IT FAILED ──
+            Read this before you try a third.
 
-            So the words are the jump. A <label for> checking that chapter's radio is the
-            same mechanism the Next and Back controls already use, needs no script, and
-            turns a reference the reader could not follow into one they can. Keyboard users
-            already reach every chapter through the radios themselves, which are focusable
-            and carry "Show item N of 42" — this is a pointer affordance on top of a path
-            that was always there, not the only way in.
+            THE DECK IS A STACK, NOT A LIST. All 42 cards share one grid cell, one shows
+            at a time by the radio above it, and chapter 24 is 23 presses of Next away —
+            or about five minutes of waiting, or, under prefers-reduced-motion, 23 presses
+            and nothing else, because the timer does not run. The only thing further down
+            this page is chapter 1.
 
-            It must stay inside the sentence and keep the derived number: check-primer
-            requires "chapter N" in the rendered text, and the number comes from
-            primerChapter, never typed. The radio is zero-indexed, hence the - 1.
+            ATTEMPT ONE was "Take chapter {primerChapter}, further down." That is simply
+            false about the page, and it was confident about it: it sent the reader hunting
+            for a card that is not there. CLAUDE.md hard rule 3, in the paragraph about not
+            overstating evidence, written without once using the UI it described.
+
+            ATTEMPT TWO made the words a control — a <label for> checking that chapter's
+            radio, the same JS-free mechanism Next and Back use. It works perfectly on a
+            desktop. ON A PHONE IT DOES NOTHING VISIBLE, and that is why it is gone.
+            Measured at 390x844 with a real pointer click: the radio is checked, the card
+            becomes display:block, the browser focuses the radio — and does not scroll, so
+            the card sits at y873 in an 844px viewport with not one line of its text on
+            screen. Before and after are indistinguishable. scroll-margin-bottom on the
+            radio does not fix it, because no scroll is triggered to apply a margin to;
+            measured, not assumed. It is worst on tall phones and invisible on a desktop,
+            which is the shape of bug that ships.
+
+            Nothing short of script will scroll this page on activation, and the deck is
+            script-free on purpose. So the number is a plain reference again, which is what
+            it is for: it makes the claim checkable against a card that exists, not a
+            promise to take the reader there. If you want the jump to work, the honest
+            route is an <a href> to an id on the card plus :target CSS to reveal it — a
+            fragment navigation does scroll — but that means every card carries an id and
+            the auto-advance rules have to be taught to stand down when one is targeted.
+            Deliberate work, not a tidy-up.
+
+            check-primer requires "chapter N" in the rendered text, and the number comes
+            from primerChapter, never typed.
 
             {' '} before the <em>: a line break between text and an inline element is
             collapsed away here, and the first render read "firmlyHomo sapiens". The same
@@ -713,7 +733,7 @@ e
           Nobody was there at the beginning. So how does anyone know?
         </p>
         <p>
-          Take <label class="curio__jump" for={`curio-${primerChapter - 1}`}>chapter {primerChapter}</label>. The accepted answer for the oldest{' '}
+          Take chapter {primerChapter}. The accepted answer for the oldest{' '}
           <em>Homo sapiens</em> was about 195,000 years, from Omo Kibish in Ethiopia. Then
           in June 2017, a team dated remains from Jebel Irhoud in Morocco to roughly
           300,000 years, and the answer got a hundred thousand years older.
@@ -1278,23 +1298,14 @@ e
    * the whole paragraph, and a highlighted clause mid-paragraph reads as a pull quote. */
   .curio__primer-key { color: var(--ink); }
 
-  /* ── The chapter jump ──
-   * It has to read as clickable inside a sentence without becoming a button: the dotted
-   * underline says "this does something" where a solid one would say "this leaves the
-   * page", which every other underline in this block does mean (the two citations).
-   *
-   * The radio it checks is visually hidden but focusable and carries its own label, so a
-   * keyboard user reaches chapter 24 the same way they reach every other card. This is
-   * the pointer shortcut, which is why there is no tabindex here — a label cannot be
-   * activated by Enter, and a focus ring on something the keyboard cannot use is a lie. */
-  .curio__jump {
-    color: inherit;
-    cursor: pointer;
-    text-decoration: underline dotted currentColor;
-    text-underline-offset: 3px;
-    transition: color 160ms var(--ease-out);
-  }
-  .curio__jump:hover { color: var(--ink); text-decoration-style: solid; }
+  /* The legacy #how-we-got-here id sits on this header, and scroll-margin-top is NOT
+   * inherited — the 86px that makes #big-bang-to-now clear the floating bar is on .curio
+   * and does nothing for a child. Without this, the anchor kept alive to protect a
+   * published URL landed with the heading's first line clipped off the top of the
+   * viewport and the second behind the bar: measured 0..51 at 390x844. Same number as
+   * .curio so both anchors land in the same place. */
+  .curio > header { scroll-margin-top: 86px; }
+
   .curio__primer em { font-style: italic; }
   .curio__primer-src { margin-top: 10px !important; font-size: 13px; opacity: .85; }
 
