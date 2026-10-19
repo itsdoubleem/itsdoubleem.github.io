@@ -22,8 +22,9 @@ All notable changes to this site are recorded here. The format follows
   answer the evidence supports now, so a better answer is the method working rather than
   failing. It ends on why the old number was not a lie: it never claimed nothing older
   existed, only that nothing older had been found — the difference between the world and
-  what is known of it. The older half also stopped asserting a dated fossil age, which no
-  page under it gives, and now reads "the accepted answer ... was about 195,000 years".
+  what is known of it. The passage also stopped calling 195,000 years the age of the
+  oldest fossils — a superlative neither page under it supports — and now reads "the
+  accepted answer ... was about 195,000 years", which the Omo I page gives outright.
   Thirteen sentences averaging ten words, across four paragraphs. It is longer
   than what it replaces, 92 words to 129: five beats do not fit in the length of a deck
   card, and what made the old one read as an unnumbered card was having no visible job
