@@ -445,7 +445,7 @@ e
 `;
 ---
 
-<section class="curio wrap" id="how-we-got-here" aria-labelledby="curio-head">
+<section class="curio wrap" id="big-bang-to-now" aria-labelledby="curio-head">
   {/* ── The sky ──
       Decoration, and it obeys the same rules as the page's own glow and grid: it holds
       no text, it takes no pointer, and the section is complete without it. It is masked
@@ -494,7 +494,7 @@ e
           in order, so the heading promises a story and the note gives its span.
 
           THE HEADING MATCHES THE LINK THAT POINTS AT IT. The hero on index.astro carries
-          "How we got here" pointing at #how-we-got-here, which is this section's id — so
+          "From the Big Bang to now" pointing at #big-bang-to-now, this section's id — so
           for a while a reader clicked one name and landed on another, "How did we come
           about?". The id already had the right name; the heading was the odd one out, and
           it was also the wrong promise: "come about" means to originate, while chapters 1
@@ -506,7 +506,15 @@ e
           The note had drifted off the job described above: it read "What the evidence
           tells us about our history", which gives no span at all, narrows 13.8 billion
           years to "our history", and doubles the primer below it, which is already the
-          page's statement about evidence. It now says the span, as intended.
+          page's statement about evidence. It was rewritten to give the span.
+
+          THE SPAN MOVED INTO THE HEADING on 2026-10-19, so the note stopped repeating it.
+          While the heading was "How did we get here?" the note was the only thing saying
+          how far back "here" reached; "from the Big Bang to now" says it in the heading
+          and in the link that points at it, and the note had "From the first particles to
+          the present" directly underneath — the same fact twice, two lines apart. The
+          note answers the heading now ("The answer takes N chapters") and spends the
+          space it got back on why any of this is on a software site.
 
           The note used to end "Every one says where you can check it." That was removed on
           the owner's instruction, and it costs nothing, because the sourcing was never a
@@ -518,9 +526,30 @@ e
 
           Keep {curios.length}: the count is read from curios.ts so it can never drift from
           what is on the page. */}
-      <h2 class="display display--sec sec__title" id="curio-head">How did we get here?</h2>
+      <h2 class="display display--sec sec__title" id="curio-head">How did we get from the Big Bang to now?</h2>
+      {/* ── Why this is on a software site, said out loud ──
+          Added 2026-10-19. Everything under this heading explained how knowledge gets
+          revised and none of it explained what that had to do with doubleem. A stranger
+          arriving from the hero got four paragraphs of epistemology on the site of someone
+          who makes a shift-tracking app, with no stated connection — so the honest reading
+          was "a hobby that wandered onto a portfolio", and the passage below could be
+          polished indefinitely without ever fixing that.
+
+          BRIEF.md gives the site three jobs: what does this person make, can I get it,
+          and who made it. This section is the third one. A person who publishes 42 sourced
+          claims and a note about why evidence revises is showing you how they behave when
+          they turn out to be wrong, which is the thing you actually want to know about
+          whoever wrote the software that counts your hours. That was always the reason;
+          it was simply never on the page.
+
+          It does NOT re-announce the sourcing. "Every one says where you can check it."
+          was removed from this note on the owner's instruction — every card carries its
+          citation where a reader who wants it will look, and saying so up here was the
+          redundant half. The connection to the apps is a different claim and has to carry
+          itself without leaning on that one. */}
       <p class="sec__note">
-        From the first particles to the present, in {curios.length} chapters.
+        The answer takes {curios.length} chapters. It is here because the apps make claims
+        people act on, and this is how I think about being wrong.
       </p>
 
       {/* ── The primer ──
@@ -655,7 +684,7 @@ e
           Nobody was there at the beginning. So how does anyone know?
         </p>
         <p>
-          Take chapter {primerChapter}. The accepted answer for the oldest{' '}
+          Take chapter {primerChapter}, further down. The accepted answer for the oldest{' '}
           <em>Homo sapiens</em> was about 195,000 years, from Omo Kibish in Ethiopia. Then
           in June 2017, a team dated remains from Jebel Irhoud in Morocco to roughly
           300,000 years, and the answer got a hundred thousand years older.

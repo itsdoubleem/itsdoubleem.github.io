@@ -15,6 +15,15 @@ All notable changes to this site are recorded here. The format follows
   saying "Take chapter 24" mid-sentence, which is correct English.
 
 ### Changed
+- The homepage link to the 42-chapter deck now says where it goes. It read "How we got
+  here", which on a studio site is an origin story — how this person started, why Korea,
+  why free — and what arrived was the Big Bang. It reads "From the Big Bang to now", the
+  heading matches it, and the anchor is #big-bang-to-now.
+- That section now says why it is on a software site at all. Everything under the heading
+  explained how knowledge gets revised and none of it said what that had to do with
+  doubleem, so the honest reading was a hobby that wandered onto a portfolio: "It is here
+  because the apps make claims people act on, and this is how I think about being wrong."
+  The note stopped repeating the span, which the heading now carries.
 - The note above the 42-chapter deck now explains why a scientific answer is allowed to
   change, which it never did before. It opens on a question, gives the answer we used to
   have — about 195,000 years for the oldest *Homo sapiens* — then the 2017 Jebel Irhoud
