@@ -267,117 +267,6 @@ const rules = curios
      delay 0, so it takes over on the first frame and this never flickers. */
   #curio-auto:checked ~ .curio__card--0 { visibility: visible; opacity: 1; }
 
- 
- 
-#
-c
-u
-r
-i
-o
--
-a
-u
-t
-o
-:
-c
-h
-e
-c
-k
-e
-d
- 
-~
- 
-.
-c
-u
-r
-i
-o
-_
-_
-c
-a
-r
-d
--
--
-$
-{
-i
-}
- 
-{
- 
-a
-n
-i
-m
-a
-t
-i
-o
-n
-:
- 
-c
-u
-r
-i
-o
--
-c
-y
-c
-l
-e
- 
-$
-{
-L
-O
-O
-P
-}
-s
- 
-s
-t
-e
-p
--
-e
-n
-d
- 
-$
-{
-i
- 
-*
- 
-D
-W
-E
-L
-L
-}
-s
- 
-i
-n
-f
-i
-n
-i
-t
-e
-;
- 
-}
 ` +
   curios
     .map(
@@ -780,13 +669,40 @@ e
   <div class="curio__deck">
     {/* The sentinel. It must stay FIRST — every auto-mode rule reaches the cards through a
         sibling combinator from here. Hidden from assistive tech and off the tab order: it
-        is a piece of state, not a control, and announcing "43 of 42" helps nobody. */}
+        is a piece of state, not a control, and announcing "43 of 42" helps nobody.
+
+        ── WHY "disabled", AND DO NOT REMOVE IT ──
+        "tabindex=-1" and "aria-hidden" take this radio off the tab order and out of the
+        accessibility tree. Neither takes it out of the RADIO GROUP, and arrow keys walk
+        the group, not the tab order. So this was reachable by one keystroke, and the
+        consequence was the whole deck going blank:
+
+          press any control (Next, Back, the deck is now in manual mode), arrow back to
+          chapter 1, press ArrowLeft or ArrowUp once more — the group wraps onto this
+          radio, it takes the check, and the deck is in AUTO mode again with focus inside
+          it. ":focus-within" then pauses every card's curio-cycle at currentTime 0, the
+          0% keyframe is "opacity: 0", and NOTHING is on screen for as long as focus
+          stays in the deck. Measured in the browser: activeElement "curio-auto", 0 cards
+          with a box and any opacity, card 1 paused at t=0 with computed opacity 0.
+
+        "disabled" removes it from the group's arrow walk while leaving everything the
+        deck is built on intact, all verified on screen rather than reasoned about:
+        a disabled radio still matches ":checked" (so auto mode still runs on load),
+        checking any real radio still takes the check away from it (so Next, Back and
+        "Start from the start" still end auto mode for good), and ArrowLeft from chapter 1
+        now wraps to chapter 42 — a card, not an empty deck.
+
+        It also closes the hole the note by `rules` above describes: that note says the
+        sentinel design exists so the deck can never silently start moving again under a
+        reader who took control of it, and until this attribute arrived one arrow key did
+        exactly that. */}
     <input
       class="curio__radio"
       type="radio"
       name="curio"
       id="curio-auto"
       checked
+      disabled
       tabindex="-1"
       aria-hidden="true"
     />
