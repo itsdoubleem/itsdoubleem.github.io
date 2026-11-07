@@ -47,8 +47,9 @@ app page carries (`siteClaim` in `src/site.ts`); a sixth one means editing those
 
 ## Adding a piece of work
 
-Adding something is adding **one markdown file** to `apps/`. Nothing in `src/` names an
-app, and no page is written by hand. The frontmatter contract is
+Adding something is adding **one markdown file** to `apps/`, and `npm run new-app -- <slug>
+"<Name>" [owner/repo]` starts it in the shared format. `npm run check` fails on every TODO it
+leaves. Nothing in `src/` names an app, and no page is written by hand. The frontmatter contract is
 [`src/content.config.ts`](src/content.config.ts); it validates at build time, so a typo
 fails the build rather than shipping a broken page.
 
@@ -211,6 +212,13 @@ the live pages, and compares them with `main` and each app's Latest release. Whi
 wrong (an old APK, an overstayed pill, a release not arriving, no deploy for two days) one
 Issue stays open, and it closes itself when the check passes. Run
 `node tools/check-live.mjs` to see the same answer.
+
+**To release an app, run `node tools/release-app.mjs <slug>`** on the Mac that holds the
+signing keys, after bumping the version in the app's repo and pushing it. It works the same way
+for every app: it builds the APK, refuses anything the sync would refuse (and a dirty folder, a
+used version or missing notes), and shows you the notes. Nothing is published until you add
+`--publish`, which creates the Release with the APK attached and tells the site to update now.
+Notes come from the `CHANGELOG.md` section whose heading names the version, or `--notes-file`.
 
 A release with no APK attached is skipped with a warning on the run — so **attach the APK to
 every app release on GitHub**, or the site never sees it. HANGIL's releases up to v1.0.2

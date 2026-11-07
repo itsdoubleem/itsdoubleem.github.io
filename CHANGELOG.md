@@ -6,7 +6,24 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+- A release that changes its icon no longer stops every deploy. LOGGER 1.4.0 did, and the site
+  stayed on 1.3.0 under an expired New pill from 2026-10-26. The sync now carries the icon.
+
+### Changed
+- An app update is committed to `sync/candidate`, tested there, and only then moved to `main`,
+  so an update the build refuses cannot stop the site deploying or pills expiring.
+
 ### Added
+- A release can tell the site to update at once (`repository_dispatch`), instead of waiting for
+  a schedule GitHub runs 3–7 times a day.
+- `tools/check-live.mjs` and `watch.yml` compare the live site with `main` and GitHub after each
+  deploy run and daily, and keep one Issue open while they disagree.
+- An app's description can live in `LISTING.md` in its own repo. Ordinary prose publishes by
+  itself; changes to protected sections or numbers wait for approval (`apps/README.md`).
+- `node tools/release-app.mjs <slug>`: one release command for every app, dry-run by default.
+- `npm run check` enforces one page format and refuses banned phrases (`tools/check-format.mjs`);
+  `npm run new-app` starts a page in that format.
 - `npm run check` reads the homepage primer out of the build: it fails if .astro whitespace
   collapse has glued two words together (which has shipped twice), if the chapter number
   the paragraph derives from curios.ts has gone missing from the markup, or if either of

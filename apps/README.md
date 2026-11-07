@@ -73,7 +73,9 @@ release:                         # optional; required once the page offers an AP
   source:  itsdoubleem/Logger_app  # optional: the hourly sync follows this repo's Latest
                                  # GitHub Release and updates everything above by itself
                                  # (README.md § Shipping an app update)
-  asset:   worklog-release.apk   # optional: which release asset is the APK
+  asset:   worklog-release.apk   # required with source: the APK's file name on the Release
+  build:   ./build_apk.sh release  # optional: what tools/release-app.mjs runs to build it;
+                                 # this is the default
   signer:  115e06…               # required with source: the APK's signing certificate
                                  # SHA-256; the sync refuses any other
   captured: '1.2.24'             # written by the sync — the version the screenshots
@@ -87,8 +89,9 @@ notice:                          # optional — see README.md § Update notices
 
 ## Body
 
-The markdown body becomes the detail page. Use these headings, in this order, and omit
-any that would be padding:
+The markdown body becomes the detail page. Use these headings, in this order. `npm run
+check` fails on any other heading, on a wrong order, and on a page of type `app`, `tool` or
+`bot` without the first four (`tools/format-lib.mjs`). `## Getting it` is the only one that may be left out:
 
 - `## What it does` — three or four sentences. Concrete.
 - `## Who it's for` — name the actual person. Vague audiences produce vague pages.
@@ -164,6 +167,36 @@ about the next piece of work, it belongs in `/apps`.
 
 Write the body for what THIS app gets wrong, and make the heading name an error a reader
 would actually notice.
+
+## Keeping the description in the app's repo
+
+An app's description can live in `LISTING.md` at the root of its own repo, on the default
+branch. The sync reads it on every run, so **once a repo has one, that file is the description
+and edits to the same text here are overwritten.** Everything else (the release block, verify
+claims, screenshots) stays in this folder.
+
+```yaml
+---
+tagline: Records your shifts and works out what you're actually owed.
+audience: For foreign workers in Korea.     # optional; left out, the page keeps its own
+---
+
+## What it does
+…the same sections, in the same order, as the body above.
+```
+
+Start one from the page as it stands: `node tools/export-listing.mjs <slug> > ~/<App>/LISTING.md`.
+
+| A change that… | What happens |
+|---|---|
+| is ordinary prose | goes on the page at the next sync, with no one reading it first |
+| touches `What it is not` or `Your data`, or changes any number | **waits for you.** An Issue shows the old and new text and the id to approve (`logger@1a2b…`). Approval covers exactly that text; edit the file and it waits again |
+| breaks the format or a banned phrase | is refused. The page keeps its text, an Issue says why, and approval cannot override it |
+
+Publishing prose unread is a deliberate exception to hard rule 3 of CLAUDE.md, agreed with the
+owner on 2026-11-07: whoever edits `LISTING.md` is the one vouching for it. So **do not add a
+new factual claim about what an app does until you have seen it on screen**, because here
+nothing will stop it. A claim that belongs in a protected section belongs there for that reason.
 
 ## Optional frontmatter that grows the detail page
 
