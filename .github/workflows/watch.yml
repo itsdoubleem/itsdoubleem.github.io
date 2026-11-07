@@ -17,6 +17,10 @@ permissions: {}
 
 jobs:
   watch:
+    # One at a time, so two runs finding the same problem cannot open two Issues.
+    concurrency:
+      group: watch
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     permissions:
       contents: read

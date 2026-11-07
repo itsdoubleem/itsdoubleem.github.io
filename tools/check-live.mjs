@@ -34,7 +34,22 @@ const api = async (path) => {
 // A cache-busting query, so a CDN copy cannot make a stale site look fresh or the reverse.
 const live = (path) => fetch(`${SITE}${path}?check=${Date.now()}`, { headers: { 'User-Agent': 'doubleem-site-watch' } });
 
+// A deploy in flight is not a site out of date. Its completion runs this check again.
+if (raise) {
+  try {
+    const running = await api(`repos/${repo}/actions/workflows/deploy.yml/runs?status=in_progress&per_page=1`);
+    if (running?.total_count) {
+      console.log('check-live: a deploy is running, so its finish will check again.');
+      process.exit(0);
+    }
+  } catch (e) {
+    console.log(`::warning::could not ask whether a deploy is running — ${e.message}`);
+  }
+}
+
 const problems = [];
+// What could not be checked. It proves nothing either way, so it never closes an alarm.
+let unchecked = 0;
 for (const name of readdirSync(join(root, 'apps')).filter((f) => f.endsWith('.md') && f !== 'README.md')) {
   const md = readFileSync(join(root, 'apps', name), 'utf8');
   const slug = name.replace(/\.md$/, '');
@@ -56,6 +71,7 @@ for (const name of readdirSync(join(root, 'apps')).filter((f) => f.endsWith('.md
       pill: pageRes.ok ? livePill(await pageRes.text()) : null,
     }));
   } catch (e) {
+    unchecked++;
     console.error(`::warning::${slug}: could not check — ${e.message}`);
   }
 }
@@ -63,19 +79,24 @@ try {
   const deployments = await api(`repos/${repo}/deployments?environment=github-pages&per_page=1`);
   problems.push(...deployProblems({ lastDeploy: deployments?.[0]?.created_at ?? null }));
 } catch (e) {
+  unchecked++;
   console.error(`::warning::could not read deployments — ${e.message}`);
 }
 
 for (const p of problems) console.log(`- ${p}`);
-if (!problems.length) console.log('check-live: the live site matches main and GitHub, and no pill has overstayed.');
+if (!problems.length) {
+  console.log(unchecked
+    ? `check-live: nothing wrong found, but ${unchecked} check(s) could not run, so this says nothing.`
+    : 'check-live: the live site matches main and GitHub, and no pill has overstayed.');
+}
 
 if (raise) {
   const board = issues({ repo, token });
   if (problems.length) {
     await board.raise('site-behind', 'The live site is out of date', `tools/check-live.mjs found this on the live site:\n\n${problems.map((p) => `- ${p}`).join('\n')}\n\nThis Issue closes by itself when the check next passes.`);
-  } else {
+  } else if (!unchecked) {
     await board.clear('site-behind', 'The live site matches main and GitHub again.');
   }
   process.exit(0);
 }
-process.exit(problems.length ? 1 : 0);
+process.exit(problems.length || unchecked ? 1 : 0);

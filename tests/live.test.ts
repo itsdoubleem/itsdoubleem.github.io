@@ -55,6 +55,8 @@ test('the pill is found through markup, and absent means absent', () => {
   assert.equal(livePill('<p>What is New in this</p>'), null);
 });
 
+const BOT = { login: 'github-actions[bot]' };
+
 // A fake GitHub holding Issues in memory, recording every write.
 function fakeGitHub(open: any[] = []) {
   const writes: string[] = [];
@@ -72,19 +74,28 @@ test('a problem opens one Issue, repeating it writes nothing, and changing it ed
   const first = fakeGitHub();
   await first.board.raise('k', 'T', 'text');
   assert.deepEqual(first.writes, ['POST /issues']);
-  const same = fakeGitHub([{ number: 7, title: 'T', body: 'text\n\n<!-- doubleem:k -->' }]);
+  const same = fakeGitHub([{ number: 7, user: BOT, title: 'T', body: 'text\n\n<!-- doubleem:k -->' }]);
   await same.board.raise('k', 'T', 'text');
   assert.deepEqual(same.writes, []);
-  const changed = fakeGitHub([{ number: 7, title: 'T', body: 'old\n\n<!-- doubleem:k -->' }]);
+  const changed = fakeGitHub([{ number: 7, user: BOT, title: 'T', body: 'old\n\n<!-- doubleem:k -->' }]);
   await changed.board.raise('k', 'T', 'text');
   assert.deepEqual(changed.writes, ['PATCH /issues/7']);
 });
 
 test('clearing closes only the Issue with the marker, and pull requests never match', async () => {
-  const none = fakeGitHub([{ number: 3, body: 'someone else' }, { number: 4, pull_request: {}, body: '<!-- doubleem:k -->' }]);
+  const none = fakeGitHub([{ number: 3, body: 'someone else' }, { number: 4, user: BOT, pull_request: {}, body: '<!-- doubleem:k -->' }]);
   await none.board.clear('k');
   assert.deepEqual(none.writes, []);
-  const one = fakeGitHub([{ number: 7, body: '<!-- doubleem:k -->' }]);
+  const one = fakeGitHub([{ number: 7, user: BOT, body: '<!-- doubleem:k -->' }]);
   await one.board.clear('k');
   assert.deepEqual(one.writes, ['POST /issues/7/comments', 'PATCH /issues/7']);
+});
+
+test("a stranger's Issue, or a marker inside quoted text, is never taken for the alarm", async () => {
+  const stranger = fakeGitHub([{ number: 8, user: { login: 'someone' }, body: '<!-- doubleem:k -->' }]);
+  await stranger.board.clear('k');
+  assert.deepEqual(stranger.writes, []);
+  const quoted = fakeGitHub([{ number: 9, user: BOT, body: 'quoted <!-- doubleem:k -->\n\n<!-- doubleem:other -->' }]);
+  await quoted.board.clear('k');
+  assert.deepEqual(quoted.writes, []);
 });

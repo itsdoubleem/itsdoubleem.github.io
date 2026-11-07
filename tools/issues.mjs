@@ -3,6 +3,7 @@
  * until the problem does, and this closes it when the problem has gone. Used by
  * check-live.mjs and sync-apps.mjs, on the GITHUB_TOKEN of the job that calls them. */
 const marker = (key) => `<!-- doubleem:${key} -->`;
+const author = 'github-actions[bot]';
 
 export function issues({ repo, token, fetchImpl = fetch }) {
   const headers = { Accept: 'application/vnd.github+json', Authorization: `Bearer ${token}`, 'User-Agent': 'doubleem-site' };
@@ -16,7 +17,9 @@ export function issues({ repo, token, fetchImpl = fetch }) {
   };
   const find = async (key) => {
     const open = await api('/issues?state=open&per_page=100');
-    return open.find((i) => !i.pull_request && i.body?.includes(marker(key)));
+    // This job's own Issues only, with the marker as the last line. The repo is public, and a
+    // stranger's Issue or quoted text must not be able to stand in for the alarm or close it.
+    return open.find((i) => !i.pull_request && i.user?.login === author && i.body?.trimEnd().endsWith(marker(key)));
   };
   return {
     /** Opens the Issue, or brings the open one up to date. An unchanged one is not touched,
