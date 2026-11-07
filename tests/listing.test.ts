@@ -55,7 +55,7 @@ test('numbers in other forms are held too', () => {
 });
 
 test('a new link is held, so nothing can point readers at another APK unread', () => {
-  for (const text of ['[Get it](https://evil.example/x.apk)', 'See https://evil.example/', '\n\n[a]: /elsewhere']) {
+  for (const text of ['[Get it](https://evil.example/x.apk)', 'See https://evil.example/', 'www.evil.example/x.apk', '//evil.example/x.apk', 'me@evil.example']) {
     const p = plan(listing(body.replace('Learners.', `Learners. ${text}`)));
     assert.equal(p.status, 'held', text);
     assert.match(p.reasons.join(), /links change/);
@@ -67,13 +67,28 @@ test('anything that could make readers see other than the gate saw is refused', 
   const cases: [string, RegExp][] = [
     [hideAll, /raw HTML/],
     [body.replace('Learners.', '<style>a{display:none}</style>'), /raw HTML/],
-    [body.replace('## Your data', '##\tYour data'), /not a plain/],
-    [body.replace('Learners.', 'Learners.\n\n ## Your data\n\nWe keep it.'), /not a plain/],
-    [body.replace('Learners.', 'Your data\n--\n\nWe keep it.'), /underlined/],
-    [body.replace('Learners.', '### Your data\n\nWe keep it.'), /not a plain/],
-    [body.replace('Learners.', '```\nx\n```'), /code fence/],
+    [body.replace('## Your data', '##\tYour data'), /not plain text/],
+    [body.replace('Learners.', 'Learners.\n\n ## Your data\n\nWe keep it.'), /not plain text/],
+    [body.replace('Learners.', 'Your data\n--\n\nWe keep it.'), /not plain text/],
+    [body.replace('Learners.', '### Your data\n\nWe keep it.'), /not plain text/],
+    [body.replace('Learners.', '```\nx\n```'), /not plain text/],
+    // Line endings the checks do not split on and the renderer honours.
+    [body.replace('Learners.', 'x\r```\r'), /line ending/],
+    [body.replace('## What it is not', '\u2028## What it is not'), /not plain text|line ending/],
+    [body.replace('Learners.', 'x\r## Your data, updated\r'), /line ending/],
+    [body.replace('Learners.', 'x\u0085```'), /line ending/],
+    // Headings and link definitions inside a container.
+    [body.replace('Learners.', '> ## Your data, updated'), /not plain text/],
+    [body.replace('Learners.', '- ## Your data, updated'), /not plain text/],
+    [body.replace('Learners.', '1. ## Your data, updated'), /not plain text/],
+    [body.replace('Learners.', '> Your data\n> ---'), /not plain text/],
+    [body.replace('Learners.', '[Get it][x]\n\n> [x]: //evil.example/a.apk'), /link definition/],
+    [body.replace('Learners.', '- [x]: //evil.example/a.apk'), /link definition/],
+    [body.replace('Learners.', '[x]: https://evil.example'), /link definition/],
+    [body.replace('Learners.', '    indented code'), /not plain text/],
+    [body.replace('Learners.', '| a | b |'), /not plain text/],
     [`Used by people.\n\n${body}`, /before its first heading/],
-    [`${body}\n\n---\n`, /--- line/],
+    [`${body}\n\n---\n`, /not plain text/],
   ];
   for (const [text, why] of cases) {
     const p = plan(listing(text));
@@ -81,6 +96,12 @@ test('anything that could make readers see other than the gate saw is refused', 
     assert.match(p.reasons.join(), why);
     assert.equal(plan(listing(text), p.id).status, 'refused');
   }
+});
+
+test('ordinary writing still publishes: bold openers, italics, Korean, brackets, a phone number kept', () => {
+  const prose = '**The exam side** is *practice*. 한글 (근무기록) "quoted" — ☎ stays.\nSee [not a link] and 5 > 3.\n**Bold** again.';
+  assert.equal(plan(listing(body.replace('Learners.', prose))).status, 'held'); // 5 and 3 are new numbers
+  assert.equal(plan(listing(body.replace('Learners.', prose.replace(' and 5 > 3', '')))).status, 'publish');
 });
 
 test('whatever verify would refuse is refused here, not left to hold back other apps', () => {
@@ -99,6 +120,9 @@ test('text in an Issue cannot close the fence or carry a raw field name', () => 
   assert.ok(p.changes.join().includes('`````\nNot ````'));
   const bad = plan(listing(body, 'tagline: T\n@octocat <!-- x --> hello'));
   assert.ok(!bad.reasons.join().includes('octocat'));
+  const heading = plan(listing(`${body}\n\n## @octocat <!-- hi`));
+  assert.equal(heading.status, 'refused');
+  assert.ok(!heading.reasons.join().includes('octocat'));
 });
 
 test('approval publishes exactly the text approved, and no other', () => {

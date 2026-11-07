@@ -191,7 +191,7 @@ Start one from the page as it stands: `node tools/export-listing.mjs <slug> > ~/
 |---|---|
 | is ordinary prose | goes on the page at the next sync, with no one reading it first |
 | touches `What it is not` or `Your data`, or changes a number or a link | **waits for you.** An Issue shows the old and new text and the id to approve (`logger@1a2b…`). Approval covers exactly that text; edit the file and it waits again |
-| breaks the format, uses a banned phrase, or contains raw HTML, a code fence or any heading that is not a plain `## ` section | is refused. The page keeps its text, an Issue says why, and approval cannot override it |
+| breaks the format, uses a banned phrase, or is anything but paragraphs and plain `## ` headings (no lists, quotes, tables, code, HTML or link definitions) | is refused. The page keeps its text, an Issue says why, and approval cannot override it |
 
 Publishing prose unread is a deliberate exception to rule 3 in README.md § The rules, agreed
 with the owner on 2026-11-07: whoever edits `LISTING.md` is the one vouching for it. So **do not

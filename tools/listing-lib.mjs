@@ -31,17 +31,20 @@ const YAML_WORD = /^(null|true|false|yes|no|on|off|~|[-+.\d][\d._eE+-]*)$/i;
 const scalar = (v) => (/^[\p{L}\p{N}][^#\n]*$/u.test(v) && !/:(\s|$)/.test(v) && !/\s$/.test(v) && !YAML_WORD.test(v) ? v : JSON.stringify(v));
 
 /* The gate below compares sections found by pattern, while readers get what the markdown
- * renderer makes. Anything that could make those two differ is refused, not judged: a comment
- * can hide "What it is not" from readers while its text stays in the file, and "##<tab>Your data"
- * or an underlined heading renders as a section the gate never sees. These pages use none of it. */
+ * renderer makes, and any way of writing that makes the two differ defeats it: a comment hiding
+ * "What it is not", a quoted heading, a lone carriage return opening a code block. So this is an
+ * allow-list rather than a list of tricks. These pages are paragraphs, bold openers and plain
+ * "## " headings, and a listing may be nothing else. Refused, not judged: approval cannot pass it. */
+const PLAIN_LINE = /^(?:## \S.*|(?![>#=~|<\[!`_+-]|\*(?!\*)|\d+[.)](?:\s|$))\S.*)$/u;
 export function structureProblems(body) {
   const out = [];
   if (body && !body.startsWith('## ')) out.push('has text before its first heading');
+  // \n is the one line ending, because the checks split on it and the renderer honours others.
+  if (/[\p{Cc}\p{Zl}\p{Zp}]/u.test(body.replace(/\n/g, ''))) out.push('has a control character or an unusual line ending');
   if (/<[a-zA-Z!/?]/.test(body)) out.push('has raw HTML or a comment in it');
-  const lines = body.split('\n');
-  if (lines.some((l) => /^\s*(```|~~~)/.test(l))) out.push('has a code fence in it');
-  if (lines.some((l) => /^ {0,3}#{1,6}(\s|$)/.test(l) && !/^## \S/.test(l))) out.push('has a heading that is not a plain "## " section');
-  if (lines.some((l) => /^ {0,3}(=+|-+)\s*$/.test(l))) out.push('has an underlined heading or a --- line');
+  if (/\]:/.test(body)) out.push('has a link definition in it');
+  const bad = body.split('\n').filter((l) => l.trim() && !PLAIN_LINE.test(l)).length;
+  if (bad) out.push(`has ${bad} line(s) that are not plain text or a "## " heading: no lists, quotes, tables, code, indents or other headings`);
   return out;
 }
 
@@ -67,7 +70,7 @@ const fieldOf = (front, key) => {
  * of this, which is why apps/README.md asks for it to be checked before it is written. */
 const NUMBER = /\d[\d,.]*\d|\d|\b(?:two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|dozen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|million|billion)\b|[천만억]\s*명/gi;
 const numbers = (text = '') => (text.normalize('NFKC').toLowerCase().match(NUMBER) ?? []);
-const LINK = /https?:\/\/[^\s)>]+|\]\([^)]*\)|^\s*\[[^\]]+\]:.*$/gm;
+const LINK = /[a-z][a-z0-9+.-]*:\/\/[^\s)>]+|\/\/[^\s)>]+|\bwww\.[^\s)>]+|\]\([^)]*\)|[^\s@]+@[^\s@]+\.[^\s@]+/gi;
 const links = (text = '') => text.match(LINK) ?? [];
 const multisetDiff = (a, b) => {
   const rest = [...b];

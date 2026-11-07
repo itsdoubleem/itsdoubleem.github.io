@@ -41,7 +41,7 @@ export function bodyProblems(body, type = 'app') {
   if (!SOFTWARE.includes(type)) return [];
   const out = [];
   const found = sections(body).map(([h]) => h);
-  for (const h of found) if (!SECTIONS.includes(h)) out.push(`has a section "${h}" — the page format allows ${SECTIONS.join(', ')}`);
+  for (const h of found) if (!SECTIONS.includes(h)) out.push(`has a section ${/^[\w' -]+$/.test(h) ? `"${h}"` : 'it cannot read'} — the page format allows ${SECTIONS.join(', ')}`);
   for (const h of REQUIRED) if (!found.includes(h)) out.push(`has no "${h}" section`);
   const known = found.filter((h) => SECTIONS.includes(h));
   if (known.join() !== [...known].sort((a, b) => SECTIONS.indexOf(a) - SECTIONS.indexOf(b)).join()) {
