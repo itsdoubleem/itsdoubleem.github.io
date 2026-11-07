@@ -70,6 +70,8 @@ release:
   web: /hangil/
   date: 2026-10-11
   source: itsdoubleem/Hangil_app
+  asset: hangil-release.apk
+  build: HANGIL_NO_AUDIO=1 ./build_apk.sh release
   signer: 7845c1898486c42c9fc4d7b06f8d56e47a93491475fdda3bc04e66895b18fafb
 # 1.0 and 1.0.1 are signed with different keys, so an update from 1.0 cannot install over
 # the top; the Android note above says so. 1.0.1 and later share the key pinned in `signer`.

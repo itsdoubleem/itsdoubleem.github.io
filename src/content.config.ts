@@ -116,6 +116,9 @@ const apps = defineCollection({
         source: z.string().regex(/^[\w.-]+\/[\w.-]+$/, 'source is owner/repo').optional(),
         // The release asset to take, when a release carries more than one APK.
         asset: z.string().optional(),
+        // The command that builds the release APK in the app's folder, for
+        // tools/release-app.mjs. Without it, ./build_apk.sh release.
+        build: z.string().optional(),
         // The SHA-256 of the certificate the APK must be signed with. The sync refuses any
         // other: a new key means Android will not install the update over the old app.
         signer: z.string().regex(/^[0-9a-f]{64}$/, 'signer is a 64-character certificate SHA-256').optional(),
