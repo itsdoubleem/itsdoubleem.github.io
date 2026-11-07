@@ -181,9 +181,36 @@ is newer than what the site serves, the sync:
   and the hash in the list above;
 - writes the release's notes to `releases/<slug>.md` (cleaned: no HTML, PR numbers, hashes or
   links into the app's repo), which the page shows as **What's new** for the same seven days;
-- commits to `main` as the owner's noreply address and pushes. The same run then builds,
-  checks and deploys that commit — so a check that fails after the push leaves `main` red
-  and undeployed until someone fixes it, rather than publishing it.
+- commits to the branch `sync/candidate` as the owner's noreply address. The `verify` job
+  runs the tests, the build and the checks on that commit, and only if they all pass does
+  `promote` move `main` to it, after which the same run builds and deploys. A candidate that
+  fails stays out of `main`, so the rest of the site keeps deploying and pills keep expiring.
+  It holds back every app updated in that run, and the sync tries again on its next run. Read
+  the red line in the `verify` job.
+
+A release can ask for its update straight away instead of waiting for the schedule, which
+GitHub runs 3–7 times a day rather than hourly. `tools/release-app.mjs` does this for you. A
+release made any other way can do it with this workflow in the app's repo, and a fine-grained
+token limited to this repository with **Contents: read and write**, saved as the app repo's
+`SITE_DISPATCH_TOKEN` secret. If the token ever expires, the schedule still finds the release.
+
+```yaml
+on: { release: { types: [published] } }
+permissions: {}
+jobs:
+  notify-site:
+    runs-on: ubuntu-latest
+    steps:
+      - run: gh api repos/itsdoubleem/itsdoubleem.github.io/dispatches -f event_type=app-release
+        env: { GH_TOKEN: "${{ secrets.SITE_DISPATCH_TOKEN }}" }
+```
+
+**If the live site falls behind, an Issue says so.** `.github/workflows/watch.yml` runs
+`tools/check-live.mjs` after every deploy run and once a day. It downloads the live APKs, reads
+the live pages, and compares them with `main` and each app's Latest release. While anything is
+wrong (an old APK, an overstayed pill, a release not arriving, no deploy for two days) one
+Issue stays open, and it closes itself when the check passes. Run
+`node tools/check-live.mjs` to see the same answer.
 
 A release with no APK attached is skipped with a warning on the run — so **attach the APK to
 every app release on GitHub**, or the site never sees it. HANGIL's releases up to v1.0.2

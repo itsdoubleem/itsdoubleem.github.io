@@ -1,0 +1,46 @@
+name: Watch the live site
+
+# Compares the site people get with main and each app's Latest release, and keeps one Issue
+# open while they disagree (tools/check-live.mjs). In October 2026 the deploy failed daily for
+# twelve days while the site served an old build; this is what would have said so.
+#
+# It runs nothing but Node and code from this repo's main, with no npm install.
+on:
+  workflow_run:
+    workflows: [Deploy to GitHub Pages]
+    types: [completed]
+  schedule:
+    - cron: '23 3 * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: read
+      issues: write
+      actions: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - run: node tools/check-live.mjs --issue
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      # GitHub pauses schedules after 60 days with no repository activity, and a paused
+      # schedule cannot report that it has paused. Asking to enable a workflow keeps it from
+      # happening, without the empty commits the usual workaround makes.
+      - name: Keep the schedules from pausing
+        if: ${{ !cancelled() && github.event_name == 'schedule' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api -X PUT "repos/${GITHUB_REPOSITORY}/actions/workflows/deploy.yml/enable"
+          gh api -X PUT "repos/${GITHUB_REPOSITORY}/actions/workflows/watch.yml/enable"

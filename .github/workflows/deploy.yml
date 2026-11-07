@@ -4,8 +4,13 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-  # Two schedules. GitHub pauses both after 60 days with no commits; if pills stop expiring
-  # or app releases stop arriving, look there first.
+  # An app's release asking for its update now (README.md § Shipping an app update). The
+  # hourly schedule below finds the same release later if this signal never comes.
+  repository_dispatch:
+    types: [app-release]
+  # Two schedules. GitHub pauses both after 60 days with no commits, and watch.yml asks it
+  # not to; if pills stop expiring or app releases stop arriving, look there first. GitHub
+  # also treats "hourly" loosely: 3–7 runs a day in November 2026.
   #
   # 00:17 UTC (09:17 KST), daily: a full rebuild, so an app's "New" pill comes down within a
   # day of its seventh day, and an update notice within a day of its last (src/release.ts).
@@ -23,8 +28,12 @@ on:
 permissions: {}
 
 jobs:
-  # Brings each app's download up to its Latest GitHub Release and commits the result to
-  # main. Not on a push: a push is a person's change, already in the tree.
+  # Brings each app's download up to its Latest GitHub Release and commits the result to a
+  # candidate branch, not to main. Not on a push: a push is a person's change, already in the
+  # tree. `verify` tests the candidate and `promote` moves main to it, so an update the build
+  # would refuse never reaches main. It used to: LOGGER 1.4.0's icon went straight to main,
+  # the build refused it, and because every rebuild builds main, nothing deployed for twelve
+  # days and no pill could expire.
   #
   # It holds contents:write, and so it never runs `npm ci` — no dependency's code runs
   # beside the token. The sync needs only Node, unzip and the Android SDK's aapt2 and
@@ -42,9 +51,10 @@ jobs:
       contents: write
     outputs:
       changed: ${{ steps.commit.outputs.changed }}
+      candidate: ${{ steps.commit.outputs.candidate }}
+      base: ${{ steps.commit.outputs.base }}
     steps:
-      # main as it is now, not the commit the schedule fired on: a run that waited behind
-      # another would otherwise sync onto an old tree and have its push refused.
+      # main as it is now, not the commit the schedule fired on.
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           ref: main
@@ -58,10 +68,10 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
       # Authored and committed as the owner's noreply address, so the repository keeps one
       # contributor (CLAUDE.md, hard rule 6) — not github-actions[bot]. No trailers.
-      # Runs even when one app failed, so the apps that synced are still published. The
-      # job stays red, which is the signal to read the failed one's ::error:: line.
+      # Runs even when one app failed, so the apps that synced still go forward. The job
+      # stays red, which is the signal to read the failed one's ::error:: line.
       - id: commit
-        name: Commit and push
+        name: Commit to the candidate branch
         if: ${{ !cancelled() }}
         env:
           TOKEN: ${{ github.token }}
@@ -70,24 +80,87 @@ jobs:
             echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
+          base=$(git rev-parse HEAD)
           git config user.name itsdoubleem
           git config user.email 328792799+itsdoubleem@users.noreply.github.com
           git add -A
           git commit -q -F "$RUNNER_TEMP/sync-message"
-          git pull -q --rebase "https://github.com/${GITHUB_REPOSITORY}.git" main
-          git push -q "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main
-          echo "changed=true" >> "$GITHUB_OUTPUT"
+          git push -q -f "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:refs/heads/sync/candidate
+          {
+            echo "changed=true"
+            echo "candidate=$(git rev-parse HEAD)"
+            echo "base=$base"
+          } >> "$GITHUB_OUTPUT"
+
+  # The same gates the build job applies, on the candidate. This job runs third-party code,
+  # so it holds no token that can write anything.
+  verify:
+    needs: sync
+    if: ${{ !cancelled() && needs.sync.outputs.changed == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ needs.sync.outputs.candidate }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm test
+      - run: npm run build
+      - run: npm run check
+
+  # Moves main to a candidate that passed. It runs nothing but git. If main moved while the
+  # candidate was being tested, the candidate was tested against a tree main no longer is, so
+  # it is dropped and the next sync starts again from the new main.
+  promote:
+    needs: [sync, verify]
+    if: ${{ !cancelled() && needs.verify.result == 'success' }}
+    concurrency:
+      group: sync-promote
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      promoted: ${{ steps.move.outputs.promoted }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ needs.sync.outputs.candidate }}
+          persist-credentials: false
+      - id: move
+        env:
+          TOKEN: ${{ github.token }}
+          BASE: ${{ needs.sync.outputs.base }}
+          CANDIDATE: ${{ needs.sync.outputs.candidate }}
+        run: |
+          url="https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          head=$(git ls-remote --exit-code "$url" refs/heads/main | cut -f1)
+          if [ "$head" != "$BASE" ]; then
+            echo "::notice::main moved to $head while the candidate was tested — the next sync starts from there."
+            echo "promoted=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git push -q "$url" "$CANDIDATE:refs/heads/main"
+          echo "promoted=true" >> "$GITHUB_OUTPUT"
+          git push -q "$url" --delete sync/candidate || echo "::notice::could not delete sync/candidate; the next sync overwrites it."
 
   build:
-    needs: sync
+    needs: [sync, verify, promote]
     # On a push or by hand, always. On the daily schedule, always — that is the rebuild that
-    # retires pills. On the hourly one, only when the sync committed something. A failed
-    # sync does not stop the daily rebuild of what is already on main.
+    # retires pills, and because it builds main and a refused candidate never reaches main,
+    # one bad release cannot stop it. On the hourly schedule or an app's release signal, only
+    # when an update was promoted.
     if: >-
       !cancelled() && (
-        github.event_name != 'schedule' ||
+        (github.event_name != 'schedule' && github.event_name != 'repository_dispatch') ||
         github.event.schedule == '17 0 * * *' ||
-        needs.sync.outputs.changed == 'true'
+        needs.promote.outputs.promoted == 'true'
       )
     runs-on: ubuntu-latest
     # Read the repo, write an artifact. That is all a build needs; it deliberately does
@@ -176,7 +249,8 @@ jobs:
       group: pages
       cancel-in-progress: false
     # Said out loud: on a push the sync job is skipped, and a job downstream of a skipped
-    # one is skipped too unless its condition says otherwise.
+    # one is skipped too unless its condition says otherwise. The same goes for verify and
+    # promote above, which are skipped whenever the sync changed nothing.
     if: ${{ !cancelled() && needs.build.result == 'success' && needs.build.outputs.current == 'true' }}
     runs-on: ubuntu-latest
     permissions:
