@@ -43,7 +43,10 @@ export function structureProblems(body) {
   if (/[\p{Cc}\p{Zl}\p{Zp}]/u.test(body.replace(/\n/g, ''))) out.push('has a control character or an unusual line ending');
   if (/<[a-zA-Z!/?]/.test(body)) out.push('has raw HTML or a comment in it');
   if (/\]:/.test(body)) out.push('has a link definition in it');
-  const bad = body.split('\n').filter((l) => l.trim() && !PLAIN_LINE.test(l)).length;
+  // The renderer resolves both before it looks for links, so they can disguise one from LINK.
+  if (/\\|&[#\w]+;/.test(body)) out.push('has a backslash or an HTML entity in it');
+  // A row of only marks is a divider or a table's second row, whatever it starts with.
+  const bad = body.split('\n').filter((l) => l.trim() && (!PLAIN_LINE.test(l) || /^[\s*_:|-]+$/.test(l))).length;
   if (bad) out.push(`has ${bad} line(s) that are not plain text or a "## " heading: no lists, quotes, tables, code, indents or other headings`);
   return out;
 }
@@ -70,7 +73,7 @@ const fieldOf = (front, key) => {
  * of this, which is why apps/README.md asks for it to be checked before it is written. */
 const NUMBER = /\d[\d,.]*\d|\d|\b(?:two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|dozen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|million|billion)\b|[천만억]\s*명/gi;
 const numbers = (text = '') => (text.normalize('NFKC').toLowerCase().match(NUMBER) ?? []);
-const LINK = /[a-z][a-z0-9+.-]*:\/\/[^\s)>]+|\/\/[^\s)>]+|\bwww\.[^\s)>]+|\]\([^)]*\)|[^\s@]+@[^\s@]+\.[^\s@]+/gi;
+const LINK = /[a-z][a-z0-9+.-]*:\/\/[^\s)>]+|\/\/[^\s)>]+|www\.[^\s)>]+|\]\([^)]*\)|[^\s@]+@[^\s@]+\.[^\s@]+/gi;
 const links = (text = '') => text.match(LINK) ?? [];
 const multisetDiff = (a, b) => {
   const rest = [...b];

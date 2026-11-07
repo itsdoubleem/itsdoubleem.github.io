@@ -95,7 +95,11 @@ const apkFile = join(dir, asset);
 const apk = existsSync(apkFile) ? inspectApk(apkFile) : null;
 const problems = releaseProblems({ ...state, apk });
 if (git('status', '--porcelain') !== '' && state.clean) problems.push('the build changed tracked files in the app folder — commit or ignore them first');
-git('fetch', '-q', 'origin');
+try {
+  git('fetch', '-q', 'origin');
+} catch (e) {
+  die(`could not check origin after the build, so nothing was published: ${e.message}`);
+}
 if (git('rev-parse', 'HEAD') !== head) problems.push('a commit landed in the app folder during the build, so the APK matches no single commit');
 if (git('rev-parse', `origin/${defaultBranch}`) !== head) problems.push(`origin/${defaultBranch} moved during the build — pull and build again`);
 const apkPath = releaseField(md, 'apk');

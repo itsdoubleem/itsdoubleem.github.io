@@ -55,7 +55,7 @@ test('numbers in other forms are held too', () => {
 });
 
 test('a new link is held, so nothing can point readers at another APK unread', () => {
-  for (const text of ['[Get it](https://evil.example/x.apk)', 'See https://evil.example/', 'www.evil.example/x.apk', '//evil.example/x.apk', 'me@evil.example']) {
+  for (const text of ['[Get it](https://evil.example/x.apk)', 'See https://evil.example/', 'www.evil.example/x.apk', '*www.evil.example/x.apk*', '//evil.example/x.apk', 'me@evil.example']) {
     const p = plan(listing(body.replace('Learners.', `Learners. ${text}`)));
     assert.equal(p.status, 'held', text);
     assert.match(p.reasons.join(), /links change/);
@@ -87,6 +87,15 @@ test('anything that could make readers see other than the gate saw is refused', 
     [body.replace('Learners.', '[x]: https://evil.example'), /link definition/],
     [body.replace('Learners.', '    indented code'), /not plain text/],
     [body.replace('Learners.', '| a | b |'), /not plain text/],
+    [body.replace('Learners.', 'a|b\n:-|:-'), /not plain text/],
+    [body.replace('Learners.', '***'), /not plain text/],
+    // Links disguised from the check, resolved by the renderer.
+    [body.replace('Learners.', '_www.evil.example/a.apk_'), /not plain text/],
+    [body.replace('Learners.', 'www\\.evil.example/a.apk'), /backslash/],
+    [body.replace('Learners.', 'https:\\/\\/evil.example/a.apk'), /backslash/],
+    [body.replace('Learners.', 'www&period;evil.example/a.apk'), /entity/],
+    [body.replace('Learners.', 'https&colon;&sol;&sol;evil.example/a.apk'), /entity/],
+    [body.replace('Learners.', 'owner&commat;evil.example'), /entity/],
     [`Used by people.\n\n${body}`, /before its first heading/],
     [`${body}\n\n---\n`, /not plain text/],
   ];
