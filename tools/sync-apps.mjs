@@ -21,32 +21,36 @@
  * check-sample-record.mjs holds the sample record to that instead. Re-capture locally,
  * then delete the `captured:` line.
  *
- * Exits 1 if any app failed; the apps that succeeded are still written.
+ * It also carries each app's description. An app whose repo has a LISTING.md on its default
+ * branch has its tagline, audience and body taken from there, by the rules in listing-lib.mjs:
+ * ordinary prose goes straight on, and a change to a protected section or a number waits for
+ * approval. With --issues, a held or refused listing keeps one GitHub Issue open saying why;
+ * a listing is approved by naming the id that Issue gives (--approve, or APPROVE_LISTING).
+ *
+ * Exits 1 if any app's release failed; the apps that succeeded are still written. A listing
+ * that cannot go on does not fail the run: the page keeps its text and the Issue says why.
  */
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
-import { homedir, tmpdir } from 'node:os';
+import { tmpdir } from 'node:os';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { permissionsOf, planApp, releaseField, signersOf } from './sync-lib.mjs';
+import { inspectApk, inspectPermissions } from './apk-tools.mjs';
+import { issues } from './issues.mjs';
+import { LISTING_FILE, planListing } from './listing-lib.mjs';
+import { planApp, releaseField } from './sync-lib.mjs';
 
 const root = join(fileURLToPath(import.meta.url), '../..');
 const at = (p) => join(root, p);
 const msgFile = process.argv.includes('--message-file')
   ? process.argv[process.argv.indexOf('--message-file') + 1]
   : null;
-
-function sdkTool(name) {
-  for (const sdk of [process.env.ANDROID_HOME, process.env.ANDROID_SDK_ROOT, `${homedir()}/Library/Android/sdk`]) {
-    const tools = sdk && `${sdk}/build-tools`;
-    if (!tools || !existsSync(tools)) continue;
-    for (const v of readdirSync(tools).sort().reverse()) {
-      if (existsSync(`${tools}/${v}/${name}`)) return `${tools}/${v}/${name}`;
-    }
-  }
-  throw new Error(`${name} not found — it ships with the Android SDK build-tools`);
-}
+const approved = process.argv.includes('--approve')
+  ? process.argv[process.argv.indexOf('--approve') + 1]
+  : process.env.APPROVE_LISTING;
+const repo = process.env.GITHUB_REPOSITORY ?? 'itsdoubleem/itsdoubleem.github.io';
+const board = process.argv.includes('--issues') ? issues({ repo, token: process.env.GITHUB_TOKEN }) : null;
 
 const headers = { Accept: 'application/vnd.github+json', 'User-Agent': 'doubleem-site-sync' };
 if (process.env.GITHUB_TOKEN) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
@@ -60,19 +64,10 @@ async function get(url, h = headers) {
 const scratch = mkdtempSync(join(tmpdir(), 'sync-apps-'));
 let n = 0;
 const onDisk = (buf) => { const f = join(scratch, `${n++}.apk`); writeFileSync(f, buf); return f; };
-const badging = (file) => execFileSync(sdkTool('aapt2'), ['dump', 'badging', file], { encoding: 'utf8' });
 const io = (apkPath) => ({
   download: async (url) => Buffer.from(await (await get(url, { 'User-Agent': headers['User-Agent'] })).arrayBuffer()),
-  inspect: (buf) => {
-    const f = onDisk(buf);
-    const b = badging(f);
-    return {
-      versionName: b.match(/versionName='([^']+)'/)?.[1],
-      permissions: permissionsOf(b),
-      signers: signersOf(execFileSync(sdkTool('apksigner'), ['verify', '--print-certs', f], { encoding: 'utf8' })),
-    };
-  },
-  current: () => ({ permissions: permissionsOf(badging(at(`public${apkPath}`))) }),
+  inspect: (buf) => inspectApk(onDisk(buf)),
+  current: () => ({ permissions: inspectPermissions(at(`public${apkPath}`)) }),
   unpack: (buf) => {
     const f = onDisk(buf);
     const out = join(scratch, `www-${n++}`);
@@ -90,6 +85,39 @@ const io = (apkPath) => ({
   },
   sha256: (buf) => createHash('sha256').update(buf).digest('hex'),
 });
+
+/* An Issue that cannot be written is a warning: the listing's own state is already decided. */
+async function report(key, act) {
+  if (!board) return;
+  try { await act(board); } catch (e) { console.log(`::warning::could not update the Issue for ${key}: ${e.message}`); }
+}
+
+async function syncListing(slug, source) {
+  const res = await fetch(`https://api.github.com/repos/${source}/contents/${LISTING_FILE}`, {
+    headers: { ...headers, Accept: 'application/vnd.github.raw+json' },
+  });
+  if (res.status === 404) return; // this app keeps its description here
+  if (!res.ok) throw new Error(`${LISTING_FILE} → HTTP ${res.status}`);
+  const file = at(`apps/${slug}.md`);
+  const plan = planListing({ slug, md: readFileSync(file, 'utf8'), text: await res.text(), approved });
+  const key = `listing-${slug}`;
+  if (plan.status === 'publish') {
+    writeFileSync(file, plan.md);
+    changes.push(`${slug}: description from ${LISTING_FILE}`);
+    console.log(`${slug}: description updated from ${LISTING_FILE}`);
+  }
+  if (plan.status === 'publish' || plan.status === 'same') {
+    await report(key, (b) => b.clear(key, 'The page and LISTING.md agree again.'));
+  } else if (plan.status === 'held') {
+    console.log(`::warning::${slug}: ${LISTING_FILE} waits for approval — ${plan.reasons.join('; ')}. To approve: gh workflow run deploy.yml -f approve_listing=${plan.id}`);
+    await report(key, (b) => b.raise(key, `${slug}: a description change needs your approval`,
+      `${LISTING_FILE} in ${source} changed, and the page has not, because ${plan.reasons.join(' and ')}.\n\n${plan.changes.join('\n\n')}\n\n**To publish exactly this text**, open Actions › Deploy to GitHub Pages › Run workflow and enter \`${plan.id}\`, or run:\n\n\`gh workflow run deploy.yml -f approve_listing=${plan.id}\`\n\n**To reject it**, change ${LISTING_FILE} back. This Issue closes by itself once the two agree.`));
+  } else if (plan.status === 'refused') {
+    console.log(`::warning::${slug}: ${LISTING_FILE} refused — ${plan.reasons.join('; ')}`);
+    await report(key, (b) => b.raise(key, `${slug}: LISTING.md cannot be published`,
+      `${LISTING_FILE} in ${source} cannot go on the page:\n\n${plan.reasons.map((r) => `- ${r}`).join('\n')}\n\nThe page keeps its current text. Approval cannot override this: fix the file. This Issue closes by itself when it is fixed.`));
+  }
+}
 
 const changes = [];
 const failures = [];
@@ -114,14 +142,20 @@ try {
       failures.push(slug);
       console.error(`::error::${slug}: ${e.message}`);
     }
+    // Read after the release step, which may have just rewritten the same file.
+    try {
+      await syncListing(slug, source);
+    } catch (e) {
+      console.log(`::warning::${slug}: could not read its listing — ${e.message}`);
+    }
   }
 } finally {
   rmSync(scratch, { recursive: true, force: true });
 }
 
 if (msgFile && changes.length) {
-  const subject = changes.length === 1 ? changes[0] : `${changes.length} app releases`;
-  writeFileSync(msgFile, `chore(sync): ${subject}\n\nFrom each app's Latest GitHub Release, by tools/sync-apps.mjs.\n\n${changes.map((c) => `- ${c}`).join('\n')}\n`);
+  const subject = changes.length === 1 ? changes[0] : `${changes.length} app updates`;
+  writeFileSync(msgFile, `chore(sync): ${subject}\n\nFrom each app's GitHub repo, by tools/sync-apps.mjs.\n\n${changes.map((c) => `- ${c}`).join('\n')}\n`);
 }
 if (!changes.length) console.log('Nothing to change.');
 process.exit(failures.length ? 1 : 0);

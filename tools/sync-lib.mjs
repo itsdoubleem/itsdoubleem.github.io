@@ -127,6 +127,25 @@ export function shippedIcon(www, web) {
   return www.find(([p]) => p === path)?.[1] ?? null;
 }
 
+/* Why an APK must not be published, or null. Checked by the sync on what a release carries and
+ * by tools/release-app.mjs on what it is about to upload.
+ *
+ * The pages say what the app can and cannot do — "asks for no internet permission" above all.
+ * A permission the served APK does not ask for makes some sentence on the page untrue, and
+ * only a person can rewrite it. */
+export function apkRefusal(got, { tag, version, signer, had }) {
+  if (got.versionName !== version) return `${tag}'s APK says versionName ${got.versionName}`;
+  if (!got.signers.length || got.signers.some((x) => x !== signer)) {
+    return `${tag}'s APK is signed by ${got.signers.join(', ') || 'nothing'}, not the pinned ${signer}`;
+  }
+  const served = new Set(had);
+  const added = got.permissions.filter((p) => !served.has(p) || p === 'android.permission.INTERNET');
+  if (added.length) {
+    return `${tag}'s APK asks for ${added.join(', ')}, which the served one does not — check what the page says, then update by hand`;
+  }
+  return null;
+}
+
 /* What one app's sync would do, worked out without touching the disk. Everything that can
  * fail — the download, the version, the signer, the permissions, the unpacking, the README
  * line — fails here, before a single file is written; the caller writes `writes` only when
@@ -182,19 +201,8 @@ export async function planApp(app, rel, io) {
   const notesText = notes();
   const buf = await io.download(apks[0].browser_download_url);
   const got = io.inspect(buf);
-  if (got.versionName !== latest) throw new Error(`${rel.tag_name}'s APK says versionName ${got.versionName}`);
-  const pinned = releaseField(md, 'signer');
-  if (!got.signers.length || got.signers.some((x) => x !== pinned)) {
-    throw new Error(`${rel.tag_name}'s APK is signed by ${got.signers.join(', ') || 'nothing'}, not the pinned ${pinned}`);
-  }
-  // The pages say what the app can and cannot do — "asks for no internet permission" above
-  // all. A permission the served APK does not ask for makes some sentence on the page
-  // untrue, and only a person can rewrite it.
-  const had = new Set(io.current().permissions);
-  const added = got.permissions.filter((p) => !had.has(p) || p === 'android.permission.INTERNET');
-  if (added.length) {
-    throw new Error(`${rel.tag_name}'s APK asks for ${added.join(', ')}, which the served one does not — check what the page says, then update by hand`);
-  }
+  const refusal = apkRefusal(got, { tag: rel.tag_name, version: latest, signer: releaseField(md, 'signer'), had: io.current().permissions });
+  if (refusal) throw new Error(refusal);
 
   const apkPath = releaseField(md, 'apk');
   const apkName = apkPath.split('/').pop();

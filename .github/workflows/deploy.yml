@@ -4,6 +4,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      approve_listing:
+        description: 'Approve a held description: the id its Issue gives, like logger@1a2b3c4d5e6f'
+        required: false
+        type: string
   # An app's release asking for its update now (README.md § Shipping an app update). The
   # hourly schedule below finds the same release later if this signal never comes.
   repository_dispatch:
@@ -49,6 +54,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      issues: write
     outputs:
       changed: ${{ steps.commit.outputs.changed }}
       candidate: ${{ steps.commit.outputs.candidate }}
@@ -63,9 +69,11 @@ jobs:
         with:
           node-version: 22
       - name: Sync app releases
-        run: node tools/sync-apps.mjs --message-file "$RUNNER_TEMP/sync-message"
+        run: node tools/sync-apps.mjs --issues --message-file "$RUNNER_TEMP/sync-message"
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          # Through the environment, never pasted into the script: this is free text.
+          APPROVE_LISTING: ${{ inputs.approve_listing }}
       # Authored and committed as the owner's noreply address, so the repository keeps one
       # contributor (CLAUDE.md, hard rule 6) — not github-actions[bot]. No trailers.
       # Runs even when one app failed, so the apps that synced still go forward. The job
