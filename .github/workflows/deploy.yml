@@ -141,6 +141,9 @@ jobs:
         with:
           ref: ${{ needs.sync.outputs.candidate }}
           persist-credentials: false
+          # The candidate and its parent. Parent is main's tip, checked below, and without it
+          # on disk git refuses the push because it cannot show a fast-forward.
+          fetch-depth: 2
       - id: move
         env:
           TOKEN: ${{ github.token }}
