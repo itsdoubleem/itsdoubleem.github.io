@@ -11,7 +11,7 @@
  * sync-lib.mjs, which works the whole update out in memory: the APK must carry the tag's
  * versionName, be signed by the certificate pinned in `signer:`, and ask for no permission
  * the served APK does not. Only when every check has passed are its files written — the
- * APK, its assets/www/ into release.web, the release block, README.md's hash line and
+ * APK, its assets/www/ into release.web, its icon, the release block, README.md's hash line and
  * releases/<slug>.md. An app that fails leaves the tree as it found it.
  *
  * What it cannot do is look at the app. The screenshots and LOGGER's sample record are

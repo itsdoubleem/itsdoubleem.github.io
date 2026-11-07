@@ -158,3 +158,28 @@ test('refusals: wrong signer, wrong version, a new permission, INTERNET, a tied 
   await assert.rejects(planApp({ ...app(), readme: '' }, rel(), io()), /no hash line/);
   await assert.rejects(planApp(app(), rel(), io({ unpack: () => [] })), /no assets\/www/);
 });
+
+// ---- the icon: LOGGER 1.4.0 changed its icon, the sync copied the web build but not the
+// page's copy, and the build refused every deploy from then on ----
+
+const withManifest = (icon = Buffer.from('new-icon')) => [
+  ['manifest.webmanifest', Buffer.from(JSON.stringify({ icons: [
+    { src: 'icon-512.png', sizes: '512x512', purpose: 'any' },
+    { src: 'icon-maskable-512.png', sizes: '512x512', purpose: 'maskable' },
+  ] }))],
+  ['icon-512.png', icon],
+  ['icon-maskable-512.png', Buffer.from('padded')],
+] as [string, Buffer][];
+
+test("a release carries the app's own 512px icon over the page's copy", async () => {
+  const md = appMd('icon: /assets/x/icon.png\n');
+  const plan = await planApp({ ...app(), md }, rel(), io({ unpack: () => withManifest() }));
+  const icon = plan.writes.find(([p]) => p === 'public/assets/x/icon.png');
+  assert.equal(String(icon?.[1]), 'new-icon');
+});
+
+test('with no manifest in the APK the page icon is left for the build to judge', async () => {
+  const md = appMd('icon: /assets/x/icon.png\n');
+  const plan = await planApp({ ...app(), md }, rel(), io());
+  assert.equal(plan.writes.find(([p]) => p === 'public/assets/x/icon.png'), undefined);
+});

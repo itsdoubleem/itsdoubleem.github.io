@@ -3,6 +3,8 @@
  *
  * Like check-downloads.mjs, this reads and writes the `release:` block by pattern rather than
  * with a YAML library, so the hourly job runs on a bare checkout with nothing installed. */
+// Node's own type stripping reads this; release.ts imports nothing but node: modules.
+import { manifestIcons, webDir } from '../src/release.ts';
 
 /** The `release:` block's indented lines, or '' if there is none. */
 export const releaseBlock = (md) => md.match(/^release:\n((?:[ \t]+.*\n)+)/m)?.[1] ?? '';
@@ -111,6 +113,20 @@ export function notesFile({ version, date, url, notes }) {
 export const permissionsOf = (badging) =>
   [...badging.matchAll(/^uses-permission(?:-sdk-\d+)?: name='([^']+)'/gm)].map((m) => m[1]).sort();
 
+/* The 512px icon a web build's manifest names, from an APK's assets/www/ files, or null.
+ * The build refuses a page icon that is not this file, so a release that changes its icon
+ * has to bring the page's copy with it. LOGGER 1.4.0 did not, and nothing deployed for
+ * twelve days. Without a manifest the build's own check decides. */
+export function shippedIcon(www, web) {
+  const dir = webDir(web);
+  const manifest = www.find(([p]) => p === 'manifest.webmanifest');
+  if (!manifest) return null;
+  const href = manifestIcons(JSON.parse(String(manifest[1])), dir)[512];
+  if (!href?.startsWith(dir)) return null;
+  const path = decodeURI(href.slice(dir.length));
+  return www.find(([p]) => p === path)?.[1] ?? null;
+}
+
 /* What one app's sync would do, worked out without touching the disk. Everything that can
  * fail — the download, the version, the signer, the permissions, the unpacking, the README
  * line — fails here, before a single file is written; the caller writes `writes` only when
@@ -187,6 +203,8 @@ export async function planApp(app, rel, io) {
   const web = releaseField(md, 'web');
   const www = web ? io.unpack(buf) : [];
   if (web && !www.length) throw new Error(`${rel.tag_name}'s APK has no assets/www/ for ${web}`);
+  const iconPath = md.match(/^icon:\s*['"]?([^'"\s#]+)/m)?.[1];
+  const icon = web && iconPath ? shippedIcon(www, web) : null;
 
   const sha = io.sha256(buf);
   if (!releaseField(md, 'captured')) md = setReleaseField(md, 'captured', `'${current}'`);
@@ -200,6 +218,7 @@ export async function planApp(app, rel, io) {
     writes: [
       [`public${apkPath}`, buf],
       ...www.map(([p, data]) => [`public${web.replace(/\/?$/, '/')}${p}`, data]),
+      ...(icon ? [[`public${iconPath}`, icon]] : []),
       [`apps/${slug}.md`, md],
       ['README.md', readme.replace(`${oldSha}  ${apkName}`, `${sha}  ${apkName}`)],
       [`releases/${slug}.md`, notesText],

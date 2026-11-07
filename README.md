@@ -176,8 +176,9 @@ is newer than what the site serves, the sync:
   pages say the app cannot reach the network);
 - works the whole update out before writing anything, so an app that fails leaves the tree
   as it was;
-- copies the APK to `public/downloads/`, its `assets/www/` into `release.web`, and rewrites
-  `version`, `sha256`, `date` and the hash in the list above;
+- copies the APK to `public/downloads/`, its `assets/www/` into `release.web`, the 512px
+  icon its manifest names over the page's `icon:`, and rewrites `version`, `sha256`, `date`
+  and the hash in the list above;
 - writes the release's notes to `releases/<slug>.md` (cleaned: no HTML, PR numbers, hashes or
   links into the app's repo), which the page shows as **What's new** for the same seven days;
 - commits to `main` as the owner's noreply address and pushes. The same run then builds,
