@@ -30,6 +30,9 @@ test('promises and marketing words are refused; present-tense "free" is not', ()
   assert.deepEqual(blockedPhrases('It is free. The apps here are free. Price: Free.'), []);
   assert.equal(blockedPhrases('HANGIL is free and stays free.').length, 1);
   assert.equal(blockedPhrases('Free forever!').length, 1);
+  for (const t of ['It stays\nfree.', 'will remain free for life', 'will always be free', 'remains free']) {
+    assert.ok(blockedPhrases(t).length, t);
+  }
   assert.equal(blockedPhrases('A seamless, revolutionary app').length, 2);
 });
 

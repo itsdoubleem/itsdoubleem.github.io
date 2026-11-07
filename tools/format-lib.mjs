@@ -9,11 +9,11 @@ export const REQUIRED = SECTIONS.slice(0, 4);
 /** Kinds of work that install and run. A novel has no "Your data". */
 const SOFTWARE = ['app', 'tool', 'bot'];
 
-/* CLAUDE.md hard rules 2 and 5, and "never coming soon" from apps/README.md. The word "free"
+/* The rules in README.md, and "never coming soon" from apps/README.md. The word "free"
  * is not here on purpose: present tense is a fact, and LOGGER's is load-bearing. */
 export const BLOCKED = [
-  [/\bstays? free\b/i, 'promises it stays free (hard rule 2)'],
-  [/\bfree,? (?:forever|always)\b|\b(?:forever|always) free\b/i, 'promises it stays free (hard rule 2)'],
+  [/\b(?:stays?|remains?|will (?:always )?(?:be|stay|remain)|always be) free\b/i, 'promises it stays free (hard rule 2)'],
+  [/\bfree,? (?:forever|always|for life)\b|\b(?:forever|always) free\b/i, 'promises it stays free (hard rule 2)'],
   [/\brevolutionary\b/i, '"revolutionary" (hard rule 5)'],
   [/\bseamless(?:ly)?\b/i, '"seamless" (hard rule 5)'],
   [/\bempower(?:s|ing)?\b/i, '"empowering" (hard rule 5)'],
@@ -30,7 +30,11 @@ export const splitPage = (md) => {
 export const sections = (body) =>
   [...body.matchAll(/^## (.+)\n([\s\S]*?)(?=^## |(?![\s\S]))/gm)].map((m) => [m[1].trim(), m[2].trim()]);
 
-export const blockedPhrases = (text) => BLOCKED.filter(([r]) => r.test(text)).map(([, why]) => why);
+/** Line breaks collapsed first: these pages are hard-wrapped, so "stays" can end a line. */
+export const blockedPhrases = (text) => {
+  const flat = text.replace(/\s+/g, ' ');
+  return BLOCKED.filter(([r]) => r.test(flat)).map(([, why]) => why);
+};
 
 /** What is wrong with the body of a page of this type. */
 export function bodyProblems(body, type = 'app') {
