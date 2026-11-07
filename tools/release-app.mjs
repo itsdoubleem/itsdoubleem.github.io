@@ -62,8 +62,10 @@ const notes = notesFile
 function latestRelease() {
   try {
     return JSON.parse(gh('release', 'view', '-R', source, '--json', 'tagName')).tagName.replace(/^v/, '');
-  } catch {
-    return null;
+  } catch (e) {
+    // Only "no release yet" means there is nothing to compare with.
+    if (/release not found/i.test(String(e.stderr ?? e.message))) return null;
+    die(`could not read ${source}'s Latest release: ${e.message}`);
   }
 }
 
@@ -93,7 +95,9 @@ const apkFile = join(dir, asset);
 const apk = existsSync(apkFile) ? inspectApk(apkFile) : null;
 const problems = releaseProblems({ ...state, apk });
 if (git('status', '--porcelain') !== '' && state.clean) problems.push('the build changed tracked files in the app folder — commit or ignore them first');
+git('fetch', '-q', 'origin');
 if (git('rev-parse', 'HEAD') !== head) problems.push('a commit landed in the app folder during the build, so the APK matches no single commit');
+if (git('rev-parse', `origin/${defaultBranch}`) !== head) problems.push(`origin/${defaultBranch} moved during the build — pull and build again`);
 const apkPath = releaseField(md, 'apk');
 problems.push(...siteProblems({
   md,

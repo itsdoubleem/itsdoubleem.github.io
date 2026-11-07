@@ -37,8 +37,9 @@ const live = (path) => fetch(`${SITE}${path}?check=${Date.now()}`, { headers: { 
 // A deploy in flight is not a site out of date. Its completion runs this check again.
 if (raise) {
   try {
-    const running = await api(`repos/${repo}/actions/workflows/deploy.yml/runs?status=in_progress&per_page=1`);
-    if (running?.total_count) {
+    const runs = (status) => api(`repos/${repo}/actions/workflows/deploy.yml/runs?status=${status}&per_page=1`);
+    const [running, queued] = await Promise.all([runs('in_progress'), runs('queued')]);
+    if (running?.total_count || queued?.total_count) {
       console.log('check-live: a deploy is running, so its finish will check again.');
       process.exit(0);
     }
