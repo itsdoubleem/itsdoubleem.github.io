@@ -106,13 +106,16 @@ async function syncListing(slug, source) {
     changes.push(`${slug}: description from ${LISTING_FILE}`);
     console.log(`${slug}: description updated from ${LISTING_FILE}`);
   }
-  if (plan.status === 'publish' || plan.status === 'same') {
+  // Not on 'publish': that text has yet to pass verify. The next run finds it 'same'.
+  if (plan.status === 'same') {
     await report(key, (b) => b.clear(key, 'The page and LISTING.md agree again.'));
-  } else if (plan.status === 'held') {
+  }
+  if (plan.status === 'held') {
     console.log(`::warning::${slug}: ${LISTING_FILE} waits for approval — ${plan.reasons.join('; ')}. To approve: gh workflow run deploy.yml -f approve_listing=${plan.id}`);
     await report(key, (b) => b.raise(key, `${slug}: a description change needs your approval`,
       `${LISTING_FILE} in ${source} changed, and the page has not, because ${plan.reasons.join(' and ')}.\n\n${plan.changes.join('\n\n')}\n\n**To publish exactly this text**, open Actions › Deploy to GitHub Pages › Run workflow and enter \`${plan.id}\`, or run:\n\n\`gh workflow run deploy.yml -f approve_listing=${plan.id}\`\n\n**To reject it**, change ${LISTING_FILE} back. This Issue closes by itself once the two agree.`));
-  } else if (plan.status === 'refused') {
+  }
+  if (plan.status === 'refused') {
     console.log(`::warning::${slug}: ${LISTING_FILE} refused — ${plan.reasons.join('; ')}`);
     await report(key, (b) => b.raise(key, `${slug}: LISTING.md cannot be published`,
       `${LISTING_FILE} in ${source} cannot go on the page:\n\n${plan.reasons.map((r) => `- ${r}`).join('\n')}\n\nThe page keeps its current text. Approval cannot override this: fix the file. This Issue closes by itself when it is fixed.`));

@@ -190,13 +190,15 @@ Start one from the page as it stands: `node tools/export-listing.mjs <slug> > ~/
 | A change that… | What happens |
 |---|---|
 | is ordinary prose | goes on the page at the next sync, with no one reading it first |
-| touches `What it is not` or `Your data`, or changes any number | **waits for you.** An Issue shows the old and new text and the id to approve (`logger@1a2b…`). Approval covers exactly that text; edit the file and it waits again |
-| breaks the format or a banned phrase | is refused. The page keeps its text, an Issue says why, and approval cannot override it |
+| touches `What it is not` or `Your data`, or changes a number or a link | **waits for you.** An Issue shows the old and new text and the id to approve (`logger@1a2b…`). Approval covers exactly that text; edit the file and it waits again |
+| breaks the format, uses a banned phrase, or contains raw HTML, a code fence or any heading that is not a plain `## ` section | is refused. The page keeps its text, an Issue says why, and approval cannot override it |
 
-Publishing prose unread is a deliberate exception to hard rule 3 of CLAUDE.md, agreed with the
-owner on 2026-11-07: whoever edits `LISTING.md` is the one vouching for it. So **do not add a
-new factual claim about what an app does until you have seen it on screen**, because here
-nothing will stop it. A claim that belongs in a protected section belongs there for that reason.
+Publishing prose unread is a deliberate exception to rule 3 in README.md § The rules, agreed
+with the owner on 2026-11-07: whoever edits `LISTING.md` is the one vouching for it. So **do not
+add a new factual claim about what an app does until you have seen it on screen**, because here
+nothing will stop it. "Number" means digits in any script, number words like "twelve" and Korean
+counts of people. A claim written around those still publishes, and the tagline and audience are
+not protected, so the same care applies to them.
 
 ## Optional frontmatter that grows the detail page
 

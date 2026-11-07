@@ -9,11 +9,12 @@
  * What gets held is hard rules 1 and 3 made mechanical. "What it is not" carries LOGGER's legal
  * position and "Your data" carries the privacy claims. A changed number might be a wrong one:
  * HANGIL's GitHub description said 197 words the day its page, counted from what ships, said 404.
+ * A changed link might point at someone else's APK.
  *
  * Only the tagline, audience and body come from the listing. The release block, the verify
  * claims and everything else stay in apps/<slug>.md. */
 import { createHash } from 'node:crypto';
-import { blockedPhrases, bodyProblems, sections, splitPage } from './format-lib.mjs';
+import { blockedPhrases, bodyProblems, pageProblems, sections, splitPage } from './format-lib.mjs';
 
 export const LISTING_FILE = 'LISTING.md';
 const FIELDS = { tagline: 90, audience: 120 };
@@ -26,7 +27,23 @@ const unquote = (v) => {
   return t.startsWith("'") && t.endsWith("'") ? t.slice(1, -1).replace(/''/g, "'") : t;
 };
 /** A one-line YAML value: plain when that is safe, otherwise double-quoted. */
-const scalar = (v) => (/^[\p{L}\p{N}][^#\n]*$/u.test(v) && !/:\s/.test(v) && !/\s$/.test(v) ? v : JSON.stringify(v));
+const YAML_WORD = /^(null|true|false|yes|no|on|off|~|[-+.\d][\d._eE+-]*)$/i;
+const scalar = (v) => (/^[\p{L}\p{N}][^#\n]*$/u.test(v) && !/:(\s|$)/.test(v) && !/\s$/.test(v) && !YAML_WORD.test(v) ? v : JSON.stringify(v));
+
+/* The gate below compares sections found by pattern, while readers get what the markdown
+ * renderer makes. Anything that could make those two differ is refused, not judged: a comment
+ * can hide "What it is not" from readers while its text stays in the file, and "##<tab>Your data"
+ * or an underlined heading renders as a section the gate never sees. These pages use none of it. */
+export function structureProblems(body) {
+  const out = [];
+  if (body && !body.startsWith('## ')) out.push('has text before its first heading');
+  if (/<[a-zA-Z!/?]/.test(body)) out.push('has raw HTML or a comment in it');
+  const lines = body.split('\n');
+  if (lines.some((l) => /^\s*(```|~~~)/.test(l))) out.push('has a code fence in it');
+  if (lines.some((l) => /^ {0,3}#{1,6}(\s|$)/.test(l) && !/^## \S/.test(l))) out.push('has a heading that is not a plain "## " section');
+  if (lines.some((l) => /^ {0,3}(=+|-+)\s*$/.test(l))) out.push('has an underlined heading or a --- line');
+  return out;
+}
 
 export function parseListing(text) {
   const { front, body } = splitPage(text.replace(/\r\n/g, '\n'));
@@ -38,13 +55,20 @@ export function parseListing(text) {
   return { fields, body: body.trim() };
 }
 
+const prose = (x) => `${x.tagline}\n${x.audience ?? ''}\n${x.body}`;
+
 const fieldOf = (front, key) => {
   const m = front.match(new RegExp(`^${key}:(.*)$`, 'm'));
   return m ? unquote(m[1]) : undefined;
 };
 
-/** Numbers in a text, sorted, so a moved number is not a changed one. */
-const numbers = (text) => (text.match(/\d[\d,.]*\d|\d/g) ?? []).sort();
+/* Digits in any script (NFKC turns fullwidth ones to ASCII), number words, and Korean
+ * counts of people, in order, so a swap is a change. A claim can still be written around all
+ * of this, which is why apps/README.md asks for it to be checked before it is written. */
+const NUMBER = /\d[\d,.]*\d|\d|\b(?:two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|dozen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|million|billion)\b|[천만억]\s*명/gi;
+const numbers = (text = '') => (text.normalize('NFKC').toLowerCase().match(NUMBER) ?? []);
+const LINK = /https?:\/\/[^\s)>]+|\]\([^)]*\)|^\s*\[[^\]]+\]:.*$/gm;
+const links = (text = '') => text.match(LINK) ?? [];
 const multisetDiff = (a, b) => {
   const rest = [...b];
   return a.filter((x) => { const i = rest.indexOf(x); if (i < 0) return true; rest.splice(i, 1); return false; });
@@ -64,7 +88,11 @@ export function applyListing(md, { fields, body }) {
   return `---\n${next}\n---\n\n${body}\n`;
 }
 
-const fence = (t) => `\`\`\`\`\n${t}\n\`\`\`\``;
+/** A code fence longer than any run of backticks in the text, so the text cannot close it. */
+const fence = (t) => {
+  const ticks = '`'.repeat(Math.max(3, ...(t.match(/`+/g) ?? []).map((r) => r.length)) + 1);
+  return `${ticks}\n${t}\n${ticks}`;
+};
 
 /** Decides what happens to one app's listing.
  *  Returns { status: 'same' | 'publish' | 'held' | 'refused', id, md?, reasons?, changes? },
@@ -77,19 +105,25 @@ export function planListing({ slug, md, text, approved }) {
 
   const refused = [];
   for (const key of Object.keys(listing.fields)) {
-    if (!(key in FIELDS)) refused.push(`has a field "${key}" — a listing carries only ${Object.keys(FIELDS).join(' and ')}; the rest stays in apps/${slug}.md`);
+    // The name is printed only if it is a plain word: this text goes into an Issue.
+    if (!(key in FIELDS)) refused.push(`has a field ${/^[\w-]+$/.test(key) ? `"${key}"` : 'it cannot read'} — a listing carries only ${Object.keys(FIELDS).join(' and ')}; the rest stays in apps/${slug}.md`);
   }
   if (!listing.fields.tagline) refused.push('has no tagline');
   for (const [key, max] of Object.entries(FIELDS)) {
     if ((listing.fields[key] ?? '').length > max) refused.push(`${key} is over ${max} characters`);
+    if (/[\p{Cc}]/u.test(listing.fields[key] ?? '')) refused.push(`${key} has a line break or control character in it`);
   }
-  if (/^---$/m.test(listing.body)) refused.push('has a --- line in its body, which would break the page');
+  refused.push(...structureProblems(listing.body));
   refused.push(...bodyProblems(listing.body, type));
   const all = `${listing.fields.tagline ?? ''}\n${listing.fields.audience ?? ''}\n${listing.body}`;
   refused.push(...blockedPhrases(all).map((w) => `says something banned: ${w}`));
   if (refused.length) return { status: 'refused', id, reasons: refused };
 
   const next = applyListing(md, listing);
+  // What verify would refuse is refused here, because one app's bad listing would otherwise
+  // hold back every app in the same candidate.
+  const whole = pageProblems(next);
+  if (whole.length) return { status: 'refused', id, reasons: whole };
   const before = { tagline: fieldOf(front, 'tagline'), audience: fieldOf(front, 'audience'), body: body.trim() };
   const after = {
     tagline: listing.fields.tagline,
@@ -104,12 +138,20 @@ export function planListing({ slug, md, text, approved }) {
   const now = new Map(sections(after.body));
   const reasons = [];
   for (const h of PROTECTED) if (was.get(h) !== now.get(h)) reasons.push(`it changes "${h}"`);
-  const prose = (x) => `${x.tagline}\n${x.audience ?? ''}\n${x.body}`;
-  const added = multisetDiff(numbers(prose(after)), numbers(prose(before)));
-  const gone = multisetDiff(numbers(prose(before)), numbers(prose(after)));
-  if (added.length || gone.length) {
-    reasons.push(`its numbers change${added.length ? ` (new: ${added.join(', ')})` : ''}${gone.length ? ` (gone: ${gone.join(', ')})` : ''}`);
+  // Field by field and section by section: the same numbers elsewhere are different claims.
+  const parts = (x, map) => [x.tagline, x.audience, ...[...new Set([...was.keys(), ...now.keys()])].map((h) => map.get(h))];
+  const beforeParts = parts(before, was);
+  const afterParts = parts(after, now);
+  const moved = beforeParts.some((p, i) => numbers(p).join() !== numbers(afterParts[i]).join());
+  const flat = (ps) => ps.flatMap((p) => numbers(p));
+  const added = multisetDiff(flat(afterParts), flat(beforeParts));
+  const gone = multisetDiff(flat(beforeParts), flat(afterParts));
+  if (moved) {
+    reasons.push(added.length || gone.length
+      ? `its numbers change${added.length ? ` (new: ${added.join(', ')})` : ''}${gone.length ? ` (gone: ${gone.join(', ')})` : ''}`
+      : 'its numbers change places');
   }
+  if (links(prose(after)).join() !== links(prose(before)).join()) reasons.push('its links change');
   if (!reasons.length || approved === id) return { status: 'publish', id, md: next };
 
   const changes = [];

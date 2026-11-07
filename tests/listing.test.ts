@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { applyListing, exportListing, parseListing, planListing } from '../tools/listing-lib.mjs';
 
 const body = "## What it does\n\nCounts 404 words.\n\n## Who it's for\n\nLearners.\n\n## What it is not\n\nNot an exam.\n\n## Your data\n\nNothing leaves.";
-const md = `---\nslug: x\nname: X\n# a comment that must survive\ntagline: Teaches words.\naudience: For learners.\ntype: app\nrelease:\n  version: 1.0.0\n---\n\n${body}\n`;
+const md = `---\nslug: x\nname: X\n# a comment that must survive\ntagline: Teaches words.\naudience: For learners.\ntype: app\nrelease:\n  version: 1.0.0\n  source: o/x\n  asset: x.apk\n  signer: abc\n---\n\n${body}\n`;
 const listing = (b = body, front = 'tagline: Teaches words.\naudience: For learners.') => `---\n${front}\n---\n\n${b}\n`;
 const plan = (text: string, approved?: string) => planListing({ slug: 'x', md, text, approved });
 
@@ -41,9 +41,64 @@ test('a changed number is held, as HANGIL\'s 197 against 404 would have been', (
   assert.match(p.reasons[0], /new: 197.*gone: 404/);
 });
 
-test('a number that moves between sections is not a change of number', () => {
+test('a number that moves between sections is a different claim, and is held', () => {
   const moved = body.replace('Counts 404 words.', 'Counts words.').replace('Learners.', 'Learners of 404 words.');
-  assert.equal(plan(listing(moved)).status, 'publish');
+  const p = plan(listing(moved));
+  assert.equal(p.status, 'held');
+  assert.match(p.reasons[0], /change places/);
+});
+
+test('numbers in other forms are held too', () => {
+  for (const text of ['Used by ten thousand workers.', 'Used by １００００ workers.', '만 명이 사용합니다.']) {
+    assert.equal(plan(listing(body.replace('Learners.', text))).status, 'held', text);
+  }
+});
+
+test('a new link is held, so nothing can point readers at another APK unread', () => {
+  for (const text of ['[Get it](https://evil.example/x.apk)', 'See https://evil.example/', '\n\n[a]: /elsewhere']) {
+    const p = plan(listing(body.replace('Learners.', `Learners. ${text}`)));
+    assert.equal(p.status, 'held', text);
+    assert.match(p.reasons.join(), /links change/);
+  }
+});
+
+test('anything that could make readers see other than the gate saw is refused', () => {
+  const hideAll = body.replace('Learners.', 'Learners.\n\n<!--') + '\n\n## Getting it\n\n--> Done.';
+  const cases: [string, RegExp][] = [
+    [hideAll, /raw HTML/],
+    [body.replace('Learners.', '<style>a{display:none}</style>'), /raw HTML/],
+    [body.replace('## Your data', '##\tYour data'), /not a plain/],
+    [body.replace('Learners.', 'Learners.\n\n ## Your data\n\nWe keep it.'), /not a plain/],
+    [body.replace('Learners.', 'Your data\n--\n\nWe keep it.'), /underlined/],
+    [body.replace('Learners.', '### Your data\n\nWe keep it.'), /not a plain/],
+    [body.replace('Learners.', '```\nx\n```'), /code fence/],
+    [`Used by people.\n\n${body}`, /before its first heading/],
+    [`${body}\n\n---\n`, /--- line/],
+  ];
+  for (const [text, why] of cases) {
+    const p = plan(listing(text));
+    assert.equal(p.status, 'refused', text);
+    assert.match(p.reasons.join(), why);
+    assert.equal(plan(listing(text), p.id).status, 'refused');
+  }
+});
+
+test('whatever verify would refuse is refused here, not left to hold back other apps', () => {
+  assert.match(plan(listing(body.replace('Learners.', 'TODO later.'))).reasons.join(), /TODO/);
+  assert.match(plan(listing(body, 'tagline: "a\\rprice: 0"')).reasons.join(), /control character/);
+});
+
+test('a tagline YAML would misread is quoted', () => {
+  assert.match(plan(listing(body, 'tagline: Notes:')).md, /^tagline: "Notes:"$/m);
+  assert.match(plan(listing(body, 'tagline: "null"')).md, /^tagline: "null"$/m);
+});
+
+test('text in an Issue cannot close the fence or carry a raw field name', () => {
+  const p = plan(listing(body.replace('Not an exam.', 'Not ```` an exam. @octocat')));
+  assert.equal(p.status, 'held');
+  assert.ok(p.changes.join().includes('`````\nNot ````'));
+  const bad = plan(listing(body, 'tagline: T\n@octocat <!-- x --> hello'));
+  assert.ok(!bad.reasons.join().includes('octocat'));
 });
 
 test('approval publishes exactly the text approved, and no other', () => {
@@ -62,7 +117,6 @@ test('format breaks and banned phrases are refused, and approval cannot override
   assert.match(plan(listing(body, `tagline: ${'x'.repeat(91)}`)).reasons[0], /over 90/);
   assert.match(plan(listing(body, 'tagline: T\nrelease: evil')).reasons[0], /field "release"/);
   assert.match(plan(listing(body, 'audience: A')).reasons[0], /no tagline/);
-  assert.match(plan(listing(`${body}\n\n---\n`)).reasons[0], /--- line/);
 });
 
 test('leaving audience out keeps the page\'s, and does not read as a change', () => {
