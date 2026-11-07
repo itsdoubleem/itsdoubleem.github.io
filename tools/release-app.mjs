@@ -5,7 +5,8 @@
  *
  *   --dir <path>         the app's folder (default: ~/<repo name>)
  *   --notes-file <path>  the release notes (default: the CHANGELOG.md section naming the version)
- *   --no-build           check the APK that is already there
+ *   --no-build           check the APK that is already there; cannot be used with --publish,
+ *                        because nothing ties that file to the commit it would be released as
  *
  * It takes the version from the app's build.gradle, so bump that first and push it. It refuses
  * unless the folder is clean and level with the default branch, the version is new, there are
@@ -20,7 +21,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { inspectApk, inspectPermissions } from './apk-tools.mjs';
 import { LISTING_FILE, parseListing } from './listing-lib.mjs';
-import { changelogSection, gradleVersion, releaseProblems } from './release-lib.mjs';
+import { changelogSection, gradleVersion, releaseProblems, siteProblems } from './release-lib.mjs';
 import { cleanNotes, releaseBlock, releaseField } from './sync-lib.mjs';
 
 const root = join(fileURLToPath(import.meta.url), '../..');
@@ -30,6 +31,7 @@ const flag = (name) => { const i = argv.indexOf(name); return i < 0 ? null : arg
 const slug = argv[0];
 const die = (m) => { console.error(m); process.exit(1); };
 
+if (argv.includes('--no-build') && argv.includes('--publish')) die('--no-build cannot publish: a release is always built from the commit it names');
 if (!slug || slug.startsWith('-') || !existsSync(join(root, 'apps', `${slug}.md`))) {
   die('usage: node tools/release-app.mjs <slug> [--publish] [--dir <path>] [--notes-file <path>] [--no-build]');
 }
@@ -56,10 +58,19 @@ const notes = notesFile
   ? readFileSync(notesFile, 'utf8')
   : existsSync(changelog) ? changelogSection(readFileSync(changelog, 'utf8'), version) : '';
 
+// An app's first release has no Latest to compare with.
+function latestRelease() {
+  try {
+    return JSON.parse(gh('release', 'view', '-R', source, '--json', 'tagName')).tagName.replace(/^v/, '');
+  } catch {
+    return null;
+  }
+}
+
 const state = {
   version,
   tagExists: git('tag', '--list', tag) === tag,
-  latest: JSON.parse(gh('release', 'view', '-R', source, '--json', 'tagName')).tagName.replace(/^v/, ''),
+  latest: latestRelease(),
   clean: git('status', '--porcelain') === '',
   branch: git('rev-parse', '--abbrev-ref', 'HEAD'),
   defaultBranch,
@@ -82,6 +93,16 @@ const apkFile = join(dir, asset);
 const apk = existsSync(apkFile) ? inspectApk(apkFile) : null;
 const problems = releaseProblems({ ...state, apk });
 if (git('status', '--porcelain') !== '' && state.clean) problems.push('the build changed tracked files in the app folder — commit or ignore them first');
+if (git('rev-parse', 'HEAD') !== head) problems.push('a commit landed in the app folder during the build, so the APK matches no single commit');
+const apkPath = releaseField(md, 'apk');
+problems.push(...siteProblems({
+  md,
+  readme: readFileSync(join(root, 'README.md'), 'utf8'),
+  apkEntries: apk ? execFileSync('unzip', ['-Z1', apkFile], { encoding: 'utf8', maxBuffer: 1 << 26 }).split('\n') : null,
+  oldSha: releaseField(md, 'sha256'),
+  apkName: apkPath.split('/').pop(),
+  web: releaseField(md, 'web'),
+}));
 if (problems.length) die(`${slug} ${version}: refused\n  - ${problems.join('\n  - ')}`);
 
 console.log(`${slug} ${version} passes every check: ${asset}, signed by the pinned key, no new permissions.`);

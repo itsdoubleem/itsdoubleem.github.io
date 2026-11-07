@@ -215,8 +215,9 @@ Issue stays open, and it closes itself when the check passes. Run
 
 **To release an app, run `node tools/release-app.mjs <slug>`** on the Mac that holds the
 signing keys, after bumping the version in the app's repo and pushing it. It works the same way
-for every app: it builds the APK, refuses anything the sync would refuse (and a dirty folder, a
-used version or missing notes), and shows you the notes. Nothing is published until you add
+for every app: it builds the APK, applies the sync's checks on the version, signer, permissions,
+notices and web build (and refuses a dirty folder, a used version or missing notes), and shows
+you the notes. Nothing is published until you add
 `--publish`, which creates the Release with the APK attached and tells the site to update now.
 Notes come from the `CHANGELOG.md` section whose heading names the version, or `--notes-file`.
 

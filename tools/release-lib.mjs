@@ -38,3 +38,14 @@ export function releaseProblems(s) {
   }
   return out;
 }
+
+/** Why the sync would refuse this release once it is public: a release can go out and then sit
+ *  unpublished, so these are refused before it does.
+ *  site { md, readme, apkEntries: names inside the APK, or null }, as read by the caller. */
+export function siteProblems({ md, readme, apkEntries, oldSha, apkName, web }) {
+  const out = [];
+  if (/^notice:\n(?:[ \t]+.*\n)*?[ \t]+version:/m.test(md)) out.push('the page has a notice tied to the current version — rewrite or delete it first');
+  if (!readme.includes(`${oldSha}  ${apkName}`)) out.push(`the site's README.md has no hash line for ${apkName}`);
+  if (web && apkEntries && !apkEntries.some((e) => e.startsWith('assets/www/') && !e.endsWith('/'))) out.push(`the page serves ${web} from the APK, and the APK has no assets/www/`);
+  return out;
+}

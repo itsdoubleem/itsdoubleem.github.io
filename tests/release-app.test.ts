@@ -1,7 +1,7 @@
 // Tests for tools/release-lib.mjs — what the release command refuses, without an app repo.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { changelogSection, gradleVersion, releaseProblems } from '../tools/release-lib.mjs';
+import { changelogSection, gradleVersion, releaseProblems, siteProblems } from '../tools/release-lib.mjs';
 
 const SIGNER = 'e'.repeat(64);
 const ok = {
@@ -44,4 +44,12 @@ test('the changelog section is the one naming this exact version, up to the next
   assert.equal(changelogSection(log, '1.0.2'), 'Twelve sets.\n\n### Fixed\n\nA.');
   assert.equal(changelogSection(log, '1.0'), 'Old.');
   assert.equal(changelogSection(log, '3.0'), '');
+});
+
+test('what the sync would refuse after publishing is refused before it', () => {
+  const ok = { md: 'x\n', readme: 'abc  x.apk\n', apkEntries: ['assets/www/index.html'], oldSha: 'abc', apkName: 'x.apk', web: '/x/' };
+  assert.deepEqual(siteProblems(ok), []);
+  assert.match(siteProblems({ ...ok, md: 'notice:\n  badge: B\n  version: 1.0\n' })[0], /notice tied/);
+  assert.match(siteProblems({ ...ok, readme: '' })[0], /hash line/);
+  assert.match(siteProblems({ ...ok, apkEntries: ['classes.dex'] })[0], /no assets\/www/);
 });
