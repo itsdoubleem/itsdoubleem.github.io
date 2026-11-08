@@ -22,7 +22,8 @@ const api = async (path) => {
 const decide = async (pr) => {
   const files = (await api(`/pulls/${pr.number}/files?per_page=100`)).map((f) => f.filename);
   const commits = await api(`/pulls/${pr.number}/commits?per_page=100`);
-  return refusal({ pr, files, commits, repo });
+  const comments = await api(`/issues/${pr.number}/comments?per_page=100`);
+  return refusal({ pr, files, commits, comments, repo });
 };
 
 const args = process.argv.slice(2);

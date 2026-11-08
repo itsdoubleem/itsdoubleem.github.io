@@ -14,6 +14,9 @@
 export const MIN_AGE_DAYS = 3;
 export const BOT = 'dependabot[bot]';
 export const FILES = ['package.json', 'package-lock.json'];
+/** Left on a pull request by deps.yml when its commit failed on main, so the next run moves on to
+ *  the next one instead of testing it again every day. A rebase is a new commit and is tried. */
+export const failedMarker = (sha) => `<!-- doubleem:deps-failed:${sha} -->`;
 
 const VERSION = /^v?(\d+)\.(\d+)\.(\d+)$/;
 
@@ -26,7 +29,9 @@ export function versionChange(from, to) {
   const [, b1, b2, b3] = b.map(Number);
   if (b1 !== a1) return 'major';
   if (b2 !== a2) return a1 === 0 ? 'major' : 'minor';
-  return b3 !== a3 ? 'patch' : null;
+  // npm reads ^0.0.x as that version only, so any 0.0 change is breaking.
+  if (b3 !== a3) return a1 === 0 && a2 === 0 ? 'major' : 'patch';
+  return null;
 }
 
 /** { name, from, to } from a Dependabot title, or null for a group, a subfolder or anything else. */
@@ -36,8 +41,9 @@ export function parseBump(title) {
 }
 
 /** Why this pull request may not be merged by itself, or null if it may.
- *  pr is the REST pull object; files are paths; commits are the REST commit objects. */
-export function refusal({ pr, files, commits, repo, now = Date.now(), minAgeDays = MIN_AGE_DAYS }) {
+ *  pr is the REST pull object; files are paths; commits are the REST commit objects; comments
+ *  are its REST issue comments, read for this workflow's own failure note. */
+export function refusal({ pr, files, commits, comments = [], repo, now = Date.now(), minAgeDays = MIN_AGE_DAYS }) {
   if (pr.user?.login !== BOT) return 'not opened by Dependabot';
   if (pr.draft) return 'a draft';
   if (pr.base?.ref !== 'main') return `aimed at ${pr.base?.ref}, not main`;
@@ -56,6 +62,9 @@ export function refusal({ pr, files, commits, repo, now = Date.now(), minAgeDays
   if (c.sha !== pr.head.sha) return 'its head moved';
   if (c.author?.login !== BOT || !['web-flow', BOT].includes(c.committer?.login)) return 'a commit not made by Dependabot';
   if (!c.commit?.verification?.verified) return 'a commit GitHub has not verified';
+  if (comments.some((m) => m.user?.login === 'github-actions[bot]' && m.body?.includes(failedMarker(pr.head.sha)))) {
+    return 'failed on main at this commit; waits for a person, or for Dependabot to rebase it';
+  }
   return null;
 }
 

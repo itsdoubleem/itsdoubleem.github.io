@@ -4,7 +4,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { mergeMessage, parseBump, refusal, versionChange } from '../tools/deps-lib.mjs';
+import { failedMarker, mergeMessage, parseBump, refusal, versionChange } from '../tools/deps-lib.mjs';
 
 const repo = 'o/site';
 const day = 86400000;
@@ -38,6 +38,7 @@ test('versions: patch and minor are small; a 0.x minor and any major are not', (
   assert.equal(versionChange('7.3.2', '8.0.0'), 'major');
   assert.equal(versionChange('7.3.2', '7.4.0-beta.1'), null);
   assert.equal(versionChange('7.3.2', '7.3.2'), null);
+  assert.equal(versionChange('0.0.3', '0.0.4'), 'major'); // ^0.0.3 means exactly 0.0.3
 });
 
 test('titles: one package at the top level, scoped names included; groups and folders are not', () => {
@@ -64,6 +65,14 @@ test('a small, old, signed Dependabot update may merge; every rule refuses on it
   assert.match(decide(pr(), undefined, [commit({ author: { login: 'someone' } })])!, /not made by Dependabot/);
   assert.match(decide(pr(), undefined, [commit({ committer: { login: 'someone' } })])!, /not made by Dependabot/);
   assert.match(decide(pr(), undefined, [commit({ commit: { verification: { verified: false } } })])!, /not verified/);
+});
+
+test('an update that failed on main is skipped until Dependabot rebases it, and only this workflow\'s note counts', () => {
+  const note = (login: string, s = sha) => ({ user: { login }, body: `failed\n\n${failedMarker(s)}` });
+  const withNotes = (comments: object[]) => refusal({ pr: pr(), files: ['package.json'], commits: [commit()], comments, repo, now });
+  assert.match(withNotes([note('github-actions[bot]')])!, /failed on main at this commit/);
+  assert.equal(withNotes([note('github-actions[bot]', 'b'.repeat(40))]), null); // rebased: a new commit
+  assert.equal(withNotes([note('someone')]), null); // a stranger cannot block an update
 });
 
 test('the merge message carries no trailer and no other author', () => {
@@ -170,12 +179,19 @@ test('apply-dep: refuses anything that is not a full commit sha', () => {
 test('deps.yml: npm runs only in the job that cannot write; the writing job merges as the owner', () => {
   const yml = readFileSync('.github/workflows/deps.yml', 'utf8');
   const job = (name: string, next?: string) => yml.slice(yml.indexOf(`\n  ${name}:`), next ? yml.indexOf(`\n  ${next}:`) : undefined);
-  const [pick, verify, merge] = [job('pick', 'verify'), job('verify', 'merge'), job('merge')];
+  const [pick, verify, merge] = [job('pick', 'verify'), job('verify', 'merge'), job('merge', 'report')];
   assert.doesNotMatch(pick + merge, /^(?!\s*#).*\bnpm (ci|install|run|test)/m);
   assert.match(verify, /npm ci --ignore-scripts/);
   assert.doesNotMatch(verify, /^(?!\s*#).*write/m);
   assert.match(merge, /user\.email 328792799\+itsdoubleem@users\.noreply\.github\.com/);
   assert.match(merge, /group: sync-promote/);
   assert.match(merge, /--recheck/);
+  // The deploy is asked for before anything that could fail after the push.
+  assert.ok(merge.indexOf('gh workflow run deploy.yml') < merge.indexOf('gh pr close'));
+  assert.match(merge, /gh pr close[\s\S]*\|\| echo "::warning::/);
+  const report = yml.slice(yml.indexOf('\n  report:'));
+  assert.match(report, /needs\.verify\.result == 'failure'/);
+  assert.match(report, /doubleem:deps-failed:\$HEAD_SHA/);
+  assert.doesNotMatch(report, /^(?!\s*#).*\b(npm|checkout)/m);
   for (const uses of yml.match(/uses: \S+/g)!) assert.match(uses, /@[0-9a-f]{40}$/);
 });

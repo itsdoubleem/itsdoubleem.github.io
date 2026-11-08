@@ -60,7 +60,7 @@ jobs:
               } >> "$GITHUB_OUTPUT"
               exit 0
             fi
-            echo "::notice::#$number no longer applies to main; Dependabot rebases it and a later run tries again."
+            echo "::notice::#$number was skipped (the line above says why); a later run tries it again after Dependabot rebases it."
             git reset -q --hard "$base"
           done
           echo "Nothing to merge today."
@@ -96,7 +96,9 @@ jobs:
   merge:
     needs: [pick, verify]
     if: needs.verify.result == 'success'
-    # The group deploy.yml's promote uses, so the two never move main at once.
+    # The group deploy.yml's promote uses, so the two never move main at once. A group keeps one
+    # running and one waiting; a third arrival cancels the waiting one, which loses nothing: a
+    # cancelled merge is tried again the next day, a cancelled promote by the next sync.
     concurrency:
       group: sync-promote
       cancel-in-progress: false
@@ -125,7 +127,11 @@ jobs:
         run: |
           url="https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           # Asked again now: the pull request may have changed or closed while it was tested.
-          node tools/pick-deps.mjs --recheck "$NUMBER" "$HEAD_SHA" > "$RUNNER_TEMP/message"
+          # That is a normal event, so it ends the run quietly rather than failing it.
+          if ! node tools/pick-deps.mjs --recheck "$NUMBER" "$HEAD_SHA" > "$RUNNER_TEMP/message"; then
+            echo "::notice::#$NUMBER changed while it was tested; the next run looks again."
+            exit 0
+          fi
           tree=$(tools/apply-dep.sh "$HEAD_SHA")
           [ "$tree" = "$TREE" ] || { echo "::error::the update made $tree here and $TREE when tested"; exit 1; }
           head=$(git ls-remote --exit-code "$url" refs/heads/main | cut -f1)
@@ -138,6 +144,27 @@ jobs:
           git commit -q -F "$RUNNER_TEMP/message"
           git push -q "$url" HEAD:refs/heads/main
           merged=$(git rev-parse HEAD)
-          gh pr close "$NUMBER" --comment "Tested on main and merged as $merged by the Dependency updates workflow."
-          # A push made with this token starts no workflow, so the deploy is asked for by name.
+          # A push made with this token starts no workflow, so the deploy is asked for by name,
+          # first: main has moved, and a deploy left waiting would set off watch.yml's alarm.
           gh workflow run deploy.yml --ref main
+          gh pr close "$NUMBER" --comment "Tested on main and merged as $merged by the Dependency updates workflow." \
+            || echo "::warning::merged #$NUMBER as $merged but could not close it; Dependabot closes it on its next check."
+
+  # A failed test leaves a note on the pull request, so the next run moves on to the next
+  # update instead of testing this one every day. Runs nothing from the pull request.
+  report:
+    needs: [pick, verify]
+    if: needs.verify.result == 'failure'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          NUMBER: ${{ needs.pick.outputs.number }}
+          HEAD_SHA: ${{ needs.pick.outputs.head }}
+          RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh pr comment "$NUMBER" --repo "$GITHUB_REPOSITORY" --body "This update failed the tests, build or checks on main ($RUN), so it waits for a person. If Dependabot rebases it, the next run tries again.
+
+          <!-- doubleem:deps-failed:$HEAD_SHA -->"

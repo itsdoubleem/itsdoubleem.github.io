@@ -97,7 +97,8 @@ stops the deploy. Every pull request gets the same three (`.github/workflows/che
 then, and merges it as your own commit, then deploys. A qualifying update is one npm package,
 a patch or minor version change, open three days or more, touching only `package.json` and
 `package-lock.json`, in one commit signed by GitHub (`tools/deps-lib.mjs`). Anything else waits
-for you: majors, groups, every update to an action, and anything that fails. Run
+for you: majors, groups, every update to an action, and anything that fails, which gets a
+comment saying so and is tried again only after Dependabot rebases it. Run
 `node tools/pick-deps.mjs` to see what it would decide for each open one.
 
 Astro, static output, no client framework and no adapter. The content is markdown, it
