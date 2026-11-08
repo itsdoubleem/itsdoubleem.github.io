@@ -190,15 +190,16 @@ Start one from the page as it stands: `node tools/export-listing.mjs <slug> > ~/
 | A change that… | What happens |
 |---|---|
 | is ordinary prose | goes on the page at the next sync, with no one reading it first |
-| touches `What it is not` or `Your data`, or changes a number or a link | **waits for you.** An Issue shows the old and new text and the id to approve (`logger@1a2b…`). Approval covers exactly that text; edit the file and it waits again |
+| changes the tagline, touches `What it is not` or `Your data`, or changes a number or a link | **waits for you.** An Issue shows the old and new text and the id to approve (`logger@1a2b…`). Approval covers exactly that text; edit the file and it waits again |
 | breaks the format, uses a banned phrase, or is anything but paragraphs and plain `## ` headings (no lists, quotes, tables, code, HTML, entities or link definitions; a line may not start with a link) | is refused. The page keeps its text, an Issue says why, and approval cannot override it |
 
 Publishing prose unread is a deliberate exception to rule 3 in README.md § The rules, agreed
 with the owner on 2026-11-07: whoever edits `LISTING.md` is the one vouching for it. So **do not
 add a new factual claim about what an app does until you have seen it on screen**, because here
 nothing will stop it. "Number" means digits in any script, number words like "twelve" and Korean
-counts of people. A claim written around those still publishes, and the tagline and audience are
-not protected, so the same care applies to them.
+counts of people. A claim written around those still publishes, and the audience line is not
+protected, so the same care applies to it. The tagline is: it is on every card and in search
+results, so a change to it always waits (owner's decision, 2026-11-08).
 
 ## Optional frontmatter that grows the detail page
 

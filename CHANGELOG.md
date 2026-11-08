@@ -20,7 +20,8 @@ All notable changes to this site are recorded here. The format follows
 - `tools/check-live.mjs` and `watch.yml` compare the live site with `main` and GitHub after each
   deploy run and daily, and keep one Issue open while they disagree.
 - An app's description can live in `LISTING.md` in its own repo. Ordinary prose publishes by
-  itself; changes to protected sections or numbers wait for approval (`apps/README.md`).
+  itself; changes to the tagline, protected sections or numbers wait for approval
+  (`apps/README.md`).
 - `node tools/release-app.mjs <slug>`: one release command for every app, dry-run by default.
 - `npm run check` enforces one page format and refuses banned phrases (`tools/check-format.mjs`);
   `npm run new-app` starts a page in that format.

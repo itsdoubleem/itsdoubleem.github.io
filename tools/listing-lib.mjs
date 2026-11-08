@@ -9,6 +9,7 @@
  * What gets held is hard rules 1 and 3 made mechanical. "What it is not" carries LOGGER's legal
  * position and "Your data" carries the privacy claims. A changed number might be a wrong one:
  * HANGIL's GitHub description said 197 words the day its page, counted from what ships, said 404.
+ * The tagline is held too, because it is what a stranger reads first and everywhere.
  * A changed link might point at someone else's APK.
  *
  * Only the tagline, audience and body come from the listing. The release block, the verify
@@ -143,6 +144,10 @@ export function planListing({ slug, md, text, approved }) {
   const was = new Map(sections(before.body));
   const now = new Map(sections(after.body));
   const reasons = [];
+  // The tagline is the one line a stranger reads everywhere: on the card, in the page head and
+  // in search results. "Labour-law advice, from your phone" would publish there unread and say
+  // the opposite of LOGGER's "What it is not". Owner's decision, 2026-11-08 (S9).
+  if (before.tagline !== after.tagline) reasons.push('it changes the tagline');
   for (const h of PROTECTED) if (was.get(h) !== now.get(h)) reasons.push(`it changes "${h}"`);
   // Field by field and section by section: the same numbers elsewhere are different claims.
   const parts = (x, map) => [x.tagline, x.audience, ...[...new Set([...was.keys(), ...now.keys()])].map((h) => map.get(h))];

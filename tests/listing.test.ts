@@ -21,10 +21,24 @@ test('ordinary prose publishes, and only the description changes', () => {
   assert.match(p.md, /release:\n  version: 1\.0\.0\n/);
 });
 
-test('a changed tagline publishes, quoted when YAML needs it', () => {
-  const p = plan(listing(body, 'tagline: "Teaches: words."\naudience: For learners.'));
-  assert.equal(p.status, 'publish');
-  assert.match(p.md, /^tagline: "Teaches: words\."$/m);
+test('a changed tagline is held, and publishes once approved, quoted when YAML needs it', () => {
+  const text = listing(body, 'tagline: "Teaches: words."\naudience: For learners.');
+  const p = plan(text);
+  assert.equal(p.status, 'held');
+  assert.deepEqual(p.reasons, ['it changes the tagline']);
+  assert.match(p.changes[0], /\*\*tagline\*\*[\s\S]*Teaches: words\./);
+  const ok = plan(text, p.id);
+  assert.equal(ok.status, 'publish');
+  assert.match(ok.md, /^tagline: "Teaches: words\."$/m);
+});
+
+test('the S9 tagline that contradicts LOGGER waits for approval', () => {
+  const p = plan(listing(body, 'tagline: Labour-law advice for foreign workers, from your phone.\naudience: For learners.'));
+  assert.equal(p.status, 'held');
+});
+
+test('a changed audience still publishes by itself', () => {
+  assert.equal(plan(listing(body, 'tagline: Teaches words.\naudience: For people learning.')).status, 'publish');
 });
 
 test('a protected section is held, and shows the change', () => {
@@ -119,8 +133,9 @@ test('whatever verify would refuse is refused here, not left to hold back other 
 });
 
 test('a tagline YAML would misread is quoted', () => {
-  assert.match(plan(listing(body, 'tagline: Notes:')).md, /^tagline: "Notes:"$/m);
-  assert.match(plan(listing(body, 'tagline: "null"')).md, /^tagline: "null"$/m);
+  const approved = (t: string) => plan(t, plan(t).id).md;
+  assert.match(approved(listing(body, 'tagline: Notes:')), /^tagline: "Notes:"$/m);
+  assert.match(approved(listing(body, 'tagline: "null"')), /^tagline: "null"$/m);
 });
 
 test('text in an Issue cannot close the fence or carry a raw field name', () => {
