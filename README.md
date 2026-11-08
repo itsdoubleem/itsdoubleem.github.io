@@ -239,8 +239,12 @@ the release or update the app by hand.
 
 What the sync cannot do is look at the app: screenshots and LOGGER's sample record need the
 running app on a Mac (step 5 below). The first time it moves an app past them it writes
-`captured: '<old version>'`, and the sample-record check holds the record to that. Do steps
-5 and 6 when you can, then delete the `captured:` line. Run `node tools/sync-apps.mjs` by hand
+`captured: '<old version>'`, and the sample-record check holds the record to that. While any
+app has that line, `watch.yml` keeps one Issue open naming it (`tools/check-captures.mjs`).
+**`npm run retake -- <slug>`** does steps 5 and 6 in one go: it starts the dev server, runs that
+app's capture scripts and deletes the `captured:` line. It stops, and keeps the line, if a
+script fails or if two of its new pictures in one folder are the same image, which is what a
+script stuck on a changed screen produces. Look at every picture before you commit. Run `node tools/sync-apps.mjs` by hand
 to do the same sync locally without committing.
 
 Without `source:`, or to update by hand, an update is:
