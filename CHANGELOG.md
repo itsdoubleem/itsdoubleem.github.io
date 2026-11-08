@@ -11,7 +11,7 @@ All notable changes to this site are recorded here. The format follows
   stayed on 1.3.0 under an expired New pill from 2026-10-26. The sync now carries the icon.
 - The LOGGER page and guide no longer say the punch pad uses a fingerprint. LOGGER dropped it
   on 2026-10-26; you now tap 출근 START and 퇴근 STOP, and the guide says so.
-- The LOGGER guide pictures show 1.4.1 again. The capture scripts had been tapping a button
+- The LOGGER guide pictures show the app as it is (1.5.0). The capture scripts had been tapping a button
   hidden under the new welcome screen; they now only tap what is on top, and `npm run retake
   -- logger` works.
 - `npm run retake` now says to run `npx playwright install chromium` when a Playwright update
