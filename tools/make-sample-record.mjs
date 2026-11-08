@@ -10,11 +10,11 @@
  * Every name, shift and figure is made up — see tools/sample-output/README.md for why a
  * real phone's export must never stand in for this.
  *
- * It drives the real app at /logger/ — it does not mock anything. The app hangs its
- * handlers on plain divs and ignores a synthetic .click(), so each tap marks the tightest
- * visible element carrying a label and lets Playwright issue a real pointer sequence.
+ * It drives the real app at /logger/ — it does not mock anything. How a tap finds its
+ * target is in tools/logger-drive.mjs, shared with the other LOGGER script.
  */
 import { chromium } from 'playwright';
+import { driver } from './logger-drive.mjs';
 import { rmSync } from 'node:fs';
 import { copyFile, mkdir, mkdtemp, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -48,26 +48,7 @@ const page = await ctx.newPage();
 await page.clock.install({ time: new Date('2026-09-14T06:45:00+09:00') });
 await page.clock.resume();
 
-const tap = async (text) => {
-  const found = await page.evaluate((t) => {
-    document.querySelectorAll('[data-pwtap]').forEach(e => e.removeAttribute('data-pwtap'));
-    const vis = e => { const r = e.getBoundingClientRect();
-      return r.width > 0 && r.height > 0 && getComputedStyle(e).visibility !== 'hidden'; };
-    const els = [...document.querySelectorAll('div,button,a,span')]
-      .filter(e => (e.innerText || '').trim().includes(t) && vis(e));
-    els.sort((a, b) => a.innerText.length - b.innerText.length);
-    if (!els[0]) return null;
-    els[0].setAttribute('data-pwtap', '1');
-    els[0].scrollIntoView({ block: 'center' });
-    return els[0].innerText.replace(/\n/g, ' ').slice(0, 40);
-  }, text);
-  await page.waitForTimeout(250);
-  if (!found) { console.log(`  ✗ tap(${text}) NOT FOUND`); return false; }
-  await page.locator('[data-pwtap]').first().click({ timeout: 5000 }).catch(() => {});
-  await page.waitForTimeout(900);
-  console.log(`  ✓ tap(${text})`);
-  return true;
-};
+const { tap, unmark } = driver(page);
 
 // Full phone-height screenshots, deliberately. Some app screens end above the fold and
 // the rest of the frame is empty — that is what the app actually shows, and cropping it
@@ -112,21 +93,17 @@ await shot('07-punch');               // the daily screen, before any record exi
 // punch pad — the thing that makes this app recognisable — below the crop.
 await tap('Yes, this is right');
 await page.waitForTimeout(700);
-await page.evaluate(() => document.querySelectorAll('[data-pwtap]')
-  .forEach(e => e.removeAttribute('data-pwtap')));
+await unmark();
 
 
-// Seed a few finished days. The fingerprint pad cannot run headless, and the 근무내역서
-// only exists once days are recorded — so use the app's own "Past shift" entry, which is
-// the same path a worker uses when they forget to punch.
+// Seed a few finished days. START and STOP punch in real time, so a run would have to
+// wait out whole shifts, and the 근무내역서 only exists once days are recorded — so use the
+// app's own "Past shift" tile, the same path a worker uses for a day they forgot to punch.
 await tap('PUNCH');
 await page.waitForTimeout(600);
-await tap('I clocked in earlier today');
-await page.waitForTimeout(500);
 
 const addPastShift = async (day) => {
   // the sheet closes after each CONFIRM, so reopen it every time
-  await tap('I clocked in earlier today');
   await tap('Past shift');
   await page.evaluate((d) => {
     document.querySelectorAll('[data-pwtap]').forEach(e => e.removeAttribute('data-pwtap'));
@@ -190,8 +167,8 @@ for (const [label, file] of [['CREATE A WORK RECORD', 'record.html'], ['CSV', 'r
 // Render the record this run just saved — never one left over from an earlier run — and
 // only if it is the record the guide describes. A missed tap or fill above is logged and
 // the run carries on, so a broken run can still produce a record: no name, no shifts.
-// Check the outcome rather than the taps: tap(I clocked in earlier today) misses on every
-// shift after the first, because the sheet is already open, so ✗ lines alone prove nothing.
+// Check the outcome rather than the taps: a ✗ line says a tap missed, not what the record
+// ended up holding.
 const missing = ['record.html', 'records.csv'].filter((f) => !saved.includes(f))
   .map((f) => `${f} was not saved`);
 if (saved.includes('record.html')) {
@@ -203,8 +180,7 @@ if (saved.includes('record.html')) {
 if (missing.length) {
   await b.close();
   console.error(`\n✗ ${missing.join('\n✗ ')}\n\nNothing was written: ${OUT}/ and ${PNG} are as they were.`
-    + `\nThe cause is usually the first ✗ tap or fill above, other than tap(I clocked in earlier today),`
-    + ` which misses on every run.`);
+    + `\nThe cause is usually the first ✗ tap or fill above.`);
   process.exit(1);
 }
 // 860px at 2x, which is the 1720px width the guide's picture has always had.

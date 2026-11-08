@@ -4,11 +4,11 @@
  * exists:   npm run dev        (in one terminal)
  *           node tools/capture-logger.mjs
  *
- * It drives the real app at /logger/ — it does not mock anything. The app hangs its
- * handlers on plain divs and ignores a synthetic .click(), so each tap marks the tightest
- * visible element carrying a label and lets Playwright issue a real pointer sequence.
+ * It drives the real app at /logger/ — it does not mock anything. How a tap finds its
+ * target is in tools/logger-drive.mjs, shared with the other LOGGER script.
  */
 import { chromium } from 'playwright';
+import { driver } from './logger-drive.mjs';
 import { mkdir } from 'node:fs/promises';
 
 const URL = process.env.LOGGER_URL || 'http://localhost:4321/logger/index.html';
@@ -59,33 +59,13 @@ const CAPTURE_TIME = new Date('2026-09-14T06:45:00+09:00');
 await page.clock.install({ time: CAPTURE_TIME });
 await page.clock.resume();
 
-const tap = async (text) => {
-  const found = await page.evaluate((t) => {
-    document.querySelectorAll('[data-pwtap]').forEach(e => e.removeAttribute('data-pwtap'));
-    const vis = e => { const r = e.getBoundingClientRect();
-      return r.width > 0 && r.height > 0 && getComputedStyle(e).visibility !== 'hidden'; };
-    const els = [...document.querySelectorAll('div,button,a,span')]
-      .filter(e => (e.innerText || '').trim().includes(t) && vis(e));
-    els.sort((a, b) => a.innerText.length - b.innerText.length);
-    if (!els[0]) return null;
-    els[0].setAttribute('data-pwtap', '1');
-    els[0].scrollIntoView({ block: 'center' });
-    return els[0].innerText.replace(/\n/g, ' ').slice(0, 40);
-  }, text);
-  await page.waitForTimeout(250);
-  if (!found) { console.log(`  ✗ tap(${text}) NOT FOUND`); return false; }
-  await page.locator('[data-pwtap]').first().click({ timeout: 5000 }).catch(() => {});
-  await page.waitForTimeout(900);
-  console.log(`  ✓ tap(${text})`);
-  return true;
-};
+const { tap, unmark } = driver(page);
 
 // Full phone-height screenshots, deliberately. Some app screens end above the fold and
 // the rest of the frame is empty — that is what the app actually shows, and cropping it
 // away would make the guide promise a tighter screen than the reader will meet.
 const shot = async (name) => {
-  await page.evaluate(() => document.querySelectorAll('[data-pwtap]')
-    .forEach(e => e.removeAttribute('data-pwtap')));
+  await unmark();
   await page.screenshot({ path: `${OUT}/${name}.png` });
   console.log(`  → ${name}.png`);
 };
@@ -128,22 +108,18 @@ await shot('07-punch');               // the daily screen, before any record exi
 // punch pad — the thing that makes this app recognisable — below the crop.
 await tap('Yes, this is right');
 await page.waitForTimeout(700);
-await page.evaluate(() => document.querySelectorAll('[data-pwtap]')
-  .forEach(e => e.removeAttribute('data-pwtap')));
+await unmark();
 await page.screenshot({ path: `public/assets/${APP}/card.png` });
 console.log(`  → ${APP}/card.png`);
 
-// Seed a few finished days. The fingerprint pad cannot run headless, and the 근무내역서
-// only exists once days are recorded — so use the app's own "Past shift" entry, which is
-// the same path a worker uses when they forget to punch.
+// Seed a few finished days. START and STOP punch in real time, so a run would have to
+// wait out whole shifts, and the 근무내역서 only exists once days are recorded — so use the
+// app's own "Past shift" tile, the same path a worker uses for a day they forgot to punch.
 await tap('PUNCH');
 await page.waitForTimeout(600);
-await tap('I clocked in earlier today');
-await page.waitForTimeout(500);
 
 const addPastShift = async (day) => {
   // the sheet closes after each CONFIRM, so reopen it every time
-  await tap('I clocked in earlier today');
   await tap('Past shift');
   await page.evaluate((d) => {
     document.querySelectorAll('[data-pwtap]').forEach(e => e.removeAttribute('data-pwtap'));
@@ -168,6 +144,11 @@ await page.setViewportSize({ width: 390, height: 844 });
 await page.waitForTimeout(400);
 
 await tap('PAY');
+await page.waitForTimeout(700);
+// Since 1.4 the PAY tab asks for the 기본금 the first time it opens, on top of the
+// take-home. Answer it the way setup did, with the default, so the picture shows what the
+// guide's step is about — the step-4 picture already shows the question itself.
+await tap('keep the default');
 await page.waitForTimeout(700);
 await shot('08-pay');                 // what you are owed, with real days behind it
 
