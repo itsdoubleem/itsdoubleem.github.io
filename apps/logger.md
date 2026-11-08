@@ -52,11 +52,11 @@ downloads:
     href: /logger/
     note: Works offline after the first load
 release:
-  version: 1.4.1
+  version: 1.5.0
   apk: /downloads/logger.apk
-  sha256: 1a9165dfaedaf2b5bfb1708c94c10effee148a1e3e741182494a273e4ae06b0c
+  sha256: a7872f8da5be028a884e98f17536d5bc89bbf7b4483b14dc032356f73ff55ce5
   web: /logger/
-  date: 2026-10-27
+  date: 2026-11-09
   source: itsdoubleem/Logger_app
   asset: worklog-release.apk
   signer: 115e06d0d0561fabf41daaf832fe1fa058519a60bbc3729719fecb75f6e610da

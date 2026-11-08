@@ -1,13 +1,19 @@
 ---
 # Written by tools/sync-apps.mjs from the GitHub Release. Edit it if you like; the next
 # release replaces it.
-version: '1.4.1'
-date: 2026-10-27
-url: https://github.com/itsdoubleem/Logger_app/releases/tag/v1.4.1
+version: '1.5.0'
+date: 2026-11-09
+url: https://github.com/itsdoubleem/Logger_app/releases/tag/v1.5.0
 ---
 
-**제대로 퇴근했는데 카드가 남아 있지 않습니다.** 출근하고 30분 안에 한 번 더 눌러 '너무 이른 퇴근' 카드가 떴는데 그냥 두고 나중에 제대로 STOP을 누르면, 근무는 기록되었지만 카드가 빈 문장으로 남아 STOP이 실패한 것처럼 보였습니다 — START를 다시 누르게 되는 화면입니다. 이제 근무가 기록되면 카드가 닫힙니다. 24시간 카드도 '출근 취소'나 새 START에서 닫히고, 두 카드는 함께 뜨지 않습니다.
+**A new punch card, drawn by the worker.** The punch card on the PUNCH tab now follows the worker's own design: a round START button on the left, green before a shift and salmon during one (STOP), beside the clock-in pill and a large clock. The button, the pill and the clock are centred in the card, and the button stays exactly where it is when you tap START. The card is shorter than before, so more of the screen is free below it.
 
-**320px 폰에 맞습니다.** 날짜 카드의 요일·시각 칩이 자리가 모자랄 때 날짜 밑으로 내려가 잘리지 않습니다. 인도네시아어의 설정 탭은 탭 막대를 넘던 PENGATURAN 대신 안드로이드가 쓰는 낱말 SETELAN이고, 그 탭을 가리키는 문장 넷도 같은 낱말입니다.
+**OFF SHIFT, the opposite of ON SHIFT.** Before a shift, a still grey ring with "OFF SHIFT" now sits beside the clock-in pill. After START it switches to the breathing green ON SHIFT lamp in the same spot. In all 8 languages.
 
-임금 계산은 바뀌지 않았습니다. 기록은 그대로 남습니다 — `adb install -r`로 덮어 설치하십시오. 자세한 이유는 CHANGELOG의 아흔한째 항목에 있습니다.
+**"I clocked in earlier today" is a slimmer pill.** It is now the same size as the red pay-period band on LOGS and PAY, still easy to tap, and its text stays on one line in Korean, Vietnamese and Indonesian.
+
+**The app icon is no longer cut off.** On a Galaxy with a home-screen theme, the folder at the icon's lower right was clipped by the launcher. The icon is now nudged up and left and drawn slightly smaller, so the whole folder shows; launchers that crop icons to a circle no longer clip it either.
+
+**The README is in English.**
+
+Wage calculation is unchanged. Records are kept: install over the existing app with `adb install -r`. The full reasoning is in the CHANGELOG, ninety-second and ninety-third entries.
