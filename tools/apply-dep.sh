@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 # Puts one Dependabot commit's change on top of the main that is checked out, staged, and
 # prints the tree that makes. deps.yml runs it three times on the same main (to pick, to test,
-# to merge), and merges only if all three print the same tree, so what lands is what was tested.
+# to merge) and merges only if all three print the same tree.
+#
+# What actually makes what lands what was tested is that main is pinned to one commit for the
+# whole run, a commit SHA cannot change, and the push to main is a fast-forward that fails if
+# main moved. Given those, git apply cannot answer differently, so the comparison is a cheap
+# belt over those braces rather than the guarantee itself.
 #
 #   tools/apply-dep.sh <commit sha>
 #

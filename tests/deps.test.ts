@@ -178,6 +178,8 @@ test('apply-dep: refuses anything that is not a full commit sha', () => {
 
 test('deps.yml: npm runs only in the job that cannot write; the writing job merges as the owner', () => {
   const yml = readFileSync('.github/workflows/deps.yml', 'utf8');
+  // The spliced lockfile is checked by name before the tests run.
+  assert.match(yml, /npm ci --ignore-scripts\n(\s+#.*\n)*\s+- run: npm ls --all/);
   const job = (name: string, next?: string) => yml.slice(yml.indexOf(`\n  ${name}:`), next ? yml.indexOf(`\n  ${next}:`) : undefined);
   const [pick, verify, merge] = [job('pick', 'verify'), job('verify', 'merge'), job('merge', 'report')];
   assert.doesNotMatch(pick + merge, /^(?!\s*#).*\bnpm (ci|install|run|test)/m);

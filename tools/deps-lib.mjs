@@ -10,7 +10,7 @@
  *   - one commit, written by dependabot[bot] and signed by GitHub
  *
  * The merge itself is a new commit by the owner's noreply address with the same files, so the
- * repository keeps one contributor (CLAUDE.md, hard rule 6). */
+ * repository keeps one contributor: the owner. */
 export const MIN_AGE_DAYS = 3;
 export const BOT = 'dependabot[bot]';
 export const FILES = ['package.json', 'package-lock.json'];

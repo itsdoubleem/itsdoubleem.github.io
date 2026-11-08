@@ -6,7 +6,7 @@ name: Dependency updates
 # GitHub. Anything else stays open for a person, with check.yml's result on it.
 #
 # Dependabot's own commit is not merged. The merge is a new commit with the same files, by the
-# owner's noreply address, so the repository keeps one contributor (CLAUDE.md, hard rule 6).
+# owner's noreply address, so the repository keeps one contributor: the owner.
 # The pull request is then closed with a note naming that commit.
 #
 # The three jobs split the way deploy.yml's do: the one that runs npm holds no token that can
@@ -89,6 +89,9 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --ignore-scripts
+      # Dependabot's lockfile was written on top of an older main; applied here it is a splice
+      # no npm run produced. npm ci already refuses one that no longer fits; this says so by name.
+      - run: npm ls --all > /dev/null
       - run: npm test
       - run: npm run build
       - run: npm run check
