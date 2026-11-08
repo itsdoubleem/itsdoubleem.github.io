@@ -49,7 +49,7 @@ steps:
     body: Three things set, and the app is ready. From here it records shifts and works out what you are owed.
 after:
   - image: 07-punch
-    alt: The daily punch screen, showing the date, an assumed day shift, and a round START button under the clock.
+    alt: The daily punch screen, showing the date, an assumed day shift, and a wide START button under the clock.
     kicker: Every day
     title: One tap when you arrive, one when you leave
     body: Tap 출근 START when you arrive and 퇴근 STOP when you leave. The app decides on its own whether it was a day or a night shift and takes your breaks off. Nothing to fill in.

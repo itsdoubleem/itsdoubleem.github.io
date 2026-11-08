@@ -75,7 +75,7 @@ jobs:
           # Through the environment, never pasted into the script: this is free text.
           APPROVE_LISTING: ${{ inputs.approve_listing }}
       # Authored and committed as the owner's noreply address, so the repository keeps one
-      # contributor (CLAUDE.md, hard rule 6) — not github-actions[bot]. No trailers.
+      # contributor, the owner — not github-actions[bot]. No trailers.
       # Runs even when one app failed, so the apps that synced still go forward. The job
       # stays red, which is the signal to read the failed one's ::error:: line.
       - id: commit

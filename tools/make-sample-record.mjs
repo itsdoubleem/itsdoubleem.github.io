@@ -119,8 +119,9 @@ const addPastShift = async (day) => {
   console.log(`  · past shift ${day}: ${ok ? 'saved' : 'FAILED'}`);
   await page.waitForTimeout(700);
 };
-// The CONFIRM button sits below the fold at phone height and the sheet will not scroll
-// to it, so seed at a tall viewport and shrink back before taking any more screenshots.
+// Seeded at a tall viewport and shrunk back before any more screenshots. Up to 1.2 the
+// CONFIRM button could not be scrolled to at phone height; in 1.4 tap() reaches it at 844px
+// too, so the tall viewport is now only a margin.
 await page.setViewportSize({ width: 390, height: 1400 });
 await page.waitForTimeout(400);
 for (const d of [8, 9, 10, 11]) await addPastShift(d);
