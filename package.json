@@ -5,7 +5,7 @@
     "dev": "astro dev",
     "build": "astro build --force",
     "preview": "astro preview",
-    "check": "node tools/check-downloads.mjs && node tools/check-sample-record.mjs && node tools/check-anchors.mjs && node tools/check-primer.mjs",
+    "check": "node tools/check-downloads.mjs && node tools/check-sample-record.mjs && node tools/check-anchors.mjs && node tools/check-primer.mjs && node tools/check-deck.mjs",
     "test": "node --test \"tests/*.test.ts\""
   },
   "author": "DOUBLEEM",
