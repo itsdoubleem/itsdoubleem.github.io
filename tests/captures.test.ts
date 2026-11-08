@@ -54,6 +54,9 @@ test('retake refuses an unknown app and, off the Mac, any app', () => {
   const unknown = spawnSync(process.execPath, ['tools/retake.mjs', 'nope'], { encoding: 'utf8' });
   assert.equal(unknown.status, 1);
   assert.match(unknown.stderr, /say which app: logger, hangil/);
+  // A flag before the slug is not read as the slug.
+  const flagFirst = spawnSync(process.execPath, ['tools/retake.mjs', '--any-os', 'nope'], { encoding: 'utf8' });
+  assert.match(flagFirst.stderr, /say which app/);
   if (process.platform !== 'darwin') {
     const r = spawnSync(process.execPath, ['tools/retake.mjs', 'logger'], { encoding: 'utf8' });
     assert.match(r.stderr, /run this on the Mac/);

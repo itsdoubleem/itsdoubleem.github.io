@@ -20,7 +20,7 @@ import { fileURLToPath } from 'node:url';
 import { RETAKE, duplicates, withoutCaptured } from './captures-lib.mjs';
 
 const root = join(fileURLToPath(import.meta.url), '../..');
-const slug = process.argv[2];
+const slug = process.argv.slice(2).find((a) => !a.startsWith('--'));
 const fail = (msg) => { console.error(`retake: ${msg}`); process.exit(1); };
 
 const app = RETAKE[slug];
@@ -44,7 +44,7 @@ let base = urlIn(dev('status'));
 const ours = !base;
 if (ours) base = urlIn(dev('--background', '--port', String(4300 + Math.floor(Math.random() * 90))));
 const stop = () => { if (ours) dev('stop'); };
-if (!base) fail('could not start the dev server; `npx astro dev` shows why');
+if (!base) { stop(); fail('could not start the dev server; `npx astro dev` shows why'); }
 
 let up = false;
 for (let i = 0; i < 120; i++) {

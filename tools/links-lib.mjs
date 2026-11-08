@@ -6,6 +6,8 @@
  * time out now and then, so every other failure is "could not check": listed, never alarmed on. */
 
 const OWN = new Set(['itsdoubleem.github.io']);
+/** Addresses the checker must never be sent to: this machine and private networks. */
+const PRIVATE = /^(localhost|.*\.local|.*\.internal|127\.\d+\.\d+\.\d+|10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+|169\.254\.\d+\.\d+|0\.0\.0\.0|\[.*\])$/i;
 const MAX_URL = 2000;
 
 const decode = (s) => s.replace(/&amp;/g, '&').replace(/&#38;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
@@ -19,7 +21,7 @@ export function externalLinks(pages) {
       const raw = decode((m[1] ?? m[2]).trim());
       let url;
       try { url = new URL(raw); } catch { continue; }
-      if (!/^https?:$/.test(url.protocol) || OWN.has(url.hostname) || url.hostname === 'localhost') continue;
+      if (!/^https?:$/.test(url.protocol) || OWN.has(url.hostname) || PRIVATE.test(url.hostname)) continue;
       url.hash = '';
       const key = url.href;
       if (key.length > MAX_URL) continue;
@@ -50,7 +52,7 @@ export function readList(text) {
   return list.flatMap((x) => {
     let url;
     try { url = new URL(x?.url); } catch { return []; }
-    if (!/^https?:$/.test(url.protocol) || url.href.length > MAX_URL || OWN.has(url.hostname)) return [];
+    if (!/^https?:$/.test(url.protocol) || url.href.length > MAX_URL || OWN.has(url.hostname) || PRIVATE.test(url.hostname)) return [];
     const pages = (Array.isArray(x.pages) ? x.pages : []).filter((p) => typeof p === 'string' && /^\/[\w./-]*$/.test(p)).slice(0, 20);
     return [{ url: url.href, pages }];
   });

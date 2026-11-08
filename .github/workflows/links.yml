@@ -33,7 +33,10 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm run build
       - id: list
-        run: echo "links=$(node tools/check-links.mjs --list)" >> "$GITHUB_OUTPUT"
+        # On its own line, so a crash fails this job rather than an empty list failing the next.
+        run: |
+          links=$(node tools/check-links.mjs --list)
+          echo "links=$links" >> "$GITHUB_OUTPUT"
 
   check:
     needs: list

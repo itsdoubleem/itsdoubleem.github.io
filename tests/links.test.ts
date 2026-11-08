@@ -37,6 +37,10 @@ test('the list from the building job is read as a stranger\'s data', () => {
     { url: 'https://example.org/a', pages: ['/', '/about/', '](https://evil)', 7] },
     { url: 'javascript:alert(1)', pages: ['/'] },
     { url: 'https://itsdoubleem.github.io/x', pages: ['/'] },
+    { url: 'http://169.254.169.254/latest/meta-data/', pages: ['/'] },
+    { url: 'http://localhost:4321/', pages: ['/'] },
+    { url: 'http://192.168.0.1/', pages: ['/'] },
+    { url: 'http://[::1]/', pages: ['/'] },
     { url: `https://example.org/${'a'.repeat(3000)}`, pages: ['/'] },
     'nonsense',
   ]));
@@ -63,6 +67,8 @@ test('links.yml: npm only where nothing can be written; the list reaches the che
   assert.doesNotMatch(list, /^(?!\s*#).*write/m);
   assert.doesNotMatch(check, /^(?!\s*#).*\bnpm (ci|install|run)/m);
   assert.doesNotMatch(check, /run: [^\n]*\$\{\{/);
+  // A crash in the list step fails that step, not the next job.
+  assert.match(list, /links=\$\(node tools\/check-links\.mjs --list\)\n\s+echo "links=\$links"/);
   for (const uses of yml.match(/uses: \S+/g)!) assert.match(uses, /@[0-9a-f]{40}$/);
   // Each scheduled workflow is kept from pausing.
   const watch = readFileSync('.github/workflows/watch.yml', 'utf8');
