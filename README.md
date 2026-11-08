@@ -222,6 +222,13 @@ wrong (an old APK, an overstayed pill, a release not arriving, no deploy for two
 Issue stays open, and it closes itself when the check passes. Run
 `node tools/check-live.mjs` to see the same answer.
 
+**Outside links are checked weekly.** `.github/workflows/links.yml` builds the site and asks
+every outside link, including each citation in the homepage deck, whether it is still there.
+One Issue stays open while any gives a definite "gone" (404, 410 or a host that no longer
+exists, asked twice a minute apart). Sites that refuse robots are listed in that Issue but
+never raise it on their own: on 2026-11-08 Britannica answered 403 to all twelve of its links.
+Run `npm run build && node tools/check-links.mjs` to see the same answer.
+
 **To release an app, run `node tools/release-app.mjs <slug>`** on the Mac that holds the
 signing keys, after bumping the version in the app's repo and pushing it. It works the same way
 for every app: it builds the APK, applies the sync's checks on the version, signer, permissions,

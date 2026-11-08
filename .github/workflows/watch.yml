@@ -55,3 +55,5 @@ jobs:
         run: |
           gh api -X PUT "repos/${GITHUB_REPOSITORY}/actions/workflows/deploy.yml/enable"
           gh api -X PUT "repos/${GITHUB_REPOSITORY}/actions/workflows/watch.yml/enable"
+          gh api -X PUT "repos/${GITHUB_REPOSITORY}/actions/workflows/deps.yml/enable"
+          gh api -X PUT "repos/${GITHUB_REPOSITORY}/actions/workflows/links.yml/enable"

@@ -1,0 +1,61 @@
+name: Outside links
+
+# Once a week, every outside link on the built site, the deck's citations included, is asked
+# whether it is still there (tools/check-links.mjs). One Issue stays open while any answers a
+# definite "gone"; sites that refuse robots are listed, never alarmed on.
+#
+# Split the way deploy.yml is: the job that builds runs npm and can write nothing; the job that
+# fetches the links and writes the Issue runs only Node and code from main, and reads the
+# list as untrusted data.
+on:
+  schedule:
+    - cron: '29 4 * * 1'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  list:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      links: ${{ steps.list.outputs.links }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+      - id: list
+        run: echo "links=$(node tools/check-links.mjs --list)" >> "$GITHUB_OUTPUT"
+
+  check:
+    needs: list
+    # One at a time, so two runs cannot open two Issues.
+    concurrency:
+      group: links
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - env:
+          LINKS: ${{ needs.list.outputs.links }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          printf '%s' "$LINKS" > "$RUNNER_TEMP/links.json"
+          node tools/check-links.mjs --from "$RUNNER_TEMP/links.json" --issue

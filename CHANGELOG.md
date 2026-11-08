@@ -30,6 +30,9 @@ All notable changes to this site are recorded here. The format follows
 - An Issue stays open while an app's screenshots show an older version than the site serves,
   and `npm run retake -- <slug>` takes them again on the Mac (`tools/check-captures.mjs`,
   `tools/retake.mjs`). It refuses to finish if a script photographs one screen over and over.
+- A weekly check of every outside link, the deck's citations included, keeps one Issue open
+  while any is definitely gone (`links.yml`, `tools/check-links.mjs`).
+- `watch.yml` keeps every scheduled workflow from pausing, not only the deploy and itself.
 - `npm run check` enforces one page format and refuses banned phrases (`tools/check-format.mjs`);
   `npm run new-app` starts a page in that format.
 - `npm run check` reads the homepage primer out of the build: it fails if .astro whitespace
