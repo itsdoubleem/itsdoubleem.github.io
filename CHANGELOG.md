@@ -14,6 +14,8 @@ All notable changes to this site are recorded here. The format follows
 - The LOGGER guide pictures show 1.4.1 again. The capture scripts had been tapping a button
   hidden under the new welcome screen; they now only tap what is on top, and `npm run retake
   -- logger` works.
+- `npm run retake` now says to run `npx playwright install chromium` when a Playwright update
+  has left the Mac without its browser, instead of failing inside a capture script.
 
 ### Changed
 - An app update is committed to `sync/candidate`, tested there, and only then moved to `main`,

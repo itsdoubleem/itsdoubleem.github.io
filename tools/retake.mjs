@@ -7,17 +7,19 @@
  * (tools/captures-lib.mjs, RETAKE), stops the server, and deletes the `captured:` line from
  * apps/<slug>.md. If any script fails it stops there and leaves that line alone; scripts that
  * finished may already have written their pictures, which `git status` shows. It also stops
- * if two of the new pictures are the same image, which is what a script that could not get
- * past a screen produces while still exiting 0.
+ * if two new pictures in one folder are the same file byte for byte, which is what a script
+ * that could not get past a screen produces while still exiting 0. That is a tripwire, not a
+ * check: a stuck screen with a ticking clock or a blinking caret differs by a few bytes and
+ * gets past it, so looking at the pictures is still the real test.
  *
  * It commits nothing. Look at every picture first: a screen that changed may need the alt
- * text, a caption or a guide step rewritten too (CLAUDE.md: never describe a screen you have
- * not seen). */
+ * text, a caption or a guide step rewritten too, and never describe a screen you have not
+ * seen. */
 import { spawnSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { RETAKE, duplicates, withoutCaptured } from './captures-lib.mjs';
+import { RETAKE, devUrl, duplicates, withoutCaptured } from './captures-lib.mjs';
 
 const root = join(fileURLToPath(import.meta.url), '../..');
 const slug = process.argv.slice(2).find((a) => !a.startsWith('--'));
@@ -33,16 +35,20 @@ if (!existsSync(join(root, 'public', app.page))) fail(`public${app.page} is miss
 
 const astro = join(root, 'node_modules', '.bin', 'astro');
 if (!existsSync(astro)) fail('run npm install first');
+/* The browser Playwright drives is a download of its own, matched to the playwright version.
+ * deps.yml installs with --ignore-scripts, so a playwright update merged there leaves the Mac
+ * without the browser it now expects, and every capture script would die on its first line. */
+const { chromium } = await import('playwright');
+if (!existsSync(chromium.executablePath())) fail('Playwright has no browser for this version yet: run npx playwright install chromium, then try again');
 /* Astro 7 runs the dev server as a background process with its own status and stop commands.
  * One you already have running is used and left running; one started here is stopped here. */
 const dev = (...args) => {
   const r = spawnSync(astro, ['dev', ...args], { cwd: root, encoding: 'utf8' });
   return `${r.stdout}${r.stderr}`;
 };
-const urlIn = (out) => out.match(/running at (https?:\/\/[^\s"\\)]+)/)?.[1]?.replace(/\/$/, '');
-let base = urlIn(dev('status'));
+let base = devUrl(dev('status'));
 const ours = !base;
-if (ours) base = urlIn(dev('--background', '--port', String(4300 + Math.floor(Math.random() * 90))));
+if (ours) base = devUrl(dev('--background', '--port', String(4300 + Math.floor(Math.random() * 90))));
 const stop = () => { if (ours) dev('stop'); };
 if (!base) { stop(); fail('could not start the dev server; `npx astro dev` shows why'); }
 

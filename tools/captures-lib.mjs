@@ -51,6 +51,13 @@ export function withoutCaptured(md) {
  *  script that cannot get past a screen photographs that screen at every step and still exits
  *  0: LOGGER 1.4.1's new welcome screen made ten identical "guide" pictures on 2026-11-08.
  *  Across folders a repeat can be meant: HANGIL's exam screen is in its guide and on its page. */
+/* The address in what `astro dev status` and `astro dev --background` print, without its
+ * trailing slash, or undefined when no server is running. Both print one JSON line whose
+ * message reads "Dev server running at <url> (pid …)"; the second goes on with escaped \n. */
+export function devUrl(out) {
+  return out.match(/running at (https?:\/\/[^\s"\\)]+)/)?.[1]?.replace(/\/$/, '');
+}
+
 export function duplicates(files) {
   const by = new Map();
   for (const [path, buf] of files) {

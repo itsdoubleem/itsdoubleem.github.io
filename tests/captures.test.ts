@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { RETAKE, duplicates, issueText, staleCaptures, withoutCaptured } from '../tools/captures-lib.mjs';
+import { RETAKE, devUrl, duplicates, issueText, staleCaptures, withoutCaptured } from '../tools/captures-lib.mjs';
 import { releaseField } from '../tools/sync-lib.mjs';
 
 const md = (release: string) => `---\nslug: x\nname: LOGGER\ntagline: T\nrelease:\n${release}---\n\nbody\n`;
@@ -67,6 +67,22 @@ test('watch.yml keeps the screenshots Issue, without npm', () => {
   const yml = readFileSync('.github/workflows/watch.yml', 'utf8');
   assert.match(yml, /node tools\/check-captures\.mjs --issue/);
   assert.doesNotMatch(yml, /^(?!\s*#).*\bnpm (ci|install)/m);
+  // actions: write belongs to the keepalive job alone, not to the job running the checks.
+  const [watch, keepalive] = yml.split(/^  keepalive:$/m);
+  assert.ok(keepalive, 'watch.yml has a keepalive job');
+  assert.doesNotMatch(watch, /^(?!\s*#).*actions: write/m);
+  assert.match(keepalive, /^\s+actions: write$/m);
+  assert.match(keepalive, /if: \$\{\{ github\.event_name == 'schedule' \}\}/);
+});
+
+test("the dev server's address is read from both shapes Astro 7 prints", () => {
+  // Copied from astro dev --background, astro dev status and astro dev status with none running.
+  const started = '{"message":"Dev server running at http://localhost:4411 (pid 63854)\\n  Stop:   astro dev stop","label":"SKIP_FORMAT","level":"info"}';
+  const status = '{"message":"Dev server running at http://localhost:4411/ (pid 63854, uptime 0s, background)","label":"SKIP_FORMAT","level":"info"}';
+  const none = '{"message":"No dev server is running.","label":"SKIP_FORMAT","level":"info"}';
+  assert.equal(devUrl(started), 'http://localhost:4411');
+  assert.equal(devUrl(status), 'http://localhost:4411');
+  assert.equal(devUrl(none), undefined);
 });
 
 test('identical pictures are found, as ten copies of one welcome screen were', () => {
