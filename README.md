@@ -89,7 +89,16 @@ npm test         # unit tests in tests/ — Node's own runner, nothing to instal
 ```
 
 CI runs `npm test`, `npm run build` and then `npm run check`, and a failure in any of them
-stops the deploy.
+stops the deploy. Every pull request gets the same three (`.github/workflows/check.yml`).
+
+**Dependency updates mostly merge themselves.** Dependabot opens them
+(`.github/dependabot.yml`, a few days after each release), and once a day
+`.github/workflows/deps.yml` takes the oldest one that qualifies, tests it on `main` as it is
+then, and merges it as your own commit, then deploys. A qualifying update is one npm package,
+a patch or minor version change, open three days or more, touching only `package.json` and
+`package-lock.json`, in one commit signed by GitHub (`tools/deps-lib.mjs`). Anything else waits
+for you: majors, groups, every update to an action, and anything that fails. Run
+`node tools/pick-deps.mjs` to see what it would decide for each open one.
 
 Astro, static output, no client framework and no adapter. The content is markdown, it
 builds to plain HTML that works with JavaScript switched off, and GitHub Pages serves the

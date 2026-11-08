@@ -1,0 +1,34 @@
+name: Check
+
+# Every pull request gets the same gates a deploy does, before anyone merges it: the tests, the
+# build and `npm run check`. Dependabot's included, which is what deps.yml relies on a person
+# seeing when it leaves an update for them.
+#
+# A pull request can come from anyone, so this job holds a read-only token and nothing else.
+on:
+  pull_request:
+    branches: [main]
+
+permissions: {}
+
+concurrency:
+  group: check-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm test
+      - run: npm run build
+      - run: npm run check

@@ -1,0 +1,143 @@
+name: Dependency updates
+
+# Merges one small Dependabot update a day by itself, once it has been tested on main as it is
+# now. Which ones qualify is tools/deps-lib.mjs: one npm package, a patch or minor change, open
+# three days or more, touching only package.json and package-lock.json, one commit signed by
+# GitHub. Anything else stays open for a person, with check.yml's result on it.
+#
+# Dependabot's own commit is not merged. The merge is a new commit with the same files, by the
+# owner's noreply address, so the repository keeps one contributor (CLAUDE.md, hard rule 6).
+# The pull request is then closed with a note naming that commit.
+#
+# The three jobs split the way deploy.yml's do: the one that runs npm holds no token that can
+# write, and the ones that write run nothing but git and Node code from main.
+on:
+  schedule:
+    - cron: '41 1 * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  pick:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      number: ${{ steps.first.outputs.number }}
+      head: ${{ steps.first.outputs.head }}
+      base: ${{ steps.first.outputs.base }}
+      tree: ${{ steps.first.outputs.tree }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - id: list
+        run: node tools/pick-deps.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      # The oldest one that still applies to main. One a day, so each is tested on its own.
+      - id: first
+        env:
+          CANDIDATES: ${{ steps.list.outputs.candidates }}
+        run: |
+          base=$(git rev-parse HEAD)
+          for c in $CANDIDATES; do
+            number=${c%%:*}
+            head=${c#*:}
+            if tree=$(tools/apply-dep.sh "$head"); then
+              echo "Testing #$number on main at $base."
+              {
+                echo "number=$number"
+                echo "head=$head"
+                echo "base=$base"
+                echo "tree=$tree"
+              } >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "::notice::#$number no longer applies to main; Dependabot rebases it and a later run tries again."
+            git reset -q --hard "$base"
+          done
+          echo "Nothing to merge today."
+
+  # Runs third-party code (npm ci), so it can write nothing.
+  verify:
+    needs: pick
+    if: needs.pick.outputs.number != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ needs.pick.outputs.base }}
+          persist-credentials: false
+      - name: Apply the update to the main that was picked
+        env:
+          HEAD_SHA: ${{ needs.pick.outputs.head }}
+          TREE: ${{ needs.pick.outputs.tree }}
+        run: |
+          tree=$(tools/apply-dep.sh "$HEAD_SHA")
+          [ "$tree" = "$TREE" ] || { echo "::error::the update made $tree here and $TREE when picked"; exit 1; }
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm test
+      - run: npm run build
+      - run: npm run check
+
+  merge:
+    needs: [pick, verify]
+    if: needs.verify.result == 'success'
+    # The group deploy.yml's promote uses, so the two never move main at once.
+    concurrency:
+      group: sync-promote
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ needs.pick.outputs.base }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - name: Merge as the owner, if nothing moved
+        env:
+          TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
+          NUMBER: ${{ needs.pick.outputs.number }}
+          HEAD_SHA: ${{ needs.pick.outputs.head }}
+          BASE: ${{ needs.pick.outputs.base }}
+          TREE: ${{ needs.pick.outputs.tree }}
+        run: |
+          url="https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          # Asked again now: the pull request may have changed or closed while it was tested.
+          node tools/pick-deps.mjs --recheck "$NUMBER" "$HEAD_SHA" > "$RUNNER_TEMP/message"
+          tree=$(tools/apply-dep.sh "$HEAD_SHA")
+          [ "$tree" = "$TREE" ] || { echo "::error::the update made $tree here and $TREE when tested"; exit 1; }
+          head=$(git ls-remote --exit-code "$url" refs/heads/main | cut -f1)
+          if [ "$head" != "$BASE" ]; then
+            echo "::notice::main moved to $head while #$NUMBER was tested; the next run tests it again."
+            exit 0
+          fi
+          git config user.name itsdoubleem
+          git config user.email 328792799+itsdoubleem@users.noreply.github.com
+          git commit -q -F "$RUNNER_TEMP/message"
+          git push -q "$url" HEAD:refs/heads/main
+          merged=$(git rev-parse HEAD)
+          gh pr close "$NUMBER" --comment "Tested on main and merged as $merged by the Dependency updates workflow."
+          # A push made with this token starts no workflow, so the deploy is asked for by name.
+          gh workflow run deploy.yml --ref main

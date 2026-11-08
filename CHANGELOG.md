@@ -23,6 +23,10 @@ All notable changes to this site are recorded here. The format follows
   itself; changes to the tagline, protected sections or numbers wait for approval
   (`apps/README.md`).
 - `node tools/release-app.mjs <slug>`: one release command for every app, dry-run by default.
+- Every pull request runs the tests, the build and `npm run check` (`check.yml`).
+- Small Dependabot updates are tested on `main` and merged as the owner's own commit, one a
+  day, three days after they open (`deps.yml`, `tools/deps-lib.mjs`). Majors, groups and action
+  updates still wait for a person.
 - `npm run check` enforces one page format and refuses banned phrases (`tools/check-format.mjs`);
   `npm run new-app` starts a page in that format.
 - `npm run check` reads the homepage primer out of the build: it fails if .astro whitespace

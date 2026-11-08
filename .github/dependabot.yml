@@ -1,0 +1,29 @@
+# Version updates, on top of the security updates turned on in the repository's settings.
+# deps.yml merges the small npm ones by itself once they have been open three days and pass on
+# main; everything else, including every update to an action, waits for a person.
+#
+# cooldown holds a new version back for a few days after it is published, so one that is
+# pulled or found bad in its first days never becomes a pull request. It does not apply to
+# security updates, which is why deps.yml also waits on its own.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 5
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore(deps)
+      prefix-development: chore(deps-dev)
+  # The actions are pinned to commits (deploy.yml says why). Dependabot keeps the pins and
+  # their "# v4" comments current. These hold tokens, so a person reads each one.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: chore(ci)
