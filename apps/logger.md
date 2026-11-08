@@ -60,7 +60,6 @@ release:
   source: itsdoubleem/Logger_app
   asset: worklog-release.apk
   signer: 115e06d0d0561fabf41daaf832fe1fa058519a60bbc3729719fecb75f6e610da
-  captured: '1.2.25'
 ---
 
 ## What it does
@@ -141,7 +140,3 @@ have one.
 The trade-off is real and you should know it: if you lose the phone or clear the app's
 data, the records are gone. Use the backup export in 설정 › Backup, and keep the
 file somewhere you control.
-
-If your phone has a fingerprint sensor, the punch pad can use it, so clocking in is one
-touch. The fingerprint never leaves the phone either — the app only ever learns that the
-check passed.

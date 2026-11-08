@@ -49,11 +49,11 @@ steps:
     body: Three things set, and the app is ready. From here it records shifts and works out what you are owed.
 after:
   - image: 07-punch
-    alt: The daily punch screen, showing the date, an assumed day shift, and a fingerprint pad reading "verify to clock in".
+    alt: The daily punch screen, showing the date, an assumed day shift, and a round START button under the clock.
     kicker: Every day
     title: One tap when you arrive, one when you leave
-    body: Press the pad with your fingerprint. The app decides on its own whether it was a day or a night shift and takes your breaks off. Nothing to fill in.
-    note: No fingerprint sensor? The pad says so, and you press and hold it instead. Forgot to punch at the start? Tap "I clocked in earlier today" and type the real time. There is also a calendar for adding a whole shift you already worked — pick the date, set the hours, confirm.
+    body: Tap 출근 START when you arrive and 퇴근 STOP when you leave. The app decides on its own whether it was a day or a night shift and takes your breaks off. Nothing to fill in.
+    note: Forgot to tap START? Tap "I clocked in earlier today" and type the time you really began. For a whole shift you already worked, the 근무 Past shift button opens a calendar — pick the date, set the clock-in and clock-out times, confirm.
   - image: 08-pay
     alt: The pay screen showing an estimated take-home figure with a breakdown of earnings below it.
     kicker: Any time
