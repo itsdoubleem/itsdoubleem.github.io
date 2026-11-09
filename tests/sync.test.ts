@@ -147,7 +147,10 @@ test("a release whose notes were edited on GitHub rewrites the page's notes, and
   const plan = await planApp(app(), { ...rel('v1.0.0'), body: 'Better, and faster.' }, io());
   assert.equal(plan.change, 'x: release notes for 1.0.0 updated');
   assert.deepEqual(plan.writes.map(([p]) => p), ['releases/x.md']);
-  assert.match(String(plan.writes[0][1]), /\n\nBetter, and faster\.\n$/);
+  const file = String(plan.writes[0][1]);
+  assert.match(file, /\n\nBetter, and faster\.\n$/);
+  assert.match(file, /^version: '1\.0\.0'$/m);
+  assert.match(file, /^date: 2026-10-12$/m);
   // Written again from the new text, it matches, so the next hourly run changes nothing.
   assert.deepEqual((await planApp({ ...app(), notes: String(plan.writes[0][1]) }, { ...rel('v1.0.0'), body: 'Better, and faster.' }, io())).writes, []);
 });
@@ -167,6 +170,18 @@ test('a notes file from before fingerprints is compared by its text', async () =
 
 test('notes edited down to nothing keep the page notes it has, with a warning', async () => {
   const plan = await planApp(app(), { ...rel('v1.0.0'), body: '' }, io());
+  assert.deepEqual(plan.writes, []);
+  assert.match(plan.warning!, /keeps the ones it has/);
+});
+
+test("a tag written v1.0 still writes the site's own version, 1.0.0, which the build checks", async () => {
+  const plan = await planApp(app(), { ...rel('v1.0'), body: 'Shorter tag.' }, io());
+  assert.match(String(plan.writes[0][1]), /^version: '1\.0\.0'$/m);
+});
+
+test('notes with a phrase the site refuses: a new version stops, an edit keeps the page notes', async () => {
+  await assert.rejects(planApp(app(), { ...rel(), body: 'A seamless update.' }, io()), /does not allow/);
+  const plan = await planApp(app(), { ...rel('v1.0.0'), body: 'It is free forever.' }, io());
   assert.deepEqual(plan.writes, []);
   assert.match(plan.warning!, /keeps the ones it has/);
 });

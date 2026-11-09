@@ -6,6 +6,7 @@
 // Node's own type stripping reads this; release.ts imports nothing but node: modules.
 import { createHash } from 'node:crypto';
 import { manifestIcons, webDir } from '../src/release.ts';
+import { blockedPhrases } from './format-lib.mjs';
 
 /** The `release:` block's indented lines, or '' if there is none. */
 export const releaseBlock = (md) => md.match(/^release:\n((?:[ \t]+.*\n)+)/m)?.[1] ?? '';
@@ -177,30 +178,39 @@ export async function planApp(app, rel, io) {
   // build runs. Empty notes written here would leave main red until someone wrote them, so
   // they stop the sync instead: nothing is written, the app stays where it was, and the
   // hourly run says why.
-  const notes = () => {
+  // Phrases npm run check refuses would fail every hourly candidate, holding back the other
+  // apps too, so they stop this app here instead.
+  const banned = (text) => blockedPhrases(text);
+  const notes = (version = latest) => {
     const text = cleanNotes(rel.body);
     if (!text) {
       throw new Error(`${rel.tag_name} has no release notes the site can show — write what changed in the GitHub Release`);
     }
-    return notesFile({ version: latest, date: kstDate(rel.published_at), url: rel.html_url, notes: text });
+    const why = banned(text);
+    if (why.length) throw new Error(`${rel.tag_name}'s notes say what the site does not allow: ${why.join('; ')} — reword the GitHub Release`);
+    return notesFile({ version, date: kstDate(rel.published_at), url: rel.html_url, notes: text });
   };
   const cmp = compareVersions(latest, current);
 
   if (cmp < 0) return { writes: [], log: `${current} is current (latest release ${rel.tag_name} is older)` };
   if (cmp === 0) {
+    // `current`, not the tag: v1.0 and 1.0.0 compare equal, and the build wants the version
+    // apps/<slug>.md has.
     if (app.notes == null) {
-      return { writes: [[`releases/${slug}.md`, notes()]], change: `${slug}: release notes for ${current}`, log: 'wrote its release notes' };
+      return { writes: [[`releases/${slug}.md`, notes(current)]], change: `${slug}: release notes for ${current}`, log: 'wrote its release notes' };
     }
     // The release's notes were edited after it came out. Notes that now clean down to
     // nothing do not replace good ones: the page keeps what it has and the run says why.
     const text = cleanNotes(rel.body);
     if (!text) return { writes: [], warning: `${rel.tag_name}'s notes now have nothing the site can show, so the page keeps the ones it has` };
+    const why = banned(text);
+    if (why.length) return { writes: [], warning: `${rel.tag_name}'s edited notes say what the site does not allow (${why.join('; ')}), so the page keeps the ones it has` };
     const stored = storedSource(app.notes);
     // A file written before fingerprints has none to compare, so its text is compared: the
     // same text gets left alone, different text is taken as an edited release.
     const same = stored ? stored === notesSource(text) : notesBody(app.notes) === text;
     if (same) return { writes: [], log: `${current} is current` };
-    return { writes: [[`releases/${slug}.md`, notes()]], change: `${slug}: release notes for ${current} updated`, log: 'its release notes changed on GitHub, so they were written again' };
+    return { writes: [[`releases/${slug}.md`, notes(current)]], change: `${slug}: release notes for ${current} updated`, log: 'its release notes changed on GitHub, so they were written again' };
   }
 
   // A notice tied to the old version would fail the build. It was written by a person
