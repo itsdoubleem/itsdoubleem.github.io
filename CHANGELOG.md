@@ -6,22 +6,11 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
-### Fixed
-- A release that changes its icon no longer stops every deploy. LOGGER 1.4.0 did, and the site
-  stayed on 1.3.0 under an expired New pill from 2026-10-26. The sync now carries the icon.
-- The LOGGER page and guide no longer say the punch pad uses a fingerprint. LOGGER dropped it
-  on 2026-10-26; you now tap 출근 START and 퇴근 STOP, and the guide says so.
-- The LOGGER guide pictures show the app as it is (1.5.0). The capture scripts had been tapping a button
-  hidden under the new welcome screen; they now only tap what is on top, and `npm run retake
-  -- logger` works.
-- `npm run retake` now says to run `npx playwright install chromium` when a Playwright update
-  has left the Mac without its browser, instead of failing inside a capture script.
-
-### Changed
-- An app update is committed to `sync/candidate`, tested there, and only then moved to `main`,
-  so an update the build refuses cannot stop the site deploying or pills expiring.
+## [1.7.0] — 2026-11-09
 
 ### Added
+- Apps keep themselves up to date on the site, checked before they go live. LOGGER moved from
+  1.2.25 to 1.5.0 this way (1.3.0, 1.4.1 and 1.5.0 all arrived through the hourly sync).
 - A release can tell the site to update at once (`repository_dispatch`), instead of waiting for
   a schedule GitHub runs 3–7 times a day.
 - `tools/check-live.mjs` and `watch.yml` compare the live site with `main` and GitHub after each
@@ -42,55 +31,42 @@ All notable changes to this site are recorded here. The format follows
 - `watch.yml` keeps every scheduled workflow from pausing, not only the deploy and itself.
 - `npm run check` enforces one page format and refuses banned phrases (`tools/check-format.mjs`);
   `npm run new-app` starts a page in that format.
-- `npm run check` reads the homepage primer out of the build: it fails if .astro whitespace
-  collapse has glued two words together (which has shipped twice), if the chapter number
-  the paragraph derives from curios.ts has gone missing from the markup, or if either of
-  the two pages its dated claims rest on is no longer linked. It matches the chapter
-  number whether or not the copy capitalises it — the first version failed a rewrite for
-  saying "Take chapter 24" mid-sentence, which is correct English.
+- `npm run check` reads the homepage primer out of the build: it fails if two words have been
+  glued together by whitespace collapse (which has shipped twice), if the chapter number has
+  gone missing from the markup, or if either of the two pages its dated claims rest on is no
+  longer linked.
 
 ### Changed
-- The homepage link to the 42-chapter deck now says where it goes. It read "How we got
-  here", which on a studio site is an origin story — how this person started, why Korea,
-  why free — and what arrived was the Big Bang. It reads "From the Big Bang to now", the
-  heading matches it, and the anchor is #big-bang-to-now.
-- The note's reference to chapter 24 stays a plain reference. It briefly said "further
-  down", which is false — the deck is a stack, one card at a time, and chapter 24 is 23
-  presses of Next away — and was then briefly a control that checked that chapter's radio.
-  The control works on a desktop and does nothing visible on a phone: the card is below
-  the fold and no scroll is triggered, so the reader sees no change at all. Reverted, with
-  the measurements in the source so nobody tries it a third time.
-- The section's old anchor, #how-we-got-here, still works. It is a published URL, so it is
-  kept on the header while #big-bang-to-now names the section.
-- That section now says why it is on a software site at all. Everything under the heading
-  explained how knowledge gets revised and none of it said what that had to do with
-  doubleem, so the honest reading was a hobby that wandered onto a portfolio: "All of it
-  is here because the apps make claims people act on, and this is how I think about being
-  wrong."
-  The note stopped repeating the span, which the heading now carries.
-- The note above the 42-chapter deck now explains why a scientific answer is allowed to
-  change, which it never did before. It opens on a question, gives the answer we used to
-  have — about 195,000 years for the oldest *Homo sapiens* — then the 2017 Jebel Irhoud
-  dating that moved it to roughly 300,000, then the part that matters: science is the best
-  answer the evidence supports now, so a better answer is the method working rather than
-  failing. It ends on why the old number was not a lie: it never claimed nothing older
-  existed, only that nothing older had been found — the difference between the world and
-  what is known of it. The passage also stopped calling 195,000 years the age of the
-  oldest fossils — a superlative neither page under it supports — and now reads "the
-  accepted answer ... was about 195,000 years", which the Omo I page gives outright.
-  Thirteen sentences averaging ten words, across four paragraphs. It is longer
-  than what it replaces, 92 words to 129: five beats do not fit in the length of a deck
-  card, and what made the old one read as an unnumbered card was having no visible job
-  rather than its size. The opening question is set a step larger and in the brighter ink
-  so it reads as a way in rather than a second standfirst, and the paragraph explaining
-  why answers move takes that brighter ink too, because it is the point of the passage.
+- An app update is committed to `sync/candidate`, tested there, and only then moved to `main`,
+  so an update the build refuses cannot stop the site deploying or pills expiring.
+- The homepage link to the 42-chapter deck now says where it goes: "From the Big Bang to now"
+  instead of "How we got here", which on a studio site read as an origin story. The heading
+  matches, the anchor is #big-bang-to-now, and the old #how-we-got-here link still works.
+- That section now says why it is on a software site at all: "All of it is here because the
+  apps make claims people act on, and this is how I think about being wrong."
+- The note above the deck explains why a scientific answer is allowed to change. It gives the
+  answer we used to have — about 195,000 years for the oldest *Homo sapiens* — then the 2017
+  Jebel Irhoud dating that moved it to roughly 300,000, and why the old number was not a lie:
+  it never claimed nothing older existed, only that nothing older had been found. Before, it
+  opened on the fossils with nothing marking it as a note, so readers took it for chapter 1.
+- The note cites two pages instead of one, so each dated claim has a link that carries it: the
+  Smithsonian's Omo I page beside the Jebel Irhoud one.
 
-  It used to open on the fossils with nothing marking it as a note at all, so a reader took
-  it for chapter 1 and met the Big Bang next.
-- The note cites two pages instead of one. It claimed a dated fossil age — "the oldest
-  fossils … were about 195,000 years old" — which the Jebel Irhoud page printed under it
-  does not give. The Smithsonian's own Omo I page states that figure outright and is now
-  printed beside it, so each claim has a link that carries it.
+### Fixed
+- A release that changes its icon no longer stops every deploy. LOGGER 1.4.0 did, and the site
+  stayed on 1.3.0 under an expired New pill from 2026-10-26. The sync now carries the icon, so
+  LOGGER's new clock-and-folder logo is on the site.
+- The LOGGER page and guide no longer say the punch pad uses a fingerprint. LOGGER dropped it
+  on 2026-10-26; you now tap 출근 START and 퇴근 STOP, and the guide says so.
+- The LOGGER guide pictures show the app as it is (1.5.0). The capture scripts had been tapping
+  a button hidden under the new welcome screen; they now only tap what is on top, and
+  `npm run retake -- logger` works.
+- `npm run retake` now says to run `npx playwright install chromium` when a Playwright update
+  has left the Mac without its browser, instead of failing inside a capture script.
+
+### Known issue
+- On a desktop, pressing ← on chapter 1 of the homepage deck can hide every card. Reloading the
+  page brings them back. The fix is in pull request #32 and will come in the next version.
 
 ## [1.6.0] — 2026-10-12
 
@@ -322,7 +298,10 @@ published without a description. An hourly run can no longer cancel the deploy o
 - HANGIL's page describes its trade section: eight manufacturing job groups, each with 26
   words and 20 questions.
 
-[Unreleased]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.10...HEAD
+[Unreleased]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.7.0...HEAD
+[1.7.0]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.6.0...v1.7.0
+[1.6.0]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.5.0...v1.6.0
+[1.5.0]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.10...v1.5.0
 [1.4.10]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.9...v1.4.10
 [1.4.9]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.8...v1.4.9
 [1.4.8]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.7...v1.4.8
