@@ -26,4 +26,4 @@ the release's notes are edited on GitHub (within the hour). You can edit the tex
 release's own notes change or the next release arrives.
 (Keep that line when you edit: a file without one is compared by its text and rewritten.)
 Edited notes that would leave nothing to show, or that use a phrase `npm run check` refuses,
-are not taken: the page keeps what it has, and the reason is only in the deploy run's log.
+are not taken: the page keeps what it has, and one Issue says why until the notes are fixed.

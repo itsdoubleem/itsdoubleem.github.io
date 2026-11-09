@@ -155,6 +155,12 @@ test("a release whose notes were edited on GitHub rewrites the page's notes, and
   assert.deepEqual((await planApp({ ...app(), notes: String(plan.writes[0][1]) }, { ...rel('v1.0.0'), body: 'Better, and faster.' }, io())).writes, []);
 });
 
+test("notes the page can show say so, so a refused-notes Issue closes; a new version says nothing", async () => {
+  assert.deepEqual((await planApp(app(), rel('v1.0.0'), io())).notes, { held: null });
+  assert.deepEqual((await planApp(app(), { ...rel('v1.0.0'), body: 'Edited.' }, io())).notes, { held: null });
+  assert.equal((await planApp(app(), rel(), io())).notes, undefined);
+});
+
 test('a hand edit to the notes file lasts until the release text itself changes', async () => {
   const handEdited = served().replace('Better.', 'Better. (Edited here.)');
   assert.deepEqual((await planApp({ ...app(), notes: handEdited }, rel('v1.0.0'), io())).writes, []);
@@ -172,6 +178,8 @@ test('notes edited down to nothing keep the page notes it has, with a warning', 
   const plan = await planApp(app(), { ...rel('v1.0.0'), body: '' }, io());
   assert.deepEqual(plan.writes, []);
   assert.match(plan.warning!, /keeps the ones it has/);
+  // The sync keeps an Issue open for it, instead of one warning line an hour nobody reads.
+  assert.match(plan.notes!.held!, /nothing the site can show/);
 });
 
 test("a tag written v1.0 still writes the site's own version, 1.0.0, which the build checks", async () => {
@@ -184,6 +192,7 @@ test('notes with a phrase the site refuses: a new version stops, an edit keeps t
   const plan = await planApp(app(), { ...rel('v1.0.0'), body: 'It is free forever.' }, io());
   assert.deepEqual(plan.writes, []);
   assert.match(plan.warning!, /keeps the ones it has/);
+  assert.match(plan.notes!.held!, /stays free/);
 });
 
 test('a release with no APK is a warning, not a failure, and writes nothing', async () => {

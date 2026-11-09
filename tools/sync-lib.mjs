@@ -168,7 +168,9 @@ export function apkRefusal(got, { tag, version, signer, had }) {
  *   io    { download(url) → Buffer, inspect(buf) → { versionName, signers, permissions },
  *           current() → { permissions } of the APK served now, unpack(buf) → [[path, Buffer]] }
  *
- * Returns { change?, warning?, writes: [[repoPath, string|Buffer]] }. */
+ * Returns { change?, warning?, writes: [[repoPath, string|Buffer]], notes? }. `notes` is set
+ * only for the version already served: { held: why } when an edit to the release's notes was
+ * refused, or { held: null } when the page's notes are what the release says. */
 export async function planApp(app, rel, io) {
   const { slug, readme } = app;
   let md = app.md;
@@ -202,15 +204,16 @@ export async function planApp(app, rel, io) {
     // The release's notes were edited after it came out. Notes that now clean down to
     // nothing do not replace good ones: the page keeps what it has and the run says why.
     const text = cleanNotes(rel.body);
-    if (!text) return { writes: [], warning: `${rel.tag_name}'s notes now have nothing the site can show, so the page keeps the ones it has` };
+    const held = (why) => ({ writes: [], warning: `${rel.tag_name}'s ${why}, so the page keeps the ones it has`, notes: { held: why } });
+    if (!text) return held('notes now have nothing the site can show');
     const why = banned(text);
-    if (why.length) return { writes: [], warning: `${rel.tag_name}'s edited notes say what the site does not allow (${why.join('; ')}), so the page keeps the ones it has` };
+    if (why.length) return held(`edited notes say what the site does not allow (${why.join('; ')})`);
     const stored = storedSource(app.notes);
     // A file written before fingerprints has none to compare, so its text is compared: the
     // same text gets left alone, different text is taken as an edited release.
     const same = stored ? stored === notesSource(text) : notesBody(app.notes) === text;
-    if (same) return { writes: [], log: `${current} is current` };
-    return { writes: [[`releases/${slug}.md`, notes(current)]], change: `${slug}: release notes for ${current} updated`, log: 'its release notes changed on GitHub, so they were written again' };
+    if (same) return { writes: [], log: `${current} is current`, notes: { held: null } };
+    return { writes: [[`releases/${slug}.md`, notes(current)]], change: `${slug}: release notes for ${current} updated`, log: 'its release notes changed on GitHub, so they were written again', notes: { held: null } };
   }
 
   // A notice tied to the old version would fail the build. It was written by a person

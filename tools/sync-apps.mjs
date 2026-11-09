@@ -141,6 +141,17 @@ try {
         writeFileSync(at(path), data);
       }
       if (plan.change) changes.push(plan.change);
+      // An edit to a release's notes that the site refused is otherwise one log line in a
+      // green run, every hour. One Issue says it until the notes are fixed or a release comes.
+      if (plan.notes) {
+        const key = `notes-${slug}`;
+        if (plan.notes.held) {
+          await report(key, (b) => b.raise(key, `${slug}: edited release notes were not published`,
+            `The notes of ${rel.tag_name} in ${source} were edited, and the page still shows the earlier ones, because the release's ${plan.notes.held}.\n\nReword the GitHub Release (${rel.html_url}). This Issue closes by itself within the hour once the page can show it.`));
+        } else {
+          await report(key, (b) => b.clear(key, 'The page shows the release\'s notes again.'));
+        }
+      }
     } catch (e) {
       failures.push(slug);
       console.error(`::error::${slug}: ${e.message}`);
