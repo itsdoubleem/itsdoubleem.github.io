@@ -132,7 +132,7 @@ try {
     if (!source) continue;
     try {
       const rel = await (await get(`https://api.github.com/repos/${source}/releases/latest`)).json();
-      const app = { slug, md, readme: readFileSync(at('README.md'), 'utf8'), notesExists: existsSync(at(`releases/${slug}.md`)) };
+      const app = { slug, md, readme: readFileSync(at('README.md'), 'utf8'), notes: existsSync(at(`releases/${slug}.md`)) ? readFileSync(at(`releases/${slug}.md`), 'utf8') : null };
       const plan = await planApp(app, rel, io(releaseField(md, 'apk')));
       if (plan.warning) console.log(`::warning::${slug}: ${plan.warning}`);
       if (plan.log) console.log(`${slug}: ${plan.log}`);

@@ -6,6 +6,10 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+### Added
+- Editing a release's notes on GitHub now updates the app page's "What's new" within the hour.
+  Before, the site took the notes once, when the version arrived, and kept them.
+
 ## [1.7.0] — 2026-11-09
 
 ### Added

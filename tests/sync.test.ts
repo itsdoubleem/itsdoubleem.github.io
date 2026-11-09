@@ -1,7 +1,7 @@
 // Tests for tools/sync-lib.mjs — the parts of the hourly app sync that need no network.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { cleanNotes, compareVersions, kstDate, planApp, releaseField, setReleaseField, signersOf } from '../tools/sync-lib.mjs';
+import { cleanNotes, compareVersions, kstDate, notesFile, planApp, releaseField, setReleaseField, signersOf } from '../tools/sync-lib.mjs';
 
 const md = `---
 name: X
@@ -103,7 +103,8 @@ release:
   signer: ${SIGNER}
 ${extra}---
 `;
-const app = (extra = '') => ({ slug: 'x', md: appMd(extra), readme: `${OLD}  x.apk\n`, notesExists: true });
+const served = (notes = 'Better.') => notesFile({ version: '1.0.0', date: '2026-10-12', url: 'https://github.com/o/x/releases/tag/v1.0.0', notes });
+const app = (extra = '') => ({ slug: 'x', md: appMd(extra), readme: `${OLD}  x.apk\n`, notes: served() as string | null });
 const rel = (tag = 'v1.1.0', assets = [{ name: 'x.apk', browser_download_url: 'https://dl/x.apk' }]) => ({
   tag_name: tag, published_at: '2026-10-12T09:00:00Z', html_url: 'https://github.com/o/x/releases/tag/' + tag,
   body: 'Better.', assets,
@@ -134,12 +135,40 @@ test('a release whose notes clean down to nothing is refused, and writes nothing
   const empty = (body: string | null) => ({ ...rel(), body });
   await assert.rejects(planApp(app(), empty(null), io()), /no release notes/);
   await assert.rejects(planApp(app(), empty('SHA-256 ' + 'a'.repeat(64)), io()), /no release notes/);
-  await assert.rejects(planApp({ ...app(), notesExists: false }, { ...rel('v1.0.0'), body: '' }, io()), /no release notes/);
+  await assert.rejects(planApp({ ...app(), notes: null }, { ...rel('v1.0.0'), body: '' }, io()), /no release notes/);
 });
 
 test('the same or an older release changes nothing', async () => {
   assert.deepEqual((await planApp(app(), rel('v1.0.0'), io())).writes, []);
   assert.deepEqual((await planApp(app(), rel('v0.9.0'), io())).writes, []);
+});
+
+test("a release whose notes were edited on GitHub rewrites the page's notes, and only those", async () => {
+  const plan = await planApp(app(), { ...rel('v1.0.0'), body: 'Better, and faster.' }, io());
+  assert.equal(plan.change, 'x: release notes for 1.0.0 updated');
+  assert.deepEqual(plan.writes.map(([p]) => p), ['releases/x.md']);
+  assert.match(String(plan.writes[0][1]), /\n\nBetter, and faster\.\n$/);
+  // Written again from the new text, it matches, so the next hourly run changes nothing.
+  assert.deepEqual((await planApp({ ...app(), notes: String(plan.writes[0][1]) }, { ...rel('v1.0.0'), body: 'Better, and faster.' }, io())).writes, []);
+});
+
+test('a hand edit to the notes file lasts until the release text itself changes', async () => {
+  const handEdited = served().replace('Better.', 'Better. (Edited here.)');
+  assert.deepEqual((await planApp({ ...app(), notes: handEdited }, rel('v1.0.0'), io())).writes, []);
+  const plan = await planApp({ ...app(), notes: handEdited }, { ...rel('v1.0.0'), body: 'Rewritten.' }, io());
+  assert.deepEqual(plan.writes.map(([p]) => p), ['releases/x.md']);
+});
+
+test('a notes file from before fingerprints is compared by its text', async () => {
+  const old = served().replace(/^source: .*\n/m, '');
+  assert.deepEqual((await planApp({ ...app(), notes: old }, rel('v1.0.0'), io())).writes, []);
+  assert.deepEqual((await planApp({ ...app(), notes: old }, { ...rel('v1.0.0'), body: 'Changed.' }, io())).writes.map(([p]) => p), ['releases/x.md']);
+});
+
+test('notes edited down to nothing keep the page notes it has, with a warning', async () => {
+  const plan = await planApp(app(), { ...rel('v1.0.0'), body: '' }, io());
+  assert.deepEqual(plan.writes, []);
+  assert.match(plan.warning!, /keeps the ones it has/);
 });
 
 test('a release with no APK is a warning, not a failure, and writes nothing', async () => {

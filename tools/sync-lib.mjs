@@ -4,6 +4,7 @@
  * Like check-downloads.mjs, this reads and writes the `release:` block by pattern rather than
  * with a YAML library, so the hourly job runs on a bare checkout with nothing installed. */
 // Node's own type stripping reads this; release.ts imports nothing but node: modules.
+import { createHash } from 'node:crypto';
 import { manifestIcons, webDir } from '../src/release.ts';
 
 /** The `release:` block's indented lines, or '' if there is none. */
@@ -93,15 +94,24 @@ export function cleanNotes(body) {
     .join('\n\n');
 }
 
+/* Which GitHub notes a releases/<slug>.md was written from: the first 12 hex of the cleaned
+ * text's SHA-256. When the release's notes are edited, the fingerprint stops matching and
+ * the sync writes the file again. An edit made to the file by hand leaves it alone, so the
+ * hand edit lasts until the release's own text changes. */
+export const notesSource = (text) => createHash('sha256').update(text).digest('hex').slice(0, 12);
+const storedSource = (file) => file?.match(/^source: ([0-9a-f]{12})$/m)?.[1];
+const notesBody = (file) => (file ?? '').split(/^---$/m).slice(2).join('---').trim();
+
 /** The file releases/<slug>.md: the notes for one version, as the page shows them. */
 export function notesFile({ version, date, url, notes }) {
   return [
     '---',
-    '# Written by tools/sync-apps.mjs from the GitHub Release. Edit it if you like; the next',
-    '# release replaces it.',
+    '# Written by tools/sync-apps.mjs from the GitHub Release. Edit it if you like; it is',
+    '# written again when the release\'s notes change, or when the next release arrives.',
     `version: '${version}'`,
     `date: ${date}`,
     `url: ${url}`,
+    `source: ${notesSource(notes)}`,
     '---',
     '',
     notes,
@@ -152,7 +162,7 @@ export function apkRefusal(got, { tag, version, signer, had }) {
  * this returns. An app that fails halfway therefore leaves nothing behind for the commit
  * step to pick up.
  *
- *   app   { slug, md, readme, notesExists }
+ *   app   { slug, md, readme, notes }   notes: releases/<slug>.md as it is now, or null
  *   rel   the GitHub API's release JSON
  *   io    { download(url) → Buffer, inspect(buf) → { versionName, signers, permissions },
  *           current() → { permissions } of the APK served now, unpack(buf) → [[path, Buffer]] }
@@ -178,9 +188,19 @@ export async function planApp(app, rel, io) {
 
   if (cmp < 0) return { writes: [], log: `${current} is current (latest release ${rel.tag_name} is older)` };
   if (cmp === 0) {
-    return app.notesExists
-      ? { writes: [], log: `${current} is current` }
-      : { writes: [[`releases/${slug}.md`, notes()]], change: `${slug}: release notes for ${current}`, log: 'wrote its release notes' };
+    if (app.notes == null) {
+      return { writes: [[`releases/${slug}.md`, notes()]], change: `${slug}: release notes for ${current}`, log: 'wrote its release notes' };
+    }
+    // The release's notes were edited after it came out. Notes that now clean down to
+    // nothing do not replace good ones: the page keeps what it has and the run says why.
+    const text = cleanNotes(rel.body);
+    if (!text) return { writes: [], warning: `${rel.tag_name}'s notes now have nothing the site can show, so the page keeps the ones it has` };
+    const stored = storedSource(app.notes);
+    // A file written before fingerprints has none to compare, so its text is compared: the
+    // same text gets left alone, different text is taken as an edited release.
+    const same = stored ? stored === notesSource(text) : notesBody(app.notes) === text;
+    if (same) return { writes: [], log: `${current} is current` };
+    return { writes: [[`releases/${slug}.md`, notes()]], change: `${slug}: release notes for ${current} updated`, log: 'its release notes changed on GitHub, so they were written again' };
   }
 
   // A notice tied to the old version would fail the build. It was written by a person
