@@ -1,12 +1,13 @@
 ---
-# Written by tools/sync-apps.mjs from the GitHub Release. Edit it if you like; the next
-# release replaces it.
+# Written by tools/sync-apps.mjs from the GitHub Release. Edit it if you like; it is
+# written again when the release's notes change, or when the next release arrives.
 version: '1.5.0'
 date: 2026-11-09
 url: https://github.com/itsdoubleem/Logger_app/releases/tag/v1.5.0
+source: 52047d8904a3
 ---
 
-**A new punch card, drawn by the worker.** The punch card on the PUNCH tab now follows the worker's own design: a round START button on the left, green before a shift and salmon during one (STOP), beside the clock-in pill and a large clock. The button, the pill and the clock are centred in the card, and the button stays exactly where it is when you tap START. The card is shorter than before, so more of the screen is free below it.
+**A redesigned punch card.** The punch card on the PUNCH tab has a new, more modern and more beautiful design, which makes the whole app look even better.
 
 **OFF SHIFT, the opposite of ON SHIFT.** Before a shift, a still grey ring with "OFF SHIFT" now sits beside the clock-in pill. After START it switches to the breathing green ON SHIFT lamp in the same spot. In all 8 languages.
 
