@@ -6,9 +6,22 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+## [1.8.0] — 2026-11-09
+
 ### Added
-- Editing a release's notes on GitHub now updates the app page's "What's new" within the hour.
-  Before, the site took the notes once, when the version arrived, and kept them.
+- Editing a release's notes on GitHub now updates the app page's "What's new" at the next
+  hourly sync, which GitHub runs a few times a day. Before, the site took the notes once, when
+  the version arrived, and kept them. LOGGER's edited 1.5.0 notes were the first to go out
+  this way.
+- An edit to a release's notes that the site cannot show — nothing left after cleaning, or a
+  phrase the site does not allow — keeps one Issue open saying why, and the page keeps the
+  notes it had.
+
+### Fixed
+- A new release whose notes use a phrase the site does not allow now stops only that app's
+  update, instead of failing every hourly update for every app.
+- A release tagged like `v1.0` writes the version the site already has (`1.0.0`), so the build
+  no longer refuses it.
 
 ## [1.7.0] — 2026-11-09
 
@@ -302,7 +315,8 @@ published without a description. An hourly run can no longer cancel the deploy o
 - HANGIL's page describes its trade section: eight manufacturing job groups, each with 26
   words and 20 questions.
 
-[Unreleased]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.7.0...HEAD
+[Unreleased]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.8.0...HEAD
+[1.8.0]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.4.10...v1.5.0

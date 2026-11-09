@@ -149,7 +149,7 @@ try {
         const key = `notes-${slug}`;
         if (plan.notes.held) {
           await report(key, (b) => b.raise(key, `${slug}: edited release notes were not published`,
-            `The notes of ${rel.tag_name} in ${source} were edited, and the page still shows the earlier ones, because the release's ${plan.notes.held}.\n\nReword the GitHub Release (${rel.html_url}). This Issue closes by itself within the hour once the page can show it.`));
+            `The notes of ${rel.tag_name} in ${source} were edited, and the page still shows the earlier ones, because the release's ${plan.notes.held}.\n\nReword the GitHub Release (${rel.html_url}). This Issue closes by itself at a sync run after the page can show it — GitHub runs the hourly sync a few times a day.`));
         } else {
           await report(key, (b) => b.clear(key, 'The page shows the release\'s notes again.'));
         }

@@ -21,7 +21,7 @@ address or CHANGELOG.md (tools/sync-lib.mjs, cleanNotes).
 **Required while the release is new.** The build fails for an app whose release is in its
 seven new days and has no file here, or an empty one — so every app's pill comes with its
 description. The sync writes it when a new release arrives, when the file is missing, and when
-the release's notes are edited on GitHub (within the hour). You can edit the text here too: a
+the release's notes are edited on GitHub (at the next hourly sync, which GitHub runs a few times a day). You can edit the text here too: a
 `source:` line records which GitHub notes the file came from, so a hand edit lasts until the
 release's own notes change or the next release arrives.
 (Keep that line when you edit: a file without one is compared by its text and rewritten.)
