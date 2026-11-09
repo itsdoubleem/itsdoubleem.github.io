@@ -637,7 +637,7 @@ html.has-mouse [data-glow]:hover::after { opacity: 1; }
    only one.
 
    Do NOT turn this into a row of them carrying figures. The reference's pill row reads
-   `>90% system performance`, and CLAUDE.md hard rule 1 exists to keep that off this
+   `>90% system performance`, and the rule against invented numbers keeps that off this
    site. A pill holds a fact you can check, or it holds nothing. */
 .pill {
   display: inline-flex;

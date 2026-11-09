@@ -79,8 +79,8 @@ const apps = defineCollection({
      * It exists because that aside used to be hardcoded in src/pages/apps/[slug].astro
      * in LOGGER's words — "this does not match my payslip", "a wage figure that is
      * quietly wrong" — and so HANGIL, a Korean study app with no payslip and no wage
-     * figures in it, asked its readers to report a mismatched payslip. CLAUDE.md § How
-     * to add an app: nothing in src/ may name an app, and copy that only makes sense
+     * figures in it, asked its readers to report a mismatched payslip. The rule for
+     * adding an app: nothing in src/ may name an app, and copy that only makes sense
      * for one app is naming it.
      *
      * Write the body for the thing THIS app gets wrong. The heading should name the

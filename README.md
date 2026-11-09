@@ -120,7 +120,7 @@ files are committed deliberately, not by accident.
 | LOGGER | `~/Logger_app` | `public/logger/`, `public/downloads/logger.apk` |
 | HANGIL | `~/Hangil_app` | `public/hangil/`, `public/downloads/hangil.apk` |
 
-Each has its own `DEPLOY.md` with the exact copy step, and its own `CLAUDE.md` that is the
+Each has its own `DEPLOY.md` with the exact copy step, and its own README that is the
 authority on what that app is. HANGIL's page screenshots are captured from the shipping build
 by `tools/capture-hangil.mjs` and its guide's by `tools/capture-hangil-guide.mjs`, the same
 way LOGGER's guide is by `tools/capture-logger.mjs`.
