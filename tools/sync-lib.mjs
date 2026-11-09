@@ -213,7 +213,8 @@ export async function planApp(app, rel, io) {
     // same text gets left alone, different text is taken as an edited release.
     const same = stored ? stored === notesSource(text) : notesBody(app.notes) === text;
     if (same) return { writes: [], log: `${current} is current`, notes: { held: null } };
-    return { writes: [[`releases/${slug}.md`, notes(current)]], change: `${slug}: release notes for ${current} updated`, log: 'its release notes changed on GitHub, so they were written again', notes: { held: null } };
+    return { writes: [[`releases/${slug}.md`, notes(current)]], change: `${slug}: release notes for ${current} updated`, log: 'its release notes changed on GitHub, so they were written again' };
+    // No `notes` here: an Issue closes on the next run, once the rewrite is tested and live.
   }
 
   // A notice tied to the old version would fail the build. It was written by a person

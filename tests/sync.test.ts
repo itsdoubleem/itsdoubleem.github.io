@@ -157,7 +157,8 @@ test("a release whose notes were edited on GitHub rewrites the page's notes, and
 
 test("notes the page can show say so, so a refused-notes Issue closes; a new version says nothing", async () => {
   assert.deepEqual((await planApp(app(), rel('v1.0.0'), io())).notes, { held: null });
-  assert.deepEqual((await planApp(app(), { ...rel('v1.0.0'), body: 'Edited.' }, io())).notes, { held: null });
+  // A rewrite is not live until its candidate passes, so the Issue waits for the next run.
+  assert.equal((await planApp(app(), { ...rel('v1.0.0'), body: 'Edited.' }, io())).notes, undefined);
   assert.equal((await planApp(app(), rel(), io())).notes, undefined);
 });
 

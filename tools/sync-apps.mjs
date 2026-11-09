@@ -26,6 +26,8 @@
  * ordinary prose goes straight on, and a change to a protected section or a number waits for
  * approval. With --issues, a held or refused listing keeps one GitHub Issue open saying why;
  * a listing is approved by naming the id that Issue gives (--approve, or APPROVE_LISTING).
+ * Also with --issues, an edit to a release's notes that the site refuses keeps one Issue open
+ * (notes-<slug>) until the page can show the release's notes.
  *
  * Exits 1 if any app's release failed; the apps that succeeded are still written. A listing
  * that cannot go on does not fail the run: the page keeps its text and the Issue says why.
