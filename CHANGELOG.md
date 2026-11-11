@@ -6,6 +6,8 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+## [1.8.2] — 2026-11-11
+
 ### Fixed
 - An app's "What's new" no longer shows a range of pull-request numbers such as "(#47–#50)",
   which link nowhere on this site. LOGGER 1.7.0's notes on its page had two.
@@ -327,7 +329,8 @@ published without a description. An hourly run can no longer cancel the deploy o
 - HANGIL's page describes its trade section: eight manufacturing job groups, each with 26
   words and 20 questions.
 
-[Unreleased]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.8.1...HEAD
+[Unreleased]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.8.2...HEAD
+[1.8.2]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.8.1...v1.8.2
 [1.8.1]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.8.0...v1.8.1
 [1.8.0]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.6.0...v1.7.0
