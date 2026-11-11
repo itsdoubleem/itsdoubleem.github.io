@@ -61,7 +61,7 @@ jobs:
       base: ${{ steps.commit.outputs.base }}
     steps:
       # main as it is now, not the commit the schedule fired on.
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: main
           persist-credentials: false
@@ -109,7 +109,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ needs.sync.outputs.candidate }}
           persist-credentials: false
@@ -137,7 +137,7 @@ jobs:
     outputs:
       promoted: ${{ steps.move.outputs.promoted }}
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ needs.sync.outputs.candidate }}
           persist-credentials: false
@@ -200,7 +200,7 @@ jobs:
       # It builds main as it is when the job starts, whatever started the run — not the
       # commit the run was queued for. Two runs close together then never build an older
       # tree than they could; the deploy job below refuses a build main has since moved past.
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: main
           persist-credentials: false
