@@ -6,7 +6,10 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+## [1.8.1] — 2026-11-11
+
 ### Changed
+- The site serves LOGGER 1.7.0. 1.6.0 and 1.7.0 both arrived through the hourly sync.
 - LOGGER's pictures are re-shot on 1.7.0, so the homepage phone, the /apps/ card, the app
   page and the guide's punch step show the new START button drawn as a clock face instead of
   the solid green circle. The sample work record in the guide now comes from 1.7.0 too.
@@ -320,7 +323,8 @@ published without a description. An hourly run can no longer cancel the deploy o
 - HANGIL's page describes its trade section: eight manufacturing job groups, each with 26
   words and 20 questions.
 
-[Unreleased]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.8.0...HEAD
+[Unreleased]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.8.1...HEAD
+[1.8.1]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.8.0...v1.8.1
 [1.8.0]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/itsdoubleem/itsdoubleem.github.io/compare/v1.5.0...v1.6.0
