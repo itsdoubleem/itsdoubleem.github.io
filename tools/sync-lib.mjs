@@ -57,7 +57,8 @@ export const kstDate = (iso) => new Date(new Date(iso).getTime() + 9 * 3600e3).t
  *   · HTML tags and images go; a relative link keeps its words and loses the link (it
  *     pointed into the app's repo); headings become bold lines, so they never sit as a
  *     second h2 under "What's new";
- *   · pull-request numbers — "(#32)", "(PR #33)", "(#31 and #32)" — link nowhere here;
+ *   · pull-request numbers — "(#32)", "(PR #33)", "(#31 and #32)", "(#46, #51–#53)" — link
+ *     nowhere here;
  *   · GitHub's generated "What's Changed" furniture: the heading, "by @user in …/pull/N",
  *     "**Full Changelog**: …", "New Contributors";
  *   · any sentence carrying a SHA-256, this site's address or CHANGELOG.md — HANGIL's notes
@@ -78,7 +79,7 @@ export function cleanNotes(body) {
     .replace(/<\/?[a-zA-Z][\w-]*(?:\s[^<>]*)?\/?>/g, '')
     .replace(/\[([^\]]+)\]\((?!https?:\/\/)[^)]*\)/g, '$1')
     .replace(/ by @[\w-]+ in https:\/\/github\.com\/\S+/g, '')
-    .replace(/[ \t]*\((?:PR\s*)?#\d+(?:(?:,\s*|\s+and\s+)(?:PR\s*)?#\d+)*\)/g, '');
+    .replace(/[ \t]*\((?:PR\s*)?#\d+(?:\s*[-–—]\s*#?\d+)?(?:(?:,\s*|\s+and\s+)(?:PR\s*)?#\d+(?:\s*[-–—]\s*#?\d+)?)*\)/g, '');
   return text
     .split(/\n\s*\n/)
     .map((para) =>

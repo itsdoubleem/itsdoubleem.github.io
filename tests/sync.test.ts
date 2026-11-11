@@ -45,6 +45,21 @@ test('notes lose PR numbers, the download link and hash, and CHANGELOG pointers'
   assert.equal(cleanNotes(null), '');
 });
 
+test('notes lose ranges of PR numbers too', () => {
+  // LOGGER 1.7.0's real notes, which went live with both of these still in them.
+  assert.equal(
+    cleanNotes('The punch button is now inspired by the app\'s clock icon, with START or STOP inside. (#47–#50)'),
+    'The punch button is now inspired by the app\'s clock icon, with START or STOP inside.',
+  );
+  assert.equal(cleanNotes('Undo it with one tap, for 9 seconds. (#46, #51–#53)'), 'Undo it with one tap, for 9 seconds.');
+  // A hyphen, an em dash, a bare second number and the PR prefix are all the same thing.
+  assert.equal(cleanNotes('Fixed (#46-#48).'), 'Fixed.');
+  assert.equal(cleanNotes('Fixed (PR #46 — 48, #50).'), 'Fixed.');
+  // Brackets that are not PR numbers stay: a year range, a lone hash, a dash with no number.
+  assert.equal(cleanNotes('Covers (2025–2026) and (#tag).'), 'Covers (2025–2026) and (#tag).');
+  assert.equal(cleanNotes('Odd (#46–).'), 'Odd (#46–).');
+});
+
 test('notes are cut by the sentence, not the paragraph', () => {
   // HANGIL's real v1.0.2 notes: the install sentence stays, the link-and-hash one goes.
   const hangil =

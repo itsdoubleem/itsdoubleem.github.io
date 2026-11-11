@@ -6,6 +6,10 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+- An app's "What's new" no longer shows a range of pull-request numbers such as "(#47–#50)",
+  which link nowhere on this site. LOGGER 1.7.0's notes on its page had two.
+
 ## [1.8.1] — 2026-11-11
 
 ### Changed
