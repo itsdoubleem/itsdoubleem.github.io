@@ -6,6 +6,10 @@ All notable changes to this site are recorded here. The format follows
 
 ## [Unreleased]
 
+### Changed
+- LOGGER's pictures are re-shot on 1.7.0, so the phone on the homepage and the guide's punch
+  step show the new START button drawn as a clock face instead of the solid green circle.
+
 ## [1.8.0] — 2026-11-09
 
 ### Added

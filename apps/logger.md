@@ -60,7 +60,6 @@ release:
   source: itsdoubleem/Logger_app
   asset: worklog-release.apk
   signer: 115e06d0d0561fabf41daaf832fe1fa058519a60bbc3729719fecb75f6e610da
-  captured: '1.5.0'
 ---
 
 ## What it does
