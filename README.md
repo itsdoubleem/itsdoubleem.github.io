@@ -3,7 +3,7 @@
 One person's work, in one place. Apps so far, and whatever else turns out to be worth
 sharing. Each app says on its own page what it costs.
 
-**Live at [itsdoubleem.github.io](https://itsdoubleem.github.io)** — deploys on push to
+**Live at [itsdoubleem.com](https://itsdoubleem.com)** — deploys on push to
 `main`.
 
 This is a studio site, not a marketplace and not a blog. Every page answers three things

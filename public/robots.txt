@@ -2,4 +2,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://itsdoubleem.github.io/sitemap.xml
+Sitemap: https://itsdoubleem.com/sitemap.xml

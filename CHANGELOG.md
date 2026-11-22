@@ -15,6 +15,10 @@ All notable changes to this site are recorded here. The format follows
 ## [1.8.1] — 2026-11-11
 
 ### Changed
+- The site now lives at itsdoubleem.com. The old address, itsdoubleem.github.io, redirects
+  there, so existing links keep working. Meta tags, the sitemap line in robots.txt and the
+  README point at the new domain. Hangil's footer link still says itsdoubleem.github.io —
+  public/hangil/ must match the APK byte for byte, so it changes with the next Hangil build.
 - The site serves LOGGER 1.7.0. 1.6.0 and 1.7.0 both arrived through the hourly sync.
 - LOGGER's pictures are re-shot on 1.7.0, so the homepage phone, the /apps/ card, the app
   page and the guide's punch step show the new START button drawn as a clock face instead of
